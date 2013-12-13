@@ -1,0 +1,51 @@
+\name{computemap}
+\alias{computemap}
+\title{Computes map distances}
+\usage{
+  computemap(object, mapfx = c("haldane", "kosambi"),
+    maxOffset = 1)
+}
+\arguments{
+  \item{object}{Object of class \code{mpcross}}
+
+  \item{mapfx}{Map function to convert recombination
+  fractions to cM}
+
+  \item{maxOffset}{Controls which regions of the
+  recombination fraction matrix are used to estimate
+  distances. Specify 1 for super-diagonal elements, 2 to
+  use one additional set of diagonal entries, etc}
+}
+\value{
+  An mpcross object is returned whose map component has
+  been estimated based on the map order and matrix of
+  recombination fractions. Missing recombination fractions
+  are imputed either by filling in the closest non-missing
+  value (missfx=1) or by averaging the distance between
+  other nearby markers (missfx=2).
+}
+\description{
+  Given an mpcross object with a map order and matrix of
+  recombination fractions, this function will estimate map
+  positions, using the subdiagonal entries of the
+  recombination fraction matrix and (optionally) other
+  non-diagonal entries.
+}
+\details{
+  The distance between marker i and i+1 can be estimated as
+  \code{mapfunction(object$rf$theta[i, i+1])}. Specifying
+  maxOffset = 1 will use this method to estimate map
+  distances. Specifying maxOffset = 2 will use
+  \code{mapfunction(object$rf$theta[i, i+2])},
+  \code{mapfunction(object$rf$theta[i, i+1])} and
+  \code{mapfunction(object$rf$theta[i+1, i+2])} to estimate
+  the distances between markers i, i+1 and i+2 jointly.
+  Similarly, larger values of maxOffset use recombination
+  fractions between more distant markers in the estimation
+  of map disatnce. All estimation is done using
+  non-negative linear least squares
+}
+\seealso{
+  \code{\link[mpMap]{mpcross}} \code{\link[nnls]{nnls}}
+}
+

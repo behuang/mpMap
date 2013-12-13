@@ -1,0 +1,3 @@
+PKG_LIBS = "`$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags(static=TRUE)"`"
+PKG_CXXFLAGS += -I../inst/include -I.
+PKG_CFLAGS += -I../inst/include -I.

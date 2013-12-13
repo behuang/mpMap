@@ -1,0 +1,54 @@
+\name{mpgroup}
+\alias{mpgroup}
+\title{Construct linkage groups using 2-point recombination fraction estimates}
+\usage{
+  mpgroup(mpcross, groups, initial = NULL,
+    clusterBy = "combined", method = "average")
+}
+\arguments{
+  \item{mpcross}{Object of class \code{mpcross}}
+
+  \item{groups}{The number of groups to be formed}
+
+  \item{initial}{A list, with each entry containing markers
+  which are to be assigned to the same group. Markers can
+  be referenced by name or by index}
+
+  \item{clusterBy}{The type of data to cluster by. Can be
+  one of "theta" for recombination fraction, "lod" for log
+  likelihood ration, or "combined" for a combination of the
+  two}
+
+  \item{method}{The clustering method to use. Must be one
+  of "single", "complete" or "average"}
+}
+\value{
+  A copy of the input mpcross object, with an additional
+  "lg" entry containing the groupings of the markers. In
+  addition the recombination fraction estimates and genetic
+  data are reordered according to the created groupings of
+  markers. \item{lg$groups}{ Numeric vector giving the
+  group to which each marker belongs} \item{lg$all.groups}{
+  Numeric vector giving the numbers for any groups that are
+  present}
+}
+\description{
+  Use two-point recombination fraction estimates to group
+  markers into the specified number of linkage group, The
+  input \code{initial} can be used to select groups of
+  markers that will be assigned to the same group. Grouping
+  is performed using hierarchical clustering
+  (\code{hclust}) using either average, complete or single
+  linkage. The matrix used for clustering can be either
+  theta (the recombination fraction matrix), lod (the log
+  likelihood ratio) or a combination of the two.
+}
+\examples{
+map <- sim.map(len=rep(100, 2), n.mar=11, eq.spacing=TRUE, include.x=FALSE)
+sim.ped <- sim.mpped(4, 1, 500, 6, 1)
+sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, qtl=matrix(data=c(1, 50, .4, 0, 0, 0), nrow=1, ncol=6, byrow=TRUE), seed=1)
+dat.rf <- mpestrf(sim.dat)
+grouped <- mpgroup(dat.rf, groups=2, clusterBy="combined", method="average")
+grouped$lg
+}
+

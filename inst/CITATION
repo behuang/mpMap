@@ -1,0 +1,17 @@
+citHeader("To cite R/mpMap in publications use:")
+
+citEntry(entry="article",
+         title = "R/mpMap: a computational platform for the genetic analysis of recombinant inbred lines",
+         author = personList(as.person("B. Emma Huang"),
+                             as.person("Andrew W. George")),
+         journal = "Bioinformatics",			     
+         year = 2011,
+	 volume = 27,
+	 pages = "727-729",
+         
+         textVersion = 
+         paste("Huang and George (2011) R/mpMap: a computational platform for",
+               "the genetic analysis of recombinant inbred lines.",
+	       "Bioinformatics 27:727-729.")
+         )
+

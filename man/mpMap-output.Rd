@@ -1,0 +1,42 @@
+\name{write.mpcross}
+\alias{write.mpcross}
+\alias{write2cross}
+\alias{write2happy}
+\title{Output mpcross objects to other file formats}
+\usage{
+  write2cross(object, filestem, chr, ...)
+    write2happy(object, filestem, chr, ...)
+    write.mpcross(object, filestem="mp", chr,
+    format=c("qtl", "happy"), ...)
+}
+\arguments{
+  \item{object}{Object of class \code{mpcross}}
+
+  \item{filestem}{Filestem for all files which are output;
+  may include directory}
+
+  \item{chr}{Subset of chromosomes to be output; default is
+  all}
+
+  \item{format}{Output format - R/qtl or happy.hbrem}
+
+  \item{...}{Additional arguments}
+}
+\value{
+  For R/qtl cross format, two files are output:
+  filestem.ril.csv and filestem.founder.csv which can be
+  then read into the R/qtl package using
+  \code{\link[qtl]{readMWril}}. For R/happy.hbrem format,
+  two files are output for each chromosome: e.g.
+  filestem.chr1.alleles and filestem.chr1.data. These can
+  be directly input to \code{happy}.
+}
+\description{
+  Outputs the genotype information from an 'mpcross' object
+  to files which can be read in to either R/qtl cross
+  format or R/happy.hbrem format
+}
+\seealso{
+  \code{\link[qtl]{readMWril}}, \code{happy}
+}
+

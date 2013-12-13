@@ -1,0 +1,49 @@
+\name{plot.mpcross}
+\alias{plot.mpcross}
+\title{Plot summary of mpcross object}
+\usage{
+  \method{plot}{mpcross} (x, chr, ask = TRUE, ...)
+}
+\arguments{
+  \item{x}{Object of class \code{mpcross}}
+
+  \item{chr}{Selected chromosomes. Default is all}
+
+  \item{ask}{Flag for whether to pause between plots}
+
+  \item{...}{Additional arguments to plot functions}
+}
+\value{
+  Phenotype distributions are plotted as histograms or
+  barplots depending on the variable type.
+
+  Genetic maps are plotted using a version of
+  \code{plotlink.map} for all genetic maps included in the
+  object (may be both a simulated version and an estimated
+  version).
+
+  If recombination fractions have been estimated, a heatmap
+  with recombination fraction estimates below the diagonal
+  and scaled LOD scores above the diagonal is also plotted.
+  LOD scores are transformed to 2^(-(LOD/4+1)) in order to
+  be on the same scale as the theta values.
+}
+\description{
+  Plots summary of phenotypes and genetic map for mpcross
+  object. If calculated, plots a heatmap of recombination
+  fraction estimates and transformed LOD scores with
+  legend.
+}
+\examples{
+sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+sim.ped <- sim.mpped(4, 1, 500, 6, 1)
+sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+plot(sim.dat)
+}
+\seealso{
+  \code{\link[mpMap]{mpestrf}},
+  \code{\link[mpMap]{mpcross.object}},
+  \code{\link[Heatplus]{heatmap_2}},
+  \code{\link[mpMap]{plotlink.map}}
+}
+

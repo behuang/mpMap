@@ -1,0 +1,45 @@
+Version 1.25:
+-------------------------
+* Functions mpcollapse and mpexpand added for dealing with bins of markers
+* mpimpute function renamed to mpimputerf
+* low-coverage genotyping-by-sequencing imputation implemented as mpimpute function
+* plotGTK functions moved off into separate stand-alone package mpMapInteractive
+
+
+Version 1.20:
+-------------------------
+* plotGTK function has been added for interactive map construction
+* computemap function has been revised to better estimate map positions
+* mpimpute replaces fill/fill2 functions to impute missing recombination fractions
+* recombination fraction has been reimplemented using Rcpp and will parallelize easily
+
+Version 1.12:
+-------------------------
+* Functions for interval mapping have been consolidated (mpIMmm, mpIMlm) with
+	argument to determine whether mixed models are used or not (mpIM)
+
+* Plot of QTL mapping results shows support intervals for all QTL (plot.mpqtl)
+	function to compute support intervals for QTL (supportinterval)
+	- useful for determining precision of QTL positioning
+
+* Function to compute map positions given a map order (based on recombination
+	fractions between adjacent markers) (computemap)
+
+* Function to reorder all components of an mpcross object given a map order (maporder)
+
+* Function to fill in missing values based on multipoint haplotype probabilities(fillmiss)
+
+* Functions to fill in missing recombination fractions based on nearby markers (fill/fill2)
+
+* mapcomp structure to compare orders across two maps. Summary provides 
+	information on how many markers are in each map and in common as well
+	as correlations between maps. Plot displays marker positions from each
+	map against each other for all chromosomes with > 1 marker in common. 
+	Points along the diagonal indicate exact agreement between maps. 
+
+* Altered mp.sim to generate 0/1 genotypes for founders either in accordance
+	with recombination fractions or with founders in linkage equilibrium
+
+* mp.sim has been renamed to sim.mpcross
+
+* Function to pull out markers surrounding qtl (qtlmap) and plot linkage map (plotlink.map) with QTL highlighted

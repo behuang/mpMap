@@ -1,0 +1,53 @@
+\name{mpestrf}
+\alias{mpestrf}
+\title{Estimate pairwise recombination fractions between markers}
+\usage{
+  mpestrf(object, r, gpu, lineWeights, mpi = FALSE, ...)
+}
+\arguments{
+  \item{object}{Object of class \code{mpcross}}
+
+  \item{r}{Grid of potential recombination values. If
+  missing the function will maximize over (0, .005, .01,
+  .015, ... , .095, .1, .11, .12, ... .49, .5).}
+
+  \item{gpu}{Boolean value, true indicates that a GPU
+  should be used if available}
+
+  \item{lineWeights}{In some cases of segregation
+  distortion it can be useful to weight the contribution of
+  each line to the likelihood}
+
+  \item{mpi}{Flag for whether to parallelize the
+  computation}
+}
+\value{
+  Returned object is of the class 'mpcross' with the
+  additional component \code{rf}. If n.mrk is the number of
+  markers genotypes, this is a list with components:
+  \item{rf$theta}{ n.mrk x n.mrk matrix of estimated
+  recombination fractions between each pair of loci}
+  \item{rf$lod}{ n.mrk x n.mrk matrix of LOD scores at the
+  estimated recombination values} \item{rf$lkhd}{ n.mrk x
+  n.mrk matrix of likelihood values at the estimated
+  recombination values}
+}
+\description{
+  Estimates pairwise recombination fractions by maximizing
+  the likelihood for a multi-parent cross over a grid of
+  possible values. Theta values and corresponding LOD
+  scores are returned for each pair of markers in the
+  object.
+}
+\examples{
+map <- sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
+sim.ped <- sim.mpped(4, 1, 500, 6, 1)
+sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, qtl=matrix(data=c(1, 50, .4, 0, 0, 0), nrow=1, ncol=6, byrow=TRUE), seed=1)
+dat.rf <- mpestrf(sim.dat)
+plot(dat.rf)
+}
+\seealso{
+  \code{\link[mpMap]{mpcross}},
+  \code{\link[mpMap]{plot.mpcross}}
+}
+

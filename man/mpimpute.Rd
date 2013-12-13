@@ -1,0 +1,37 @@
+\name{mpimpute}
+\alias{mpimpute}
+\title{Impute missing values for an mpcross object}
+\usage{
+  mpimpute(object, what = c("both", "founders", "finals"),
+    threshold = 0.5, ...)
+}
+\arguments{
+  \item{object}{Object of class \code{mpcross}}
+
+  \item{what}{Whether to impute founders, finals, or both}
+
+  \item{threshold}{Threshold for probability to call an
+  allele}
+
+  \item{\dots}{Additional parameters to be passed into
+  mpprob function}
+}
+\value{
+  An mpcross object with a new component $missfinals and
+  $missfounders for the original set of genotypes. The
+  components $finals and $founders replaced by the imputed
+  values.
+}
+\description{
+  Use multi-point founder probabilities to fill in the most
+  likely value for a missing genotype
+}
+\references{
+  Huang BE, Raghavan C, Mauleon R, Broman KW, Leung H
+  (under review) Imputation of low-coverage
+  genotyping-by-sequencing in multi-parental crosses.
+}
+\seealso{
+  \code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{mpcross}}
+}
+

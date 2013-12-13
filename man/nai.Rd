@@ -1,0 +1,39 @@
+\name{nai}
+\alias{nai}
+\title{Count how many generations of advanced intercross (AI) are in a pedigree. The number of AI generations can differ for each individual in the pedigree.}
+\usage{
+  nai(pedigree, IDs, nFounders)
+}
+\arguments{
+  \item{pedigree}{Pedigree for a multi-parent cross. Can be
+  generated using \code{\link[mpMap]{sim.mpped}}}
+
+  \item{IDs}{A numeric vector containing the rows within
+  the pedigree, for which we are interested in the number
+  of AI generations. Defaults to all.}
+
+  \item{nFounders}{Number of founders}
+}
+\value{
+  A vector of integers, containing the number of
+  generations of advanced intercrossing after mixing stage
+  but before selfing, for each line in the final population
+}
+\description{
+  Counts the number of generations of breeding preceding
+  selfing and subtracts off the number necessary to
+  minimally mix the founders' genomes. The number of
+  founders for the design is extracted from the pedigree,
+  and must be a power of 2.
+}
+\examples{
+sim.map <- list(Chr1=seq(0,100,10))
+sim.ped <- sim.mpped(4, 1, 500, 6, 1)
+nai(sim.ped)
+sim.ped <- sim.mpped(4, 1, 500, 6, 1, 5)
+nai(sim.ped)
+}
+\seealso{
+  \code{\link[mpMap]{sim.mpped}}
+}
+

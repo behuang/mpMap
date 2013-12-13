@@ -1,0 +1,18 @@
+Future Fixes:
+--------------------
+* Modify fit.mpqtl function to fit QTL as random effects instead of as fixed 
+* Modify fit.mpqtl function to output percent variance explained by QTL
+* Modify findqtl2 to find all QTL peaks in a profile
+* Function to convert pedigrees so that the number of selfing generations is 
+	stored in last column rather than observation status
+* Functionality for estimating recombination fractions and interval mapping
+	for 16-parent MAGIC
+* Function to compare position of detected QTL across multiple maps
+* Function to display haplotypes in vicinity of detected QTL
+* Function to display heterozygosity in vicinity of detected QTL
+	Ouptut which lines are het and how large the stretch of hets is
+* Function for single marker analysis - will not require completely 
+	inbred lines (like mpcross structure) so that hets can be tested
+* Incorporation of GPU code to compute recombination fractions and LD 
+	(if GPU is available on system)
+* Improve speed of fillmiss for markers which are not coded as 0/1

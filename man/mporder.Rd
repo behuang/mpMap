@@ -1,0 +1,91 @@
+\name{mporder}
+\alias{mporder}
+\title{Order markers within linkage groups}
+\usage{
+  mporder(object, chr, type = c("2", "m"),
+    mapfx = c("haldane", "kosambi"), window = 3,
+    repeats = 1,
+    criterion = c("Path_length", "AR_events", "AR_deviations", "Gradient_raw", "Inertia", "Least_squares", "minXO"),
+    use.identity = TRUE, seriate.control = NULL, ...)
+}
+\arguments{
+  \item{object}{Object of class \code{mpcross}}
+
+  \item{chr}{Selected chromosomes or linkage groups to
+  order}
+
+  \item{type}{Which type of ordering to perform - two-point
+  or multipoint}
+
+  \item{window}{Window size for multipoint ordering}
+
+  \item{repeats}{Number of times to repeat multipoint
+  ordering}
+
+  \item{mapfx}{Map function to use to compute final cM
+  positions}
+
+  \item{criterion}{Criterion used in 2-pt ordering to
+  determine best order}
+
+  \item{use.identity}{Options to improve 2-pt ordering via
+  seriation}
+
+  \item{seriate.control}{Options to improve 2-pt ordering
+  via seriation}
+
+  \item{...}{Additional arguments}
+}
+\value{
+  The original object with a new map component.
+}
+\description{
+  Orders markers within linkage groups using two-point or
+  multipoint probabilities. Two-point ordering is based on
+  estimated recombination fractions; multi-point ordering
+  is based on R/qtl ripple function.
+}
+\details{
+  \emph{Two-point ordering}\cr To use the two-point
+  ordering, the recombination fractions between all pairs
+  of markers must first be estimated. If there are missing
+  values in this matrix, the markers with the largest
+  number of missing values will be removed until there are
+  no missing values left. These markers will not be used in
+  the ordering and are recommended to be inserted into the
+  resulting framework map using \code{\link[mpMap]{add3pt}}
+  later.
+
+  Multiple methods are used to investigate optimal
+  two-point orderings. These are taken from the package
+  \code{seriation} and include simulated annealing,
+  hierarchical clustering, and traveling salesman solver.
+  The orders are compared on the basis of the argument
+  \code{criterion}. Thus the total path length, or sum of
+  adjacent recombination fractions can be minimized; or the
+  number of Anti-Robinson events/deviations; or the number
+  of crossovers; or the sum of the adjacent two-point LOD
+  scores.
+
+  \emph{Multi-point ordering} \cr The multi-point ordering
+  assumes that there is a pre-existing map, and then
+  repeatedly applies the ripple function in R/qtl to
+  investigate local permutations of the order. These
+  orderings are constrained by the arguments \code{window}
+  and \code{repeats}, which determine how large the
+  perturbations are and how many are considered. Large
+  values of \code{window} are very time consuming;
+  recommended values are 5 or less, due to the number of
+  permutations which must be considered. Large values of
+  \code{repeats} will eventually converge to an ordering in
+  which all local rearrangements of size \code{window} have
+  been optimized with respect to the number of crossovers.
+}
+\seealso{
+  \code{\link[mpMap]{mpestrf}},
+  \code{\link[mpMap]{mpgroup}},
+  \code{\link[mpMap]{add3pt}},
+  \code{\link[seriation]{seriate}},
+  \code{\link[qtl]{ripple}}
+}
+

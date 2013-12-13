@@ -1,0 +1,18 @@
+\name{identifyDesign}
+\alias{identifyDesign}
+\title{Identify subtype of design in pedigree}
+\usage{
+  identifyDesign(pedigree)
+}
+\arguments{
+  \item{pedigree}{Pedigree to categorize}
+}
+\value{
+  An additional vector identifying designs of individuals
+  within the pedigree
+}
+\description{
+  For a pedigree containing multiple variations on MAGIC
+  designs, identify the subtype of design, e.g., MAGIC+
+}
+

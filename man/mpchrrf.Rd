@@ -1,0 +1,29 @@
+\name{mpchrrf}
+\alias{mpchrrf}
+\title{Return Chromosome Recombination Fractions}
+\usage{
+  mpchrrf(object, chr)
+}
+\arguments{
+  \item{object}{Object of class \code{mpcross}}
+
+  \item{chr}{A vector of the chromosome(s) of interest}
+}
+\value{
+  A list with a component for each element of \code{chr}.
+  Each component is the matrix of recombination fractions
+  for the markers in that linkage group
+}
+\description{
+  Returns the matrix of recombination fraction estimates
+  between markers in a specified linkage group
+}
+\examples{
+map <- sim.map(len=rep(10,2), n.mar=30, eq.spacing=FALSE, include.x=FALSE)
+sim.ped <- sim.mpped(4, 1, 500, 6, 1)
+sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, seed=1)
+dat.rf <- mpestrf(sim.dat)
+dat.lg<-mpgroup(dat.rf, 2)
+rf1<-mpchrrf(dat.lg, chr=1)
+}
+
