@@ -2,8 +2,8 @@
 \alias{plotlink.map}
 \title{Plots linkage maps}
 \usage{
-  plotlink.map(object, chr, max.dist, marker.names = TRUE,
-    tick = FALSE, squash = TRUE, colqtl = "red", ...)
+plotlink.map(object, chr, max.dist, marker.names = TRUE, tick = FALSE,
+  squash = TRUE, colqtl = "red", ...)
 }
 \arguments{
   \item{object}{Either \code{mpcross} or \code{map} object}
@@ -27,18 +27,18 @@
   \item{...}{Additional arguments}
 }
 \value{
-  Modification of link.map.cross function from wgaim to
-  allow more general input objects and to highlight regions
-  around QTL. If any markers are labelled "QTLx" then they
-  will be plotted in a different color.
+Modification of link.map.cross function from wgaim to allow
+more general input objects and to highlight regions around
+QTL. If any markers are labelled "QTLx" then they will be
+plotted in a different color.
 }
 \description{
-  Plot linkage map (either as input object or as stored in
-  mpcross object). Can also highlight QTL regions when used
-  with qtlmap function.
+Plot linkage map (either as input object or as stored in
+mpcross object). Can also highlight QTL regions when used
+with qtlmap function.
 }
 \seealso{
-  \code{\link[wgaim]{link.map.cross}},
-  \code{\link[mpMap]{qtlmap}}
+\code{\link[wgaim]{link.map.cross}},
+\code{\link[mpMap]{qtlmap}}
 }
 

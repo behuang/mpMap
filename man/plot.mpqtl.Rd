@@ -2,8 +2,7 @@
 \alias{plot.mpqtl}
 \title{Plot output from interval mapping with detected QTL}
 \usage{
-  \method{plot}{mpqtl} (x, wald = FALSE, chr,
-    lodsupport = 1, ...)
+\method{plot}{mpqtl}(x, wald = FALSE, chr, lodsupport = 1, ...)
 }
 \arguments{
   \item{x}{Object of class \code{mpqtl}}
@@ -19,15 +18,15 @@
   \item{...}{Additional arguments to plotting function}
 }
 \value{
-  Plots the -log10(p) or Wald statistic for all chromosomes
-  against the total genome in cM. QTL support intervals are
-  indicated with shaded rectangles surrounding peaks
+Plots the -log10(p) or Wald statistic for all chromosomes
+against the total genome in cM. QTL support intervals are
+indicated with shaded rectangles surrounding peaks
 }
 \description{
-  Plot -log10(p-value) or test statistic against cM
-  position for (composite) interval mapping in multi-parent
-  crosses. QTL support intervals are indicated with
-  rectangles surrounding peaks.
+Plot -log10(p-value) or test statistic against cM position
+for (composite) interval mapping in multi-parent crosses.
+QTL support intervals are indicated with rectangles
+surrounding peaks.
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -38,7 +37,7 @@ mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 plot(mpq.dat)
 }
 \seealso{
-  \code{\link[mpMap]{mpIM}},
-  \code{\link[mpMap]{summary.mpqtl}}
+\code{\link[mpMap]{mpIM}},
+\code{\link[mpMap]{summary.mpqtl}}
 }
 

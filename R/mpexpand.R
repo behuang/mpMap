@@ -22,7 +22,7 @@ mpexpand <- function(object, fullmpcross){
 
    oldmap <- object$map
    newmap <- list()
-   binmarkers <- colnames(object$final)
+   binmarkers <- colnames(object$finals)
    for (i in 1:length(oldmap)) {
       binschr <- object$bins[object$bins$group==i,]
       if (!missing(fullmpcross)) 

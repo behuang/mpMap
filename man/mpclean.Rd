@@ -2,7 +2,7 @@
 \alias{mpclean}
 \title{Find Largest Complete mpcross object}
 \usage{
-  mpclean(object, output.type = c("summary", "object"))
+mpclean(object, output.type = c("summary", "object"))
 }
 \arguments{
   \item{object}{Object of class \code{mpcross}}
@@ -10,21 +10,20 @@
   \item{output.type}{Type of output}
 }
 \value{
-  If the output type is "summary", then a 2 x n.chr matrix
-  is returned. The first row gives the number of markers
-  present on that linkage group. The second row gives the
-  number of markers in the maximal subset. If the output
-  type is "object" then an \code{mpcross} object is
-  returned. The object is a subset of the orginial object,
-  with the largest set of markers where all pairs of
-  recombination fractions estimates are availbe in each
-  linkage group.
+If the output type is "summary", then a 2 x n.chr matrix is
+returned. The first row gives the number of markers present
+on that linkage group. The second row gives the number of
+markers in the maximal subset. If the output type is
+"object" then an \code{mpcross} object is returned. The
+object is a subset of the orginial object, with the largest
+set of markers where all pairs of recombination fractions
+estimates are availbe in each linkage group.
 }
 \description{
-  Finds the largest subset of markers for which all
-  recombination fraction estimates are available for each
-  linkage group. The subsetted object can be returned, or a
-  summary of marker reduction can be given.
+Finds the largest subset of markers for which all
+recombination fraction estimates are available for each
+linkage group. The subsetted object can be returned, or a
+summary of marker reduction can be given.
 }
 \examples{
 map <- sim.map(len=1, n.mar=30, eq.spacing=FALSE, include.x=FALSE)

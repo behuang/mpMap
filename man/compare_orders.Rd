@@ -2,12 +2,10 @@
 \alias{compare_orders}
 \title{Compare potential orders for linkage groups}
 \usage{
-  compare_orders(cross, chr, orders, window = 2,
-    method = c("countxo", "likelihood"),
-    error.prob = 1e-04,
-    map.function = c("haldane", "kosambi", "c-f", "morgan"),
-    maxit = 4000, tol = 1e-06, sex.sp = TRUE,
-    verbose = TRUE)
+compare_orders(cross, chr, orders, window = 2, method = c("countxo",
+  "likelihood"), error.prob = 1e-04, map.function = c("haldane", "kosambi",
+  "c-f", "morgan"), maxit = 4000, tol = 1e-06, sex.sp = TRUE,
+  verbose = TRUE)
 }
 \arguments{
   \item{cross}{Object of class \code{mpcross} or
@@ -39,20 +37,20 @@
   details.}
 }
 \value{
-  The matrix of orders with crossover counts or likelihood
-  values appended.  Similar output to \code{ripple}.
+The matrix of orders with crossover counts or likelihood
+values appended.  Similar output to \code{ripple}.
 }
 \description{
-  Compares potential orderings on the basis of likelihood
-  or number of expectedcrossovers. Based off of the ripple
-  function in R/qtl.
+Compares potential orderings on the basis of likelihood or
+number of expectedcrossovers. Based off of the ripple
+function in R/qtl.
 }
 \details{
-  Uses the core of the ripple function from R/qtl in order
-  to compare orderings output from mporder. Note that
-  \code{method="likelihood"} is substantially slower than
-  \code{method="countxo"} and should not be used for a
-  large number of orderings or a large window size.
+Uses the core of the ripple function from R/qtl in order to
+compare orderings output from mporder. Note that
+\code{method="likelihood"} is substantially slower than
+\code{method="countxo"} and should not be used for a large
+number of orderings or a large window size.
 }
 \examples{
 map <- sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
@@ -61,9 +59,9 @@ sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, seed=1)
 compare_orders(sim.dat, chr=1, orders=rbind(1:11, c(1:3, 6:4, 7:11)))
 }
 \references{
-  R/qtl
+R/qtl
 }
 \seealso{
-  \code{\link[mpMap]{mporder}}, \code{\link[qtl]{ripple}}
+\code{\link[mpMap]{mporder}}, \code{\link[qtl]{ripple}}
 }
 

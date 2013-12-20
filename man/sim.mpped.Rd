@@ -4,8 +4,8 @@
 \alias{sim.mpped}
 \title{Generate pedigrees from multi-parent designs}
 \usage{
-  sim.mpped(nfounders, nfunnels = 1, nperfam = 50,
-    nssdgen = 6, nseeds = 1, iripgen = 0, seed = 1, ...)
+sim.mpped(nfounders, nfunnels = 1, nperfam = 50, nssdgen = 6,
+  nseeds = 1, iripgen = 0, seed = 1, ...)
 }
 \arguments{
   \item{nfounders}{Number of founders in the pedgiree}
@@ -31,35 +31,35 @@
   \item{\dots}{Additional arguments}
 }
 \value{
-  Matrix with four columns: ID, mother, father, and
-  observed status
+Matrix with four columns: ID, mother, father, and observed
+status
 }
 \description{
-  Generates pedigrees for 4-way or 8-way MAGIC designs,
-  with specifications given by the user. These pedigrees
-  can be used to simulate datasets with other functions in
-  the mpMap package.
+Generates pedigrees for 4-way or 8-way MAGIC designs, with
+specifications given by the user. These pedigrees can be
+used to simulate datasets with other functions in the mpMap
+package.
 }
 \details{
-  The 4-way pedigree is relatively simple compared to the
-  8-way pedigree, as there are many fewer possible
-  combinations of lines to intercross. For a 4-way cross
-  there is a maximum of 3 possible funnels (ABCD, ACBD and
-  ADBC), while there are 315 for an 8-way cross. This is
-  computed under the assumption that cross AB is equivalent
-  to cross BA.
+The 4-way pedigree is relatively simple compared to the
+8-way pedigree, as there are many fewer possible
+combinations of lines to intercross. For a 4-way cross
+there is a maximum of 3 possible funnels (ABCD, ACBD and
+ADBC), while there are 315 for an 8-way cross. This is
+computed under the assumption that cross AB is equivalent
+to cross BA.
 
-  For a value of 1, the funnel will be of the form ABCD or
-  ABCDEFGH. For values less than the maximum possible
-  number of funnels the crosses will be selected randomly,
-  with each possibly funnel having equal probability of
-  being generated.
+For a value of 1, the funnel will be of the form ABCD or
+ABCDEFGH. For values less than the maximum possible number
+of funnels the crosses will be selected randomly, with each
+possibly funnel having equal probability of being
+generated.
 }
 \examples{
 ped4way <- sim.mpped(4, 1, 500, 6, 1)
 ped8way <- sim.mpped(8, 1, 500, 6, 1)
 }
 \seealso{
-  \code{\link[mpMap]{sim.mpcross}}
+\code{\link[mpMap]{sim.mpcross}}
 }
 

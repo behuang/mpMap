@@ -3,7 +3,7 @@
 \alias{fit.mpqtl}
 \title{Fit a full model including all QTL and effects from base model}
 \usage{
-  fit(object, ...)
+fit(object, ...)
 }
 \arguments{
   \item{object}{Object of class \code{mpqtl}}
@@ -12,13 +12,13 @@
   \code{asreml}}
 }
 \value{
-  An asreml model and summary table of QTL effects,
-  p-values and Wald statistics from fitting the full model.
+An asreml model and summary table of QTL effects, p-values
+and Wald statistics from fitting the full model.
 }
 \description{
-  Given the output from a scan of chromosomes with
-  significant genetic variation, fits a full mixed model
-  containing all effects in base model and all QTL effects.
+Given the output from a scan of chromosomes with
+significant genetic variation, fits a full mixed model
+containing all effects in base model and all QTL effects.
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -29,7 +29,7 @@ mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 fit(mpq.dat)
 }
 \seealso{
-  \code{\link[mpMap]{mpIM}},
-  \code{\link[mpMap]{summary.mpqtl}}
+\code{\link[mpMap]{mpIM}},
+\code{\link[mpMap]{summary.mpqtl}}
 }
 

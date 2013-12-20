@@ -2,7 +2,7 @@
 \alias{mpestrf}
 \title{Estimate pairwise recombination fractions between markers}
 \usage{
-  mpestrf(object, r, gpu, lineWeights, mpi = FALSE, ...)
+mpestrf(object, r, gpu, lineWeights, mpi = FALSE, ...)
 }
 \arguments{
   \item{object}{Object of class \code{mpcross}}
@@ -22,22 +22,21 @@
   computation}
 }
 \value{
-  Returned object is of the class 'mpcross' with the
-  additional component \code{rf}. If n.mrk is the number of
-  markers genotypes, this is a list with components:
-  \item{rf$theta}{ n.mrk x n.mrk matrix of estimated
-  recombination fractions between each pair of loci}
-  \item{rf$lod}{ n.mrk x n.mrk matrix of LOD scores at the
-  estimated recombination values} \item{rf$lkhd}{ n.mrk x
-  n.mrk matrix of likelihood values at the estimated
-  recombination values}
+Returned object is of the class 'mpcross' with the
+additional component \code{rf}. If n.mrk is the number of
+markers genotypes, this is a list with components:
+\item{rf$theta}{ n.mrk x n.mrk matrix of estimated
+recombination fractions between each pair of loci}
+\item{rf$lod}{ n.mrk x n.mrk matrix of LOD scores at the
+estimated recombination values} \item{rf$lkhd}{ n.mrk x
+n.mrk matrix of likelihood values at the estimated
+recombination values}
 }
 \description{
-  Estimates pairwise recombination fractions by maximizing
-  the likelihood for a multi-parent cross over a grid of
-  possible values. Theta values and corresponding LOD
-  scores are returned for each pair of markers in the
-  object.
+Estimates pairwise recombination fractions by maximizing
+the likelihood for a multi-parent cross over a grid of
+possible values. Theta values and corresponding LOD scores
+are returned for each pair of markers in the object.
 }
 \examples{
 map <- sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
@@ -47,7 +46,7 @@ dat.rf <- mpestrf(sim.dat)
 plot(dat.rf)
 }
 \seealso{
-  \code{\link[mpMap]{mpcross}},
-  \code{\link[mpMap]{plot.mpcross}}
+\code{\link[mpMap]{mpcross}},
+\code{\link[mpMap]{plot.mpcross}}
 }
 

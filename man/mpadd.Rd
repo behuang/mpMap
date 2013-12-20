@@ -2,7 +2,7 @@
 \alias{mpadd}
 \title{Function to combine two data sets which have the same pedigree and genetic lines, but different (potentially overlapping) marker data.}
 \usage{
-  mpadd(mpcross1, mpcross2, gpu)
+mpadd(mpcross1, mpcross2, gpu)
 }
 \arguments{
   \item{mpcross1}{First of the two objects to be combined}
@@ -14,21 +14,21 @@
   Defaults to \code{FALSE}.}
 }
 \value{
-  An object of class \code{mpcross}
+An object of class \code{mpcross}
 
-  If recombination fractions have been calculated for
-  either of the input objects, the recombination fractions
-  will also be calculated, for all the markers in the final
-  object. Similarly, if LD has been calculated for either
-  of the input objects, LD will be calculated for all
-  markers in the final object. Previous calculations are
-  re-used in the process, so this is much more efficient
-  than discarding the recombination fraction / LD data from
-  both objects and recomputing again.
+If recombination fractions have been calculated for either
+of the input objects, the recombination fractions will also
+be calculated, for all the markers in the final object.
+Similarly, if LD has been calculated for either of the
+input objects, LD will be calculated for all markers in the
+final object. Previous calculations are re-used in the
+process, so this is much more efficient than discarding the
+recombination fraction / LD data from both objects and
+recomputing again.
 }
 \description{
-  Function to combine two data sets which have the same
-  pedigree and genetic lines, but different (potentially
-  overlapping) marker data.
+Function to combine two data sets which have the same
+pedigree and genetic lines, but different (potentially
+overlapping) marker data.
 }
 

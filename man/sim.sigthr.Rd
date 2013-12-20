@@ -2,8 +2,8 @@
 \alias{sim.sigthr}
 \title{Simulate a significance threshold for (composite) interval mapping}
 \usage{
-  sim.sigthr(mpcross, nsim = 100, alpha = 0.05, pindex = 1,
-    step = 0, ncov = 0, ...)
+sim.sigthr(mpcross, nsim = 100, alpha = 0.05, pindex = 1, step = 0,
+  ncov = 0, ...)
 }
 \arguments{
   \item{mpcross}{Object of class \code{mpcross}}
@@ -25,19 +25,18 @@
   \item{...}{Additional arguments}
 }
 \value{
-  List with components: \item{alpha}{Input significance
-  threshold} \item{nsim}{Input number of simulated
-  datasets} \item{minp}{Genomewide minimum p-value for each
-  simulated dataset} \item{thr}{Empirical p-value
-  threshold}
+List with components: \item{alpha}{Input significance
+threshold} \item{nsim}{Input number of simulated datasets}
+\item{minp}{Genomewide minimum p-value for each simulated
+dataset} \item{thr}{Empirical p-value threshold}
 }
 \description{
-  Generate a significance threshold by simulating from the
-  null hypothesis. Phenotypic values for the observed
-  genetic data are simulated to represent data with no QTL,
-  and a genomewide p-value threshold is calculated.
+Generate a significance threshold by simulating from the
+null hypothesis. Phenotypic values for the observed genetic
+data are simulated to represent data with no QTL, and a
+genomewide p-value threshold is calculated.
 }
 \seealso{
-  \code{\link[mpMap]{mpIM}}
+\code{\link[mpMap]{mpIM}}
 }
 

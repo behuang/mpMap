@@ -2,8 +2,8 @@
 \alias{subset.mpcross}
 \title{Subset mpcross object}
 \usage{
-  \method{subset}{mpcross} (x, groups = NULL, chr = NULL,
-    markers = NULL, lines = NULL, ...)
+\method{subset}{mpcross}(x, groups = NULL, chr = NULL, markers = NULL,
+  lines = NULL, ...)
 }
 \arguments{
   \item{x}{Object of class \code{mpcross}}
@@ -19,24 +19,24 @@
   \item{...}{Additional arguments}
 }
 \value{
-  The original object with chromosomes/lines/markers
-  removed which are not listed in the arguments.
+The original object with chromosomes/lines/markers removed
+which are not listed in the arguments.
 }
 \description{
-  Reduces an mpcross object down to a specified set of
-  chromosomes, markers and/or lines
+Reduces an mpcross object down to a specified set of
+chromosomes, markers and/or lines
 }
 \note{
-  Chromosomes can be input either as the character names of
-  chromosomes or the index of the chromosomes in the map.
-  Markers can be input as character names or the index in
-  the matrix x$finals. Lines can be input as either
-  character values (matching the rownames of x$finals) or
-  indices of rows in that matrix. Groups must be input as
-  numbers corresponding to the specific groups to keep (the
-  groups present in the object may not form a consecutive
-  set of numbers). Note that only one of chr, groups and
-  markers can be selected.
+Chromosomes can be input either as the character names of
+chromosomes or the index of the chromosomes in the map.
+Markers can be input as character names or the index in the
+matrix x$finals. Lines can be input as either character
+values (matching the rownames of x$finals) or indices of
+rows in that matrix. Groups must be input as numbers
+corresponding to the specific groups to keep (the groups
+present in the object may not form a consecutive set of
+numbers). Note that only one of chr, groups and markers can
+be selected.
 }
 \examples{
 map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -47,6 +47,6 @@ red.dat <- subset(sim.dat, chr=1, lines=1:50)
 red.dat
 }
 \seealso{
-  \code{\link[mpMap]{mpcross.object}}
+\code{\link[mpMap]{mpcross.object}}
 }
 

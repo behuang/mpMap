@@ -2,11 +2,10 @@
 \alias{plot.mpprob}
 \title{Plot summary of founder probabilities and haplotype blocks}
 \usage{
-  \method{plot}{mpprob} (x, chr, locations,
-    compositionPercent = TRUE, lines = TRUE, nlines,
-    compositionTrace = TRUE, compositionTraceArgs = list(),
-    compositionTracePlotArgs = list(),
-    linesPlotArgs = list(), ...)
+\method{plot}{mpprob}(x, chr, locations, compositionPercent = TRUE,
+  lines = TRUE, nlines, compositionTrace = TRUE,
+  compositionTraceArgs = list(), compositionTracePlotArgs = list(),
+  linesPlotArgs = list(), ...)
 }
 \arguments{
   \item{x}{Object of class \code{mpprob}}
@@ -30,13 +29,13 @@
   \item{...}{Additional arguments to plot function}
 }
 \value{
-  Barplot of the percentage of each founder on each
-  chromosome; individual heatmaps of which chunks of each
-  chromosome are inherited from each founder.
+Barplot of the percentage of each founder on each
+chromosome; individual heatmaps of which chunks of each
+chromosome are inherited from each founder.
 }
 \description{
-  Plot the percentage of each chromosome inherited from
-  each founder
+Plot the percentage of each chromosome inherited from each
+founder
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -46,8 +45,8 @@ mpp.dat <- mpprob(sim.dat, program="qtl")
 plot(mpp.dat)
 }
 \seealso{
-  \code{\link[mpMap]{mpprob}},
-  \code{\link[mpMap]{summary.mpprob}},
-  \code{\link[Heatplus]{heatmap_2}}
+\code{\link[mpMap]{mpprob}},
+\code{\link[mpMap]{summary.mpprob}},
+\code{\link[Heatplus]{heatmap_2}}
 }
 

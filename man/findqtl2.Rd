@@ -2,7 +2,7 @@
 \alias{findqtl2}
 \title{Detect a second QTL in a QTL profile from (composite) interval mapping}
 \usage{
-  findqtl2(mpqtl, window, drop, dwindow = 5)
+findqtl2(mpqtl, window, drop, dwindow = 5)
 }
 \arguments{
   \item{mpqtl}{Object of class \code{mpqtl}}
@@ -18,13 +18,13 @@
   default is five markers}
 }
 \value{
-  The original input object with additional entries for
-  newly detected QTL.
+The original input object with additional entries for newly
+detected QTL.
 }
 \description{
-  Given the output from an initial scan of chromosomes with
-  significant genetic variation, locates the second peak in
-  a QTL profile.
+Given the output from an initial scan of chromosomes with
+significant genetic variation, locates the second peak in a
+QTL profile.
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -37,8 +37,7 @@ plot(mpq2)
 summary(mpq2)
 }
 \seealso{
-  \code{\link[mpMap]{mpIM}},
-  \code{\link[mpMap]{plot.mpqtl}},
-  \code{\link[mpMap]{summary.mpqtl}}
+\code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{plot.mpqtl}},
+\code{\link[mpMap]{summary.mpqtl}}
 }
 

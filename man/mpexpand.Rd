@@ -2,7 +2,7 @@
 \alias{mpexpand}
 \title{Expand a binned object to one containing full marker information}
 \usage{
-  mpexpand(object, fullmpcross)
+mpexpand(object, fullmpcross)
 }
 \arguments{
   \item{object}{Binned object of class \code{binmpcross}}
@@ -11,21 +11,21 @@
   containing}
 }
 \value{
-  If \code{fullmpcross} is input, this function will return
-  an object of class \code{mpcross} where bins have been
-  expanded into the full set of markers included in each
-  bin. Otherwise this function will return a map object
-  where bins have been replaced by the full set of markers
-  within a bin, all co-located.
+If \code{fullmpcross} is input, this function will return
+an object of class \code{mpcross} where bins have been
+expanded into the full set of markers included in each bin.
+Otherwise this function will return a map object where bins
+have been replaced by the full set of markers within a bin,
+all co-located.
 }
 \description{
-  Given a binned mpcross object, will expand the map to
-  include all markers within bins at the same positions. If
-  an additional mpcross object is input (containing
-  genotype information for all markers), will also reformat
-  that object according to the binned order.
+Given a binned mpcross object, will expand the map to
+include all markers within bins at the same positions. If
+an additional mpcross object is input (containing genotype
+information for all markers), will also reformat that
+object according to the binned order.
 }
 \seealso{
-  \code{\link{mpcollapse}}
+\code{\link{mpcollapse}}
 }
 

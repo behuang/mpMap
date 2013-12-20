@@ -2,32 +2,31 @@
 \alias{mpcalcld}
 \title{Calculate linkage disequilibrium between all pairs of markers}
 \usage{
-  mpcalcld(object)
+mpcalcld(object)
 }
 \arguments{
   \item{object}{Object of class \code{mpcross}}
 }
 \value{
-  Original object with additional component ld consisting
-  of separate matrices for each different measure.
-  \item{W}{Related to Chi-square test for independence
-  (measure of non-centrality)} \item{LewontinD}{Lewontin's
-  D' statistic} \item{delta2}{Delta-squared statistic}
-  \item{r2}{Correlation between markers}
+Original object with additional component ld consisting of
+separate matrices for each different measure.
+\item{W}{Related to Chi-square test for independence
+(measure of non-centrality)} \item{LewontinD}{Lewontin's D'
+statistic} \item{delta2}{Delta-squared statistic}
+\item{r2}{Correlation between markers}
 }
 \description{
-  Calculate linkage disequilibrium for multiple
-  multi-allelic measures, including Lewontin's D, W, and
-  correlation.
+Calculate linkage disequilibrium for multiple multi-allelic
+measures, including Lewontin's D, W, and correlation.
 }
 \references{
-  Zhao H, Nettleton D, Soller M and JCM Dekkers (2005)
-  Evaluation of linkage disequilibrium measures between
-  multi-allelic markers as predictors of linkage
-  disequilibrium between markers and QTL. Genet Res Camb
-  86:77-87.
+Zhao H, Nettleton D, Soller M and JCM Dekkers (2005)
+Evaluation of linkage disequilibrium measures between
+multi-allelic markers as predictors of linkage
+disequilibrium between markers and QTL. Genet Res Camb
+86:77-87.
 }
 \seealso{
-  \code{\link[mpMap]{mpestrf}}
+\code{\link[mpMap]{mpestrf}}
 }
 

@@ -5,16 +5,18 @@
 #' @param object Object of class \code{mpcross}
 #' @param what Whether to impute founders, finals, or both
 #' @param threshold Threshold for probability to call an allele
+#' @param calls Form of the finals output - discrete (genotype calls if above the threshold), or continuous (expectation of allele). For multiallelic markers no value will be imputed if continuous output is selected.
 #' @param \dots Additional parameters to be passed into mpprob function
-#' @return An mpcross object with a new component $missfinals and $missfounders for the original set of genotypes. The components $finals and $founders replaced by the imputed values. 
+#' @return An mpcross object with a new component $missfinals and $missfounders for the original set of genotypes. The components $finals and $founders replaced by the imputed values.
 #' @seealso \code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{mpcross}}
 #' @references Huang BE, Raghavan C, Mauleon R, Broman KW, Leung H (under review) Imputation of low-coverage genotyping-by-sequencing in multi-parental crosses.  
 
-mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5, ...)
+mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5, calls=c("discrete", "continuous"), ...)
 {
   output <- object
   output$missfinals <- output$finals
   output$missfounders <- output$founders
+  if (missing(calls)) calls <- "discrete"
   nmrk <- ncol(object$finals)
   if (missing(what)) what <- "both"
   ## First impute founders if necessary
@@ -48,7 +50,7 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
     output$estfnd <- NULL
     
     probs <- do.call("cbind", object$prob)
-    ifmat <- matrix(nrow=nrow(probs), ncol=ncol(probs)/n.founders)
+    ifmat <- ipmat <- matrix(nrow=nrow(probs), ncol=ncol(probs)/n.founders)
     founder <- as.vector(object$founders)
     
     nall <- apply(object$founders, 2, function(x) length(table(x)))
@@ -59,8 +61,8 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
     #  if (length(biall)+length(multiall)!=ncol(object$founders)) stop("Monomorphic markers included, please remove before imputation\n")
     
     missfx <- function(x) {
-      tmp <- by(x, fd, sum)
-      if (max(tmp)>threshold) return(as.numeric(names(which.max(tmp)))) else return(NA)}
+    tmp <- by(x, fd, sum)
+    if (max(tmp)>threshold) return(as.numeric(names(which.max(tmp)))) else return(NA)}
     
     for (jj in seq(1, ncol(probs), n.founders))
     {
@@ -69,9 +71,10 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
       
       if (index%in%multiall){
         alltab <- apply(probs[,jj:(jj+n.founders-1)], 1, missfx)
-        ifmat[,index] <- alltab
+        ifmat[,index] <- alltab  
       } 
-      else if (index %in% uniall) ifmat[,index] <- founder[jj]
+      else if (index %in% uniall)
+        ifmat[,index] <- ipmat[, index] <- founder[jj]
       else {
         fvec2 <- fvec <- founder[jj:(jj+n.founders-1)]
         fvec[fvec==min(fvec)] <- 0
@@ -79,14 +82,20 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
         tmp <- probs[, jj:(jj + n.founders - 1)] %*% fvec
         yn <- as.numeric(tmp>threshold)
         ifmat[, index] <- yn*max(fvec2)+(1-yn)*min(fvec2)
+        ipmat[, index] <- tmp
       }
     }
-    rownames(ifmat) <- rownames(object$finals)
-    colnames(ifmat) <- colnames(object$finals)
+    rownames(ifmat) <- rownames(ipmat) <- rownames(object$finals)
+    colnames(ifmat) <- colnames(ipmat) <- colnames(object$finals)
     output$missfinals <- output$finals
-    output$finals <- ifmat
+    
+    if (calls=="discrete")
+      output$finals <- ifmat
+    else
+      output$finals <- ipmat
     attr(output, "imputethreshold") <- threshold
   }
     
+  class(output) <- "mpcross"
   return(output)
 }

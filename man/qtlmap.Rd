@@ -2,7 +2,7 @@
 \alias{qtlmap}
 \title{Select markers in a region around QTL}
 \usage{
-  qtlmap(qtlpos, qtlchr, map, window = 10, qtlnam)
+qtlmap(qtlpos, qtlchr, map, window = 10, qtlnam)
 }
 \arguments{
   \item{qtlpos}{Vector of QTL positions}
@@ -19,13 +19,13 @@
   \item{qtlnam}{Optional vector of names for the QTL}
 }
 \value{
-  Returns a map selecting out regions +- window around the
-  QTL positions.
+Returns a map selecting out regions +- window around the
+QTL positions.
 }
 \description{
-  Outputs a list of markers in regions around QTL. Region
-  is defined by the window parameter of x cM to either side
-  of the QTL positions.
+Outputs a list of markers in regions around QTL. Region is
+defined by the window parameter of x cM to either side of
+the QTL positions.
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -37,6 +37,6 @@ qmap <- qtlmap(summary(mpq.dat)[,2], summary(mpq.dat)[,1], mpq.dat$map)
 plotlink.map(qmap)
 }
 \seealso{
-  \code{\link[mpMap]{plotlink.map}}
+\code{\link[mpMap]{plotlink.map}}
 }
 

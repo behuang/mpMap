@@ -2,8 +2,7 @@
 \alias{read.mpcross}
 \title{Construct mpcross objects from datafiles}
 \usage{
-  read.mpcross(founderfile, finalfile, pedfile, mapfile,
-    phenofile)
+read.mpcross(founderfile, finalfile, pedfile, mapfile, phenofile)
 }
 \arguments{
   \item{founderfile}{File containing founder genotypes -
@@ -32,13 +31,13 @@
   lines.}
 }
 \description{
-  Generate an mpcross object by reading in components from
-  files - requires founders marker data, finals marker
-  data, pedigree, and IDs for all lines. Marker map and
-  phenotypic data are optional.
+Generate an mpcross object by reading in components from
+files - requires founders marker data, finals marker data,
+pedigree, and IDs for all lines. Marker map and phenotypic
+data are optional.
 }
 \seealso{
-  \code{\link[mpMap]{sim.mpcross}},
-  \code{\link[mpMap]{mpcross}}
+\code{\link[mpMap]{sim.mpcross}},
+\code{\link[mpMap]{mpcross}}
 }
 

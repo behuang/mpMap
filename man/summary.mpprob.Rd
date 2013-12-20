@@ -2,7 +2,7 @@
 \alias{summary.mpprob}
 \title{Summary of mpprob object}
 \usage{
-  \method{summary}{mpprob} (object, ...)
+\method{summary}{mpprob}(object, ...)
 }
 \arguments{
   \item{object}{Object of class \code{mpprob}}
@@ -10,15 +10,15 @@
   \item{...}{Additional arguments}
 }
 \value{
-  Output to screen of percentage of each chromosome
-  inherited from founders, average number of recombinations
-  per chromosome and genomewide, and number of
-  finals/founders/chromosomes/markers per chromosome.
+Output to screen of percentage of each chromosome inherited
+from founders, average number of recombinations per
+chromosome and genomewide, and number of
+finals/founders/chromosomes/markers per chromosome.
 }
 \description{
-  Summarizes details about underlying mpcross object as
-  well as descriptive statistics about estimated founder
-  haplotypes
+Summarizes details about underlying mpcross object as well
+as descriptive statistics about estimated founder
+haplotypes
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -28,7 +28,7 @@ mpp.dat <- mpprob(sim.dat, program="qtl")
 summary(mpp.dat)
 }
 \seealso{
-  \code{\link[mpMap]{plot.mpprob}},
-  \code{\link[mpMap]{mpprob}}
+\code{\link[mpMap]{plot.mpprob}},
+\code{\link[mpMap]{mpprob}}
 }
 

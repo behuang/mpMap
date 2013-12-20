@@ -14,8 +14,8 @@ reconstructs haplotypes, and performs QTL mapping
 \tabular{ll}{
 Package: \tab mpMap\cr
 Type: \tab Package\cr
-Version: \tab 1.25\cr
-Date: \tab 2013-10-02\cr
+Version: \tab 1.25.2\cr
+Date: \tab 2013-12-19\cr
 License: \tab GPL-2 \cr
 LazyLoad: \tab yes\cr
 }

@@ -2,7 +2,7 @@
 \alias{summary.mpcross}
 \title{Summary of mpcross object}
 \usage{
-  \method{summary}{mpcross} (object, ...)
+\method{summary}{mpcross}(object, ...)
 }
 \arguments{
   \item{object}{Object of class \code{mpcross}}
@@ -10,15 +10,15 @@
   \item{...}{Additional arguments}
 }
 \value{
-  Printed summary including - markers which had to be
-  removed due to monomorphic or missing founders; numbers
-  of biallelic/multiallelic markers; percent of markers
-  with missing data; percent of markers with high
-  segregation distortion.
+Printed summary including - markers which had to be removed
+due to monomorphic or missing founders; numbers of
+biallelic/multiallelic markers; percent of markers with
+missing data; percent of markers with high segregation
+distortion.
 }
 \description{
-  Summarizes mpcross object in terms of number of markers,
-  lines, type of markers, and quality of markers
+Summarizes mpcross object in terms of number of markers,
+lines, type of markers, and quality of markers
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -27,6 +27,6 @@ sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .
 summary(sim.dat)
 }
 \seealso{
-  \code{\link[mpMap]{mpcross}}
+\code{\link[mpMap]{mpcross}}
 }
 

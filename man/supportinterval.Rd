@@ -2,7 +2,7 @@
 \alias{supportinterval}
 \title{Calculate support interval for detected QTL}
 \usage{
-  supportinterval(x, chr, lodsupport = 1)
+supportinterval(x, chr, lodsupport = 1)
 }
 \arguments{
   \item{x}{Object of class \code{mpqtl}}
@@ -13,18 +13,18 @@
   LOD}
 }
 \value{
-  A list with two components: a matrix containing lower and
-  upper bounds for the support intervals for each QTL, and
-  the positions of QTL on each chromosome.
+A list with two components: a matrix containing lower and
+upper bounds for the support intervals for each QTL, and
+the positions of QTL on each chromosome.
 }
 \description{
-  Calculates support interval for QTL based on Wald profile
-  and QTL position
+Calculates support interval for QTL based on Wald profile
+and QTL position
 }
 \details{
-  Computes the x-LOD support interval as the region
-  surrounding a QTL peak in which the Wald profile exceeds
-  the equivalent of x LOD less than the peak value.
+Computes the x-LOD support interval as the region
+surrounding a QTL peak in which the Wald profile exceeds
+the equivalent of x LOD less than the peak value.
 }
 \examples{
 map <- sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
@@ -35,6 +35,6 @@ mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 si <- supportinterval(mpq.dat)
 }
 \seealso{
-  \code{\link[mpMap]{plot.mpqtl}}
+\code{\link[mpMap]{plot.mpqtl}}
 }
 

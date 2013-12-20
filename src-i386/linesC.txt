@@ -1,0 +1,7 @@
+  109 add3pt.c
+  134 calcLD.c
+  347 founderprob.c
+   31 qsort.c
+  181 rngs.c
+   86 sim.c
+  888 total

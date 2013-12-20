@@ -2,8 +2,7 @@
 \alias{add3pt}
 \title{Add markers to a framework map using 3-point likelihoods}
 \usage{
-  add3pt(mpcross, newmpcross, newchr,
-    mapfx = c("haldane", "kosambi"))
+add3pt(mpcross, newmpcross, newchr, mapfx = c("haldane", "kosambi"))
 }
 \arguments{
   \item{mpcross}{Object of class \code{mpcross}, with
@@ -18,24 +17,23 @@
   \item{mapfx}{Map function to use - default is haldane}
 }
 \value{
-  Combination of the two mpcross objects with new markers
-  inserted at midpoints of intervals with maximum LOD
-  values if LOD > 3. Note that if markers are inserted at
-  the same midpoint, it will be necessary to locally
-  reorder them and then re-estimate the length of the map
-  by summing adjacent recombination fractions.
+Combination of the two mpcross objects with new markers
+inserted at midpoints of intervals with maximum LOD values
+if LOD > 3. Note that if markers are inserted at the same
+midpoint, it will be necessary to locally reorder them and
+then re-estimate the length of the map by summing adjacent
+recombination fractions.
 }
 \description{
-  Based on a framework map and chromosome assignments,
-  markers are inserted at the midpoints of intervals.
-  Positions are chosen by maximizing the 3 point
-  likelihood.
+Based on a framework map and chromosome assignments,
+markers are inserted at the midpoints of intervals.
+Positions are chosen by maximizing the 3 point likelihood.
 }
 \details{
-  Note that the values in \code{newchr} need to correspond
-  to the chromosomes already existing in \code{mpcross}.
+Note that the values in \code{newchr} need to correspond to
+the chromosomes already existing in \code{mpcross}.
 }
 \seealso{
-  \code{\link[mpMap]{mporder}}, \code{\link[mpMap]{mpadd}}
+\code{\link[mpMap]{mporder}}, \code{\link[mpMap]{mpadd}}
 }
 

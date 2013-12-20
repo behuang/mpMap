@@ -2,7 +2,7 @@
 \alias{summary.mpqtl}
 \title{Summary of mpqtl object}
 \usage{
-  \method{summary}{mpqtl} (object, ...)
+\method{summary}{mpqtl}(object, ...)
 }
 \arguments{
   \item{object}{Object of class \code{mpqtl}}
@@ -10,17 +10,17 @@
   \item{...}{Additional arguments}
 }
 \value{
-  Table with rows for each QTL detected: Column 1 is the
-  chromosome where the QTL was detected Column 2 is the
-  position where the QTL was detected on the chromosome
-  Columns 3 and 4 are the flanking markers for the QTL
-  Columns 5, 6, 7 and 8 are the effect estimates for the
-  founders Column 9 is the Wald test statistic for the
-  overall test at that position Column 10 is the p-value
-  for the test statistic
+Table with rows for each QTL detected: Column 1 is the
+chromosome where the QTL was detected Column 2 is the
+position where the QTL was detected on the chromosome
+Columns 3 and 4 are the flanking markers for the QTL
+Columns 5, 6, 7 and 8 are the effect estimates for the
+founders Column 9 is the Wald test statistic for the
+overall test at that position Column 10 is the p-value for
+the test statistic
 }
 \description{
-  Prints a summary of the detected QTL
+Prints a summary of the detected QTL
 }
 \examples{
 sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
@@ -31,7 +31,6 @@ mpq.dat <- mpIM(object=mpp.dat, ncov=0, thr=1, responsename="pheno")
 summary(mpq.dat)
 }
 \seealso{
-  \code{\link[mpMap]{mpIM}},
-  \code{\link[mpMap]{plot.mpqtl}}
+\code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{plot.mpqtl}}
 }
 

@@ -2,8 +2,8 @@
 \alias{mpgroup}
 \title{Construct linkage groups using 2-point recombination fraction estimates}
 \usage{
-  mpgroup(mpcross, groups, initial = NULL,
-    clusterBy = "combined", method = "average")
+mpgroup(mpcross, groups, initial = NULL, clusterBy = "combined",
+  method = "average")
 }
 \arguments{
   \item{mpcross}{Object of class \code{mpcross}}
@@ -23,25 +23,24 @@
   of "single", "complete" or "average"}
 }
 \value{
-  A copy of the input mpcross object, with an additional
-  "lg" entry containing the groupings of the markers. In
-  addition the recombination fraction estimates and genetic
-  data are reordered according to the created groupings of
-  markers. \item{lg$groups}{ Numeric vector giving the
-  group to which each marker belongs} \item{lg$all.groups}{
-  Numeric vector giving the numbers for any groups that are
-  present}
+A copy of the input mpcross object, with an additional "lg"
+entry containing the groupings of the markers. In addition
+the recombination fraction estimates and genetic data are
+reordered according to the created groupings of markers.
+\item{lg$groups}{ Numeric vector giving the group to which
+each marker belongs} \item{lg$all.groups}{ Numeric vector
+giving the numbers for any groups that are present}
 }
 \description{
-  Use two-point recombination fraction estimates to group
-  markers into the specified number of linkage group, The
-  input \code{initial} can be used to select groups of
-  markers that will be assigned to the same group. Grouping
-  is performed using hierarchical clustering
-  (\code{hclust}) using either average, complete or single
-  linkage. The matrix used for clustering can be either
-  theta (the recombination fraction matrix), lod (the log
-  likelihood ratio) or a combination of the two.
+Use two-point recombination fraction estimates to group
+markers into the specified number of linkage group, The
+input \code{initial} can be used to select groups of
+markers that will be assigned to the same group. Grouping
+is performed using hierarchical clustering (\code{hclust})
+using either average, complete or single linkage. The
+matrix used for clustering can be either theta (the
+recombination fraction matrix), lod (the log likelihood
+ratio) or a combination of the two.
 }
 \examples{
 map <- sim.map(len=rep(100, 2), n.mar=11, eq.spacing=TRUE, include.x=FALSE)

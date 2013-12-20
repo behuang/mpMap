@@ -1,0 +1,29 @@
+\name{mpimputerf}
+\alias{mpimputerf}
+\title{Impute unknown recombination fraction values}
+\usage{
+mpimputerf(mpcross)
+}
+\arguments{
+  \item{mpcross}{Object of class \code{mpcross}}
+}
+\value{
+The original object with any NA values of rf$theta replaced
+by imputed values
+}
+\description{
+Construct a new mpcross object, with missing recombination
+fraction values imputed.
+}
+\details{
+Imputation is performed by replacing missing values with a
+value from the `nearest' column. Here the distance between
+two columns of the recombination fraction matrix is
+determined by treating both columns as points in euclidean
+space and taking the euclidean distance between these
+points. In theory using rows instead of columns may result
+in a different imputed value, but in practice the
+difference between the two approaches is probably
+negligible.
+}
+

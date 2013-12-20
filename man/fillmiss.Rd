@@ -2,7 +2,7 @@
 \alias{fillmiss}
 \title{Fill in missing values for an mpcross object}
 \usage{
-  fillmiss(object, threshold = 0.7)
+fillmiss(object, threshold = 0.7)
 }
 \arguments{
   \item{object}{Object of class \code{mpcross}}
@@ -11,15 +11,15 @@
   allele}
 }
 \value{
-  An mpcross object with a new component $missfinals for
-  the original set of genotypes. The component $finals is
-  replaced by the imputed values.
+An mpcross object with a new component $missfinals for the
+original set of genotypes. The component $finals is
+replaced by the imputed values.
 }
 \description{
-  Use multi-point founder probabilities to fill in the most
-  likely value for a missing genotype
+Use multi-point founder probabilities to fill in the most
+likely value for a missing genotype
 }
 \seealso{
-  \code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{mpcross}}
+\code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{mpcross}}
 }
 

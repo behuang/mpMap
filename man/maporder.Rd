@@ -2,18 +2,18 @@
 \alias{maporder}
 \title{Helper function to ensure that mpcross objects are in map order}
 \usage{
-  maporder(object)
+maporder(object)
 }
 \arguments{
   \item{object}{Object of class \code{mpcross}}
 }
 \value{
-  The original object, with all components reordered to
-  match the map. Additional unmapped markers will appear
-  after all mapped markers.
+The original object, with all components reordered to match
+the map. Additional unmapped markers will appear after all
+mapped markers.
 }
 \description{
-  Orders markers within all components of mpcross object
-  (founders, finals, etc.) to match the map order
+Orders markers within all components of mpcross object
+(founders, finals, etc.) to match the map order
 }
 
