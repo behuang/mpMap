@@ -32,7 +32,7 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
       {
         tab <- table(object$finals[which(est[,i]==j),i])
         if (length(tab)>0)
-          output$founders[j,i] <- as.numeric(names(tab)[which.max(tab)])
+          object$founders[j,i] <- as.numeric(names(tab)[which.max(tab)])
       }
     }
   }

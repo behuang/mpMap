@@ -20,6 +20,7 @@
 
 plot.mpqtl <- function(x, wald=FALSE, chr, lodsupport=1, ...)
 {
+  output <- list()
   map <- attr(x$prob, "map")
   if (missing(chr)) chr <- 1:length(map)
   if (is.factor(chr)) chr <- as.character(chr)
@@ -39,7 +40,9 @@ plot.mpqtl <- function(x, wald=FALSE, chr, lodsupport=1, ...)
     } 
 
   if (wald==TRUE) qtl:::plot.scanone(waldsc, chr=chr, ylab="Wald") else qtl:::plot.scanone(psc, chr=chr, ylab="-log10(p)")
-
+  output$waldsc <- waldsc
+  output$psc <- psc
+  
   map2 <- map[chr]
   qtlpos <- vector()
   chrpos <- c(0,cumsum(unlist(lapply(map2, function(x) diff(range(x))))+25))
@@ -50,7 +53,7 @@ plot.mpqtl <- function(x, wald=FALSE, chr, lodsupport=1, ...)
    si <- supportinterval(x, lodsupport=lodsupport)
    si <- si$support[, which(names(si$qtlpos)%in% names(map2)), drop=FALSE]
 
-  output <- list()
+  
   xqtl <- x$QTLresults$qtl
   if (length(intersect(chr, names(xqtl)))>0) {
   qtlmat <- do.call("rbind", xqtl[na.exclude(match(chr, names(xqtl)))])
