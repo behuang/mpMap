@@ -22,8 +22,8 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
   ## First impute founders if necessary
   if (what!="finals") {
     nmissfou <- apply(object$founders, 2, function(x) sum(is.na(x)))
-    mpp <- mpprob(object, program="qtl", threshold=threshold)
-    
+    mpp <- mpprob(object, program="qtl", threshold=threshold, ...)
+    object <- mpp
     est <- do.call("cbind", mpp$est)
     
     for (i in 1:nmrk) {
