@@ -444,7 +444,7 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 		std::vector<int> allGroups;
 		if(allGroups_.sexp_type() == REALSXP)
 		{
-			Rcpp::NumericVector tmp = allGroups_.asSexp();
+			Rcpp::NumericVector tmp = allGroups_.get__();
 			allGroups.resize(tmp.size());
 			for(int i = 0; i < tmp.length(); i++)
 			{
@@ -465,7 +465,7 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 		std::vector<int> groups;
 		if(groups_.sexp_type() == REALSXP)
 		{
-			Rcpp::NumericVector tmp = groups_.asSexp();
+			Rcpp::NumericVector tmp = groups_.get__();
 			groups.resize(tmp.size());
 			for(int i = 0; i < tmp.length(); i++)
 			{

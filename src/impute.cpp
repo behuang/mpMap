@@ -129,9 +129,9 @@ SEXP impute(SEXP mpcross__)
 				goto signal_error;
 			}
 			Rcpp::List mpcross(Rcpp::clone(mpcross_));
-			Rcpp::List rf(Rcpp::as<Rcpp::RObject>(mpcross["rf"]).asSexp()), lg(Rcpp::as<Rcpp::RObject>(mpcross["lg"]).asSexp());
-			Rcpp::NumericMatrix theta(Rcpp::as<Rcpp::RObject>(rf["theta"]).asSexp()), lod(Rcpp::as<Rcpp::RObject>(rf["lod"]).asSexp()), lkhd(Rcpp::as<Rcpp::RObject>(rf["lkhd"]).asSexp());
-			Rcpp::IntegerVector groups(Rcpp::as<Rcpp::RObject>(lg["groups"]).asSexp());
+			Rcpp::List rf(Rcpp::as<Rcpp::RObject>(mpcross["rf"]).get__()), lg(Rcpp::as<Rcpp::RObject>(mpcross["lg"]).get__());
+			Rcpp::NumericMatrix theta(Rcpp::as<Rcpp::RObject>(rf["theta"]).get__()), lod(Rcpp::as<Rcpp::RObject>(rf["lod"]).get__()), lkhd(Rcpp::as<Rcpp::RObject>(rf["lkhd"]).get__());
+			Rcpp::IntegerVector groups(Rcpp::as<Rcpp::RObject>(lg["groups"]).get__());
 			int nMarkers = theta.nrow();
 			
 			error.resize(200);

@@ -82,21 +82,24 @@ function (object, chr, max.dist, marker.names = TRUE, tick = FALSE,
             text(chrpos[i] + 0.5, mt[[i]], names(map[[i]]), adj = c(0, 
                 0.5), ...)
 	    m <- grep("QTL", names(map[[i]]))
-	    if (length(m)>0)
-            text(chrpos[i] + 0.5, mt[[i]][m], names(map[[i]])[m], adj = c(0, 
-                0.5), col=colqtl, ...)
-            segments(chrpos[i] + 0.25, map[[i]], chrpos[i] + 
+	          segments(chrpos[i] + 0.25, map[[i]], chrpos[i] + 
                 0.3, map[[i]])
             segments(chrpos[i] + 0.3, map[[i]], chrpos[i] + 0.4, 
                 mt[[i]])
             segments(chrpos[i] + 0.4, mt[[i]], chrpos[i] + 0.45, 
                 mt[[i]])
+      if (length(m)>0) 
+            text(chrpos[i] + 0.5, mt[[i]][m], names(map[[i]])[m], adj = c(0, 
+                        0.5), col=colqtl, ...)
         }
         barl <- chrpos[i] - 0.03
         barr <- chrpos[i] + 0.03
         segments(barl, min(map[[i]]), barl, max(map[[i]]), lwd = 1)
         segments(barr, min(map[[i]]), barr, max(map[[i]]), lwd = 1)
         segments(barl - 0.17, map[[i]], barr + 0.17, map[[i]])
+        m <- grep("QTL", names(map[[i]]))
+        if (length(m)>0)
+        segments(barl - 0.17, map[[i]][m], barr + 0.17, map[[i]][m], col=colqtl)
         xseq <- seq(barl, barr, length = 20) - chrpos[i]
         yseq <- circ(xseq, xseq, ely = 1, elx = 0.07/maxlen)
         yseq <- yseq - max(yseq)

@@ -81,7 +81,7 @@ computemap <- function(object, mapfx=c("haldane", "kosambi"), maxOffset = 1)
 		b <- rf[indices]
 		b[b == 0.5] <- 0.49
 		result <- nnls(d, mf(b))
-		object$map[[chr]] <- c(0, cumsum(result$x[which(indices[,1] == indices[,2]+1)]))
+    object$map[[chr]] <- c(0, cumsum(pmin(result$x[which(indices[,1] == indices[,2]+1)], haldaneR2X(rf[row(rf)==(col(rf)+1)]))))
 		names(object$map[[chr]]) <- colnames(object$finals)[m]
 		#m <- match(names(object$map[[chr]]), colnames(object$finals))
 		#rf <- fill(fill(object$rf$theta[m,m], missfx), 1)

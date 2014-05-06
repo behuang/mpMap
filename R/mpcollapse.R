@@ -5,12 +5,14 @@
 #' @useDynLib mpMap
 #' @param object Object of class \code{mpcross}
 #' @param method Choice of whether to bin based on recombination fraction or correlation 
+#' @param adj Flag for whether require bins to be based on adjacent markers only 
+#' @param cutoff Max RF allowed before starting a new bin
 #' @return A binned object of class \code{binmpcross}
 #' @seealso \code{link{mpexpand}}
 #' @note Markers are assigned to a bin if there is zero recombination between any of the markers within the bin (or correlation of 1). Missing values at markers are imputed based on the assumption that the true haplotype within a bin matches one of the founder haplotypes. Patterns matching more than one or none of the founder haplotypes will be coded as NA in the returned object. Bins are collapsed to "bin markers" after missing values are imputed, with each unique founder
 #' haplotype being assigned an allele and progeny matching those founder haplotypes assigned the same allele. 
 
-mpcollapse<-function(object, method=c("rf", "cor")) {
+mpcollapse<-function(object, method=c("rf", "cor"), adj=FALSE, cutoff=0) {
 
   enlist <- function(X) lapply(1:ncol(X), function(j) X[,j])
   
@@ -21,8 +23,7 @@ mpcollapse<-function(object, method=c("rf", "cor")) {
     X[mv] <- x[mv[,2]]
     match(do.call(paste0, enlist(X)), paste(x, collapse=""), 0L)
   }
-  
-  
+    
   if (missing(method)) method <- "rf"
 
   if (is.null(object$rf$theta) & method=="rf") 
@@ -65,11 +66,21 @@ mpcollapse<-function(object, method=c("rf", "cor")) {
     
     ## create bins
     mat <- dist[indexGroup, indexGroup]
-    cl.obj <- hclust(as.dist(mat), method="complete")
-    cl.obj$height <- round(cl.obj$height, 5)
-    binInfo[[i]] <- cutree(cl.obj, h=0)
-    nbins <- max(binInfo[[i]])
     
+    if (!adj) {
+      cl.obj <- hclust(as.dist(mat), method="complete")
+      cl.obj$height <- round(cl.obj$height, 5)
+      binInfo[[i]] <- cutree(cl.obj, h=cutoff)
+      nbins <- max(binInfo[[i]])
+    } else {
+      ## how are we going to construct bins in this case?
+      binInfo[[i]] <- 1:ncol(mat)
+      for (k in 2:ncol(mat)) 
+        if (mat[k-1, k]==0) binInfo[[i]][k] <- binInfo[[i]][k-1]
+      binInfo[[i]] <- match(binInfo[[i]], names(table(binInfo[[i]])))
+      nbins <- length(table(binInfo[[i]]))
+  
+    }
     ## Note that after this there will be a substantial amount of recoding. Do not return original object
     ## within each bin recode genotypes to haplotypes
     binFounders[[i]] <- matrix(nrow=nFounders, ncol=nbins)
