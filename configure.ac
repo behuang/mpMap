@@ -54,10 +54,10 @@ else
 	CPICFLAGS=`"${R_HOME}/bin/R" CMD config CPICFLAGS`
 	if test -z "${R_INCLUDE}"; then
 		CUDA_CPPFLAGS=" $("${R_HOME}/bin/R" CMD config --cppflags) "
-		PKG_CPPFLAGS="$("${R_HOME}/bin/R" CMD config --cppflags) $("${R_HOME}/bin/Rscript" -e "Rcpp:::CxxFlags()") -openmp -DUSE_OPENMP "
+		PKG_CPPFLAGS="$("${R_HOME}/bin/R" CMD config --cppflags) $("${R_HOME}/bin/Rscript" -e "Rcpp:::CxxFlags()") -openmp -DUSE_OPENMP -std=c++0x"
 	else
 		CUDA_CPPFLAGS=" -I${R_INCLUDE} "
-		PKG_CPPFLAGS="-I${R_INCLUDE} $("${R_HOME}/bin/Rscript" -e "Rcpp:::CxxFlags()") -openmp -DUSE_OPENMP "
+		PKG_CPPFLAGS="-I${R_INCLUDE} $("${R_HOME}/bin/Rscript" -e "Rcpp:::CxxFlags()") -openmp -DUSE_OPENMP -std=c++0x"
 	fi
 	if test -z "${R_LIB}"; then
 		R_LIB="`"${R_HOME}/bin/R" CMD config --ldflags` $("${R_HOME}/bin/Rscript" -e "Rcpp:::LdFlags()")"
