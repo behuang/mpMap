@@ -15,14 +15,14 @@ TARGETS := mpMap.so
 
 NVCC := @CUDA_HOME@/bin/nvcc -gencode arch=compute_13,code=sm_13 -gencode arch=compute_20,code=sm_20 -gencode arch=compute_30,code=sm_30
 
-all: $(TARGETS) userLibrary
+all: $(TARGETS) 
 
 $(TARGETS): $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS)
 	$(CC) -shared $(LD_PARAMS) $(LIBS) $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS) -o $@
 
 $(CUDA_OBJS): %.o: %.cu
 	$(NVCC) -c -I. -I../inst/include -I@CUDA_HOME@/include $(PARAMS) $(CUDA_CPPFLAGS) $^ -o $@
-clean:
+clean: 
 	rm -rf *o
 
 .PHONY: all clean
