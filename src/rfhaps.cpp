@@ -10,7 +10,7 @@
 #include "intercrossingGenerations.h"
 #include "orderFunnels.h"
 #include "allowableMarkerPatterns.h"
-#include <tr1/array>
+#include <array>
 void markerPatternsToUniqueValues(std::map<markerEncoding, markerPatternID>& markerPatterns, std::vector<markerPatternID>& markerPatternIDs, std::vector<markerEncoding>&markerEncodings, int nFounders, int nMarkers, Rcpp::IntegerMatrix& recodedFounders)
 {
 	for(long markerCounter = 0; markerCounter < nMarkers; markerCounter++)
@@ -54,7 +54,7 @@ void funnelsToUniqueValues(std::map<funnelEncoding, funnelID>& funnelTranslation
 		}
 	}
 }
-bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, SEXP fid_, SEXP recombinationFractions, long marker1Start, long marker1End, long marker2Start, long marker2End, std::vector<double>& lineWeights, SEXP RuseGPU, SEXP RdeviceNum, std::tr1::shared_ptr<double> result, std::string* error)
+bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, SEXP fid_, SEXP recombinationFractions, long marker1Start, long marker1End, long marker2Start, long marker2End, std::vector<double>& lineWeights, SEXP RuseGPU, SEXP RdeviceNum, std::shared_ptr<double> result, std::string* error)
 {
 	Rcpp::IntegerMatrix foundersMatrix(founders);
 	Rcpp::IntegerMatrix finalsMatrix(finals);

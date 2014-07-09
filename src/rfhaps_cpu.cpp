@@ -3,7 +3,7 @@
 #include "sharedArray.hpp"
 #include <math.h>
 #include "getFunnelCPU.h"
-#include <tr1/array>
+#include <array>
 //Note that if we change the mask[8][8] values of 2 to 1 we get mask4 in the first 4x4 block. 
 //const int mask4[4][4] = {{0, 1, 1, 1}, {1, 0, 1, 1}, {1, 1, 0, 1}, {1, 1, 1, 0}};
 const int mask[8][8] =
@@ -99,7 +99,7 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 	
 	typedef std::pair<markerPatternID, markerPatternID> markerPair;
 	
-	typedef std::tr1::array<std::tr1::array<double, maxMarkerAlleles>, maxMarkerAlleles> arrayType;
+	typedef std::array<std::array<double, maxMarkerAlleles>, maxMarkerAlleles> arrayType;
 	typedef sharedArray<arrayType> PerAIGenerationData;
 	typedef sharedArray<PerAIGenerationData> PerRecombinationFractionData;
 	typedef std::map<markerPair, sharedArray<PerRecombinationFractionData> > PerMarkerPairData;
