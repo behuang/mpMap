@@ -70,9 +70,9 @@ fi
 DEVICEOPTS=""
 
 if test -z "${HAS_NVCC}"; then
-	:
+	LIBS=" -std=c++0x "
 else
-	LIBS=" -L${CUDA_HOME}${CUDA_LIB_DIR} -lcudart "
+	LIBS=" -L${CUDA_HOME}${CUDA_LIB_DIR} -lcudart -std=c++0x "
 	PKG_CPPFLAGS+=" -DHAS_CUDA "
 fi
 
@@ -87,7 +87,7 @@ AC_CANONICAL_HOST
 case "${host_os}" in
 	*darwin*)
 		RPATHFLAG=" -rpath -Xlinker ${CUDA_HOME}${CUDA_LIB_DIR} "
-		LIBS+=" -lstdc++ "
+		LIBS+=" -std=c++0x "
 		AC_PATH_PROG([SW_VERS],[sw_vers],[no],[$PATH])
 		if test "$arch" = "i386"; then
 			$SW_VERS -productVersion | grep '^10.6' > /dev/null 2>&1
