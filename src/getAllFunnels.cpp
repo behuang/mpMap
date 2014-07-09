@@ -18,7 +18,7 @@ SEXP getAllFunnels(SEXP Rmpcross)
 				goto signal_error;
 			}
 			Rcpp::List mpcross = Rmpcross;
-			Rcpp::DataFrame pedigree = mpcross["pedigree"];
+			Rcpp::DataFrame pedigree(mpcross["pedigree"]);
 			Rcpp::IntegerVector id = mpcross["id"];
 			int nFinals = id.length();
 			std::vector<int> fid = Rcpp::as<std::vector<int> >(mpcross["fid"]);
