@@ -1,7 +1,7 @@
 #ifndef _SHARED_ARRAY_H
 #define _SHARED_ARRAY_H
 
-#include <tr1/memory>
+#include <memory>
 //helper struct for a reference-counter array
 template<typename T> struct arrayDeleter
 {
