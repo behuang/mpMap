@@ -10,18 +10,8 @@ Description: Tools for constructing linkage maps, reconstructing haplotypes,
     designs (e.g. MAGIC)
 License: GPL-2
 LazyLoad: yes
-Depends:
-    reshape,
-    gdata,
-    seriation,
-    qtl,
-    wgaim,
-    Rcpp,
-    VPdtw,
-    nnls,
-    lattice,
-    ggplot2
 Suggests:
+    Rcpp,
     R.utils,
     Rmpi,
     RGtk2,
@@ -34,8 +24,17 @@ Suggests:
     igraph,
     RBGL,
     mpMIM,
-    RColorBrewer,
-    bigmemory
+    RColorBrewer
+Imports:
+  qtl, 
+  wgaim, 
+  VPdtw,
+  nnls, 
+  gdata,
+  reshape,
+  lattice,
+  ggplot2,
+  seriation
 LinkingTo: Rcpp
 Collate:
     'gen2ped.R'
