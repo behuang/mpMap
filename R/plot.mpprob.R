@@ -25,8 +25,6 @@ plot.mpprob <-
 function(x, chr, locations, compositionPercent = TRUE, lines=TRUE, nlines, compositionTrace = TRUE, compositionTraceArgs = list(), compositionTracePlotArgs = list(), linesPlotArgs = list(), ...)
 {
   require(RColorBrewer)
-  require(graphics)
-  require(grDevices)
 	if(!is.list(compositionTraceArgs))
 	{
 		stop("Input compositionTraceArgs must be a list")
@@ -51,7 +49,6 @@ function(x, chr, locations, compositionPercent = TRUE, lines=TRUE, nlines, compo
 		barplot(cts1, col=c(colours, "white"), main="Founder %age by Chromosome", xlab="Chromosome", legend.text = c(rownames(cts1)[1:n.founders], "Unknown"))
 	}
 
-	sum <- vector(length=nrow(x$finals))
   if (lines) {
   	for (i in chr)
 		{

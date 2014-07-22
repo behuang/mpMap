@@ -30,7 +30,7 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
   }
 
   ## Print out warning message if there are duplicated markers
-  if (!is.null(x$map)) mrk=unlist(lapply(x$map, names))
+  if (!is.null(x$map)) mrk=unlist(lapply(x$map, names)) else mrk=colnames(x$finals)
   if (all(sort(mrk)!=sort(colnames(x$finals)))) cat("Map marker names and genotype marker names do not match up\n")
   if (sum(duplicated(colnames(x$finals)))>0 | sum(duplicated(mrk))>0) cat("Duplicated marker names may cause issues with subsetting\n")
 
