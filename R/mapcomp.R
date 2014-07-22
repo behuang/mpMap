@@ -90,6 +90,7 @@ mapcomp <- function(object1, object2) {
 
 plot.mapcomp <- function(x, lines=FALSE, ...)
 {
+	require(lattice)
 	if(lines)
 	{
 		panel.func <- function(x,y, pch) 

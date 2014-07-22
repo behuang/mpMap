@@ -27,7 +27,7 @@ testFunnelEffects <- function(prob)
 	results <- vector(mode="list", length = n.founders)
 	names(results) <- rownames(prob$founders)
 	
-	funnels <- mpMap:::getAllFunnels(prob)
+	funnels <- getAllFunnels(prob)
 	
 	#Set up storage for lines for each set of funnels
 	relevantLines <- vector(mode="list", length=n.founders)
