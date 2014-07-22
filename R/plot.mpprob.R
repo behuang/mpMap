@@ -24,7 +24,7 @@
 plot.mpprob <-
 function(x, chr, locations, compositionPercent = TRUE, lines=TRUE, nlines, compositionTrace = TRUE, compositionTraceArgs = list(), compositionTracePlotArgs = list(), linesPlotArgs = list(), ...)
 {
-  require(RColorBrewer
+  require(RColorBrewer)
   require(graphics)
   require(grDevices)
 	if(!is.list(compositionTraceArgs))
