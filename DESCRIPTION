@@ -10,12 +10,13 @@ Description: Tools for constructing linkage maps, reconstructing haplotypes,
     designs (e.g. MAGIC)
 License: GPL-2
 LazyLoad: yes
+Depends: qtl
 Suggests:
     Rcpp,
     R.utils,
     Rmpi,
     RGtk2,
-    aod,
+    aods3,
     asreml,
     happy.hbrem,
     Heatplus,
@@ -26,7 +27,6 @@ Suggests:
     mpMIM,
     RColorBrewer
 Imports:
-  qtl, 
   wgaim, 
   VPdtw,
   nnls, 
