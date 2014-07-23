@@ -33,7 +33,7 @@ SEXP getAllFunnels(SEXP Rmpcross)
 				goto signal_error;
 			}
 			//now get the actual funnels from the pedigree
-			int funnel[8];
+			int funnel[16];
 			for(int i = 0; i < id.length(); i++)
 			{
 				ok = getFunnel(id[i], pedigree, fid, nIntercrossingGenerations[i], funnel, pedigree.nrows(), nFounders);
