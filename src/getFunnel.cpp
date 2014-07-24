@@ -37,7 +37,7 @@ bool getFunnel(int id, Rcpp::DataFrame pedigree, std::vector<int>& fid, int aiGe
 		funnel[2] = fidToFounderNumber(fmID);
 		funnel[3] = fidToFounderNumber(ffID);
 	}
-	else if(nFounders == 8)
+	else if(nFounders >= 8)
 	{
 		int mmRow = findIDInPedigree(mmID, pedigree), mfRow = findIDInPedigree(mfID, pedigree), fmRow = findIDInPedigree(fmID, pedigree), ffRow = findIDInPedigree(ffID, pedigree);
 		int mmmID = female(mmRow), mmfID = male(mmRow), mfmID = female(mfRow), mffID = male(mfRow);
@@ -50,37 +50,37 @@ bool getFunnel(int id, Rcpp::DataFrame pedigree, std::vector<int>& fid, int aiGe
 		funnel[5] = fidToFounderNumber(fmfID);
 		funnel[6] = fidToFounderNumber(ffmID);
 		funnel[7] = fidToFounderNumber(fffID);
-	}
-	else if(nFounders == 16)
-	{
-		int mmmRow = findIDInPedigree(mmmID, pedigree);
-		int mmfRow = findIDInPedigree(mmfID, pedigree);
-		int mfmRow = findIDInPedigree(mfmID, pedigree);
-		int mffRow = findIDInPedigree(mffID, pedigree);
-		int fmmRow = findIDInPedigree(fmmID, pedigree);
-		int fmfRow = findIDInPedigree(fmfID, pedigree);
-		int ffmRow = findIDInPedigree(ffmID, pedigree);
-		int fffRow = findIDInPedigree(fffID, pedigree);
-		int mmmmID = male(mmmRow), mmmfID=female(mmmRow), mmfmID=male(mmfRow), mmffID=female(mmfRow);
-		int mfmmRow=male(mfmRow), mfmfID=female(mfmRow), mffmID=male(mffRow), mfffID=female(mffRow);
-		int fmmmRow=male(fmmRow), fmmfID=female(fmmRow), fmfmID=male(fmfRow), fmffID=female(fmfRow);
-		int ffmmRow=male(ffmRow), ffmfID=female(ffmRow), fffmID=male(fffRow), ffffID=female(fffRow);
-		funnel[0] = fidToFounderNumber(mmmmID);
-		funnel[1] = fidToFounderNumber(mmmfID);
-		funnel[2] = fidToFounderNumber(mmfmID);
-		funnel[3] = fidToFounderNumber(mmffID);
-		funnel[4] = fidToFounderNumber(mfmmID);
-		funnel[5] = fidToFounderNumber(mfmfID);
-		funnel[6] = fidToFounderNumber(mffmID);
-		funnel[7] = fidToFounderNumber(mfffID);
-		funnel[8] = fidToFounderNumber(fmmmID);
-		funnel[9] = fidToFounderNumber(fmmfID);
-		funnel[10] = fidToFounderNumber(fmfmID);
-		funnel[11] = fidToFounderNumber(fmffID);
-		funnel[12] = fidToFounderNumber(ffmmID);
-		funnel[13] = fidToFounderNumber(ffmfID);
-		funnel[14] = fidToFounderNumber(fffmID);
-		funnel[15] = fidToFounderNumber(ffffID);
+		if(nFounders == 16)
+		{
+		  int mmmRow = findIDInPedigree(mmmID, pedigree);
+		  int mmfRow = findIDInPedigree(mmfID, pedigree);
+		  int mfmRow = findIDInPedigree(mfmID, pedigree);
+		  int mffRow = findIDInPedigree(mffID, pedigree);
+		  int fmmRow = findIDInPedigree(fmmID, pedigree);
+		  int fmfRow = findIDInPedigree(fmfID, pedigree);
+		  int ffmRow = findIDInPedigree(ffmID, pedigree);
+		  int fffRow = findIDInPedigree(fffID, pedigree);
+		  int mmmmID = male(mmmRow), mmmfID=female(mmmRow), mmfmID=male(mmfRow), mmffID=female(mmfRow);
+		  int mfmmRow=male(mfmRow), mfmfID=female(mfmRow), mffmID=male(mffRow), mfffID=female(mffRow);
+		  int fmmmRow=male(fmmRow), fmmfID=female(fmmRow), fmfmID=male(fmfRow), fmffID=female(fmfRow);
+		  int ffmmRow=male(ffmRow), ffmfID=female(ffmRow), fffmID=male(fffRow), ffffID=female(fffRow);
+		  funnel[0] = fidToFounderNumber(mmmmID);
+		  funnel[1] = fidToFounderNumber(mmmfID);
+		  funnel[2] = fidToFounderNumber(mmfmID);
+		  funnel[3] = fidToFounderNumber(mmffID);
+		  funnel[4] = fidToFounderNumber(mfmmID);
+		  funnel[5] = fidToFounderNumber(mfmfID);
+		  funnel[6] = fidToFounderNumber(mffmID);
+		  funnel[7] = fidToFounderNumber(mfffID);
+		  funnel[8] = fidToFounderNumber(fmmmID);
+		  funnel[9] = fidToFounderNumber(fmmfID);
+		  funnel[10] = fidToFounderNumber(fmfmID);
+		  funnel[11] = fidToFounderNumber(fmffID);
+		  funnel[12] = fidToFounderNumber(ffmmID);
+		  funnel[13] = fidToFounderNumber(ffmfID);
+		  funnel[14] = fidToFounderNumber(fffmID);
+		  funnel[15] = fidToFounderNumber(ffffID);
+		}
 	}
 	else
 	{
