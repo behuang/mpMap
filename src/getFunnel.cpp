@@ -61,9 +61,9 @@ bool getFunnel(int id, Rcpp::DataFrame pedigree, std::vector<int>& fid, int aiGe
 		  int ffmRow = findIDInPedigree(ffmID, pedigree);
 		  int fffRow = findIDInPedigree(fffID, pedigree);
 		  int mmmmID = male(mmmRow), mmmfID=female(mmmRow), mmfmID=male(mmfRow), mmffID=female(mmfRow);
-		  int mfmmRow=male(mfmRow), mfmfID=female(mfmRow), mffmID=male(mffRow), mfffID=female(mffRow);
-		  int fmmmRow=male(fmmRow), fmmfID=female(fmmRow), fmfmID=male(fmfRow), fmffID=female(fmfRow);
-		  int ffmmRow=male(ffmRow), ffmfID=female(ffmRow), fffmID=male(fffRow), ffffID=female(fffRow);
+		  int mfmmID=male(mfmRow), mfmfID=female(mfmRow), mffmID=male(mffRow), mfffID=female(mffRow);
+		  int fmmmID=male(fmmRow), fmmfID=female(fmmRow), fmfmID=male(fmfRow), fmffID=female(fmfRow);
+		  int ffmmID=male(ffmRow), ffmfID=female(ffmRow), fffmID=male(fffRow), ffffID=female(fffRow);
 		  funnel[0] = fidToFounderNumber(mmmmID);
 		  funnel[1] = fidToFounderNumber(mmmfID);
 		  funnel[2] = fidToFounderNumber(mmfmID);
