@@ -8,7 +8,7 @@ CUDA_CPPFLAGS := @CUDA_CPPFLAGS@
 PARAMS := @DEVICEOPTS@ -Xcompiler @CPICFLAGS@
 
 #linker options
-LD_PARAMS := @DEVICEOPTS@ -Xlinker @RPATHFLAG@
+LD_PARAMS := @DEVICEOPTS@ -Xlinker #@RPATHFLAG@
 LIBS :=  @R_LIB@ @LIBS@
 
 TARGETS := mpMap.so
