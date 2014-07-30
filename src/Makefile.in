@@ -1,7 +1,7 @@
 C_OBJS := add3pt.o calcLD.o founderprob.o qsort.o rngs.o sim.o impute.o
 CPP_OBJS := rfhaps.o rfhaps_cpu.o getFunnel.o validateMPCross.o findIDInPedigree.o intercrossingGenerations.o getAllFunnels.o orderFunnels.o allowableMarkerPatterns.o generateDesignMatrix.o generateGenotypes.o
 CUDA_OBJS := @CUDA_OBJS@
-PKG_CPPFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. 
+PKG_CPPFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. -std=gnu++0x 
 CUDA_CPPFLAGS := @CUDA_CPPFLAGS@
 
 #compiler/preprocessor options
