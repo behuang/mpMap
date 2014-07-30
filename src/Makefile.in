@@ -1,7 +1,7 @@
 C_OBJS := add3pt.o calcLD.o founderprob.o qsort.o rngs.o sim.o impute.o
 CPP_OBJS := rfhaps.o rfhaps_cpu.o getFunnel.o validateMPCross.o findIDInPedigree.o intercrossingGenerations.o getAllFunnels.o orderFunnels.o allowableMarkerPatterns.o generateDesignMatrix.o generateGenotypes.o
 CUDA_OBJS := @CUDA_OBJS@
-PKG_CPPFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. -std=c++0x
+PKG_CPPFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. 
 CUDA_CPPFLAGS := @CUDA_CPPFLAGS@
 
 #compiler/preprocessor options
@@ -27,14 +27,14 @@ clean:
 
 .PHONY: all clean
 
-#USERDIR =       ../inst/lib
-#USERLIBST =     libmpMap.a
+USERDIR =       ../inst/lib
+USERLIBST =     libmpMap.a
 
-#userLibrary:    $(USERLIBST)
-#	@if test ! -e $(USERDIR)$(R_ARCH); then mkdir -p $(USERDIR)$(R_ARCH); fi
-#	cp $(USERLIBST) $(USERDIR)$(R_ARCH)
-#	rm $(USERLIBST)
+userLibrary:    $(USERLIBST)
+	@if test ! -e $(USERDIR)$(R_ARCH); then mkdir -p $(USERDIR)$(R_ARCH); fi
+	cp $(USERLIBST) $(USERDIR)$(R_ARCH)
+	rm $(USERLIBST)
 
-#$(USERLIBST):   $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS)
-#	$(AR) qc $(USERLIBST) $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS)
-#	@if test -n "$(RANLIB)"; then $(RANLIB) $(USERLIBST); fi
+$(USERLIBST):   $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS)
+	$(AR) qc $(USERLIBST) $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS)
+	@if test -n "$(RANLIB)"; then $(RANLIB) $(USERLIBST); fi
