@@ -60,7 +60,7 @@ else
 		PKG_CPPFLAGS="-I${R_INCLUDE} $("${R_HOME}/bin/Rscript" -e "Rcpp:::CxxFlags()") -openmp -DUSE_OPENMP"
 	fi
 	if test -z "${R_LIB}"; then
-		R_LIB="`"${R_HOME}/bin/R" CMD config --ldflags` $("${R_HOME}/bin/Rscript" -e "Rcpp:::LdFlags()")"
+		R_LIB="`"${R_HOME}/bin/R" CMD config LDFLAGS` $("${R_HOME}/bin/Rscript" -e "Rcpp:::LdFlags()")"
 	else
 		R_LIB="-L${R_LIB} -lR $("${R_HOME}/bin/Rscript" -e "Rcpp:::LdFlags()")"
 	fi
