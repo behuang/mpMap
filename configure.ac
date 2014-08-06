@@ -60,7 +60,7 @@ else
 		PKG_CPPFLAGS="-I${R_INCLUDE} $("${R_HOME}/bin/Rscript" -e "Rcpp:::CxxFlags()") -openmp -DUSE_OPENMP"
 	fi
 	if test -z "${R_LIB}"; then
-		R_LIB="`"${R_HOME}/bin/R" CMD config --ldflags` $("${R_HOME}/bin/Rscript" -e "Rcpp:::LdFlags()")"
+		R_LIB="`"${R_HOME}/bin/R" CMD config LDFLAGS` $("${R_HOME}/bin/Rscript" -e "Rcpp:::LdFlags()")"
 	else
 		R_LIB="-L${R_LIB} -lR $("${R_HOME}/bin/Rscript" -e "Rcpp:::LdFlags()")"
 	fi
@@ -86,7 +86,7 @@ RPATHFLAG=""
 AC_CANONICAL_HOST
 case "${host_os}" in
 	*darwin*)
-		RPATHFLAG=" -rpath -Xlinker ${CUDA_HOME}${CUDA_LIB_DIR} "
+		RPATHFLAG="-Xlinker -rpath -Xlinker ${CUDA_HOME}${CUDA_LIB_DIR} "
 		AC_PATH_PROG([SW_VERS],[sw_vers],[no],[$PATH])
 		if test "$arch" = "i386"; then
 			$SW_VERS -productVersion | grep '^10.6' > /dev/null 2>&1
