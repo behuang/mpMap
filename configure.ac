@@ -86,7 +86,7 @@ RPATHFLAG=""
 AC_CANONICAL_HOST
 case "${host_os}" in
 	*darwin*)
-		RPATHFLAG=" -rpath -Xlinker ${CUDA_HOME}${CUDA_LIB_DIR} "
+		RPATHFLAG="-Xlinker -rpath -Xlinker ${CUDA_HOME}${CUDA_LIB_DIR} "
 		AC_PATH_PROG([SW_VERS],[sw_vers],[no],[$PATH])
 		if test "$arch" = "i386"; then
 			$SW_VERS -productVersion | grep '^10.6' > /dev/null 2>&1
