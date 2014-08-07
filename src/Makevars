@@ -1,2 +1,2 @@
-PKG_CXXFLAGS += -I../inst/include -I. 
+PKG_CXXFLAGS += -I../inst/include -I. -std=gnu++0x
 PKG_CFLAGS += -I../inst/include -I.
