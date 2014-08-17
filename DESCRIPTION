@@ -34,7 +34,8 @@ Imports:
   reshape,
   lattice,
   ggplot2,
-  seriation
+  seriation,
+  Rcpp
 LinkingTo: Rcpp
 Collate:
     'gen2ped.R'
@@ -53,7 +54,6 @@ Collate:
     'computemap.R'
     'convertped.R'
     'CR-calcLD.R'
-    'CR-gen-geno.R'
     'fillmiss.R'
     'findqtl2.R'
     'fit.mpqtl.R'

@@ -1,3 +1,0 @@
-PKG_LIBS = "$(shell "${R_HOME}/bin${R_ARCH_BIN}/Rscript.exe" -e "Rcpp:::LdFlags()")" -lgomp -pthread
-PKG_CXXFLAGS=-fopenmp -DUSE_OPENMP -I../inst/include -I.
-PKG_CFLAGS=-I../inst/include -I.

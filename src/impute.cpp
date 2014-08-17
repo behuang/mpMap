@@ -9,7 +9,7 @@ template<bool hasLOD, bool hasLKHD> bool imputeInternal(double* theta, double* l
 	std::sort(allGroups.begin(), allGroups.end());
 	allGroups.erase(std::unique(allGroups.begin(), allGroups.end()), allGroups.end());
 	
-	for(int groupCounter = 0; groupCounter < allGroups.size(); groupCounter++)
+	for(std::size_t groupCounter = 0; groupCounter < allGroups.size(); groupCounter++)
 	{
 		int group = allGroups[groupCounter];
 		std::vector<int> markersThisGroup;

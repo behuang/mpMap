@@ -481,7 +481,7 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 			error = "Input mpcross$lg$groups must be numeric";
 			return false;
 		}
-		if(groups.size() != nMarkers)
+		if(groups.size() != (std::size_t)nMarkers)
 		{
 			error = "Input mpcross$lg$groups had the wrong length";
 			return false;
@@ -510,7 +510,7 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 			}
 		}
 		//check that the groups vector contains contiguous chunks, having the same value. 
-		for(int i = 0; i < allGroups.size(); i++)
+		for(std::size_t i = 0; i < allGroups.size(); i++)
 		{
 			int currentGroup = allGroups[i];
 			

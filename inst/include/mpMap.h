@@ -32,8 +32,3 @@ void calcLD(int *finalg, int *founderg, int *id, int *mother, int *father, int *
 void hap3ptfull(int *finalg, int *founderg, int *id, int *mother, int *father, int *nfinals, int *nfounders, int *nmrk, int *nped, int* ngen, double *out, double *r12, double *r23, double *r13, int *left, int *mid, int *right, int *npos);
 
 void pf(int *obs, int*id, int *mother, int *father, int *nfinals, int *nfounders, int *nped, int* ngen, int *out);
-void creategam(double *genome, int nmrk, int *ibd, int *gamete);
-void gengeno(double *genome, double *genome2, int *id, int *mother, 
-		int *father, int *nmrk, int *nfdr, int *nped, int *seed, 
-		int *transpos, int *transval, int *out);
-
