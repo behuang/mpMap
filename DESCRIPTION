@@ -110,3 +110,4 @@ Collate:
     'mpexpand.R'
     'subset.binmpcross.R'
     'mpMap2gs.R'
+	'validate.R'

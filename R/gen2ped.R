@@ -47,7 +47,7 @@ function(nfunnels=1, nperfam=50, nssdgen=6, nseeds=1, iripgen=0)
   # fourth column is whether individual was genotyped
   ped <- cbind(ped, obs)
   ped <- as.data.frame(ped)
-  names(ped) <- c("id", "Male", "Female", "obs")
+  names(ped) <- c("id", "Male", "Female", "Observed")
 
   return(ped)
 }

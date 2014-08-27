@@ -1,7 +1,7 @@
 #include "validateMPCross.h"
+#include <Rinternals.h>
 bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error, bool checkPedigree, bool checkRF, bool checkLG, bool checkFID)
 {
-	Rcpp::Function storage_mode_change("storage.mode<-");
 	Rcpp::Function asInteger("as.integer");
 	Rcpp::IntegerVector dim;
 	if(mpcross_.sexp_type() != VECSXP)
@@ -56,7 +56,9 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 		//Here we change the object in-place, if it's numeric instead of integer
 		if(pedigree_.sexp_type() == REALSXP)
 		{
-			storage_mode_change(pedigree_, "integer");
+			Rcpp::IntegerMatrix converted(Rf_coerceVector(pedigree_.get__(), INTSXP));
+			DUPLICATE_ATTRIB(converted.get__(), pedigree_.get__());
+			pedigree_ = mpcross["pedigree"] = converted;
 		}
 		//If it's a matrix, convert to data.frame
 		if(pedigree_.sexp_type() == INTSXP)
@@ -130,6 +132,12 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 	}
 	//check type of founders
 	Rcpp::RObject founders_ = mpcross["founders"];
+	if(founders_.sexp_type() == REALSXP)
+	{
+		Rcpp::IntegerMatrix converted(Rf_coerceVector(founders_.get__(), INTSXP));
+		DUPLICATE_ATTRIB(converted.get__(), founders_.get__());
+		founders_ = mpcross["founders"] = converted;
+	}
 	if(founders_.sexp_type() != INTSXP)
 	{
 		error = "Input mpcross$founders must be an integer matrix";
@@ -145,6 +153,12 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 
 	//check type of finals
 	Rcpp::RObject finals_ = mpcross["finals"];
+	if(finals_.sexp_type() == REALSXP)
+	{
+		Rcpp::IntegerMatrix converted(Rf_coerceVector(finals_.get__(), INTSXP));
+		DUPLICATE_ATTRIB(converted.get__(), finals_.get__());
+		finals_ = mpcross["finals"] = converted;
+	}
 	if(finals_.sexp_type() != INTSXP)
 	{
 		error = "Input mpcross$finals must be an integer matrix";
@@ -529,4 +543,45 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 		}
 	}
 	return true;
+}
+RcppExport SEXP validate(SEXP object, SEXP checkPedigree_, SEXP checkRF_, SEXP checkLG_, SEXP checkFID_)
+{
+	Rcpp::RObject mpcross(object);
+	bool checkPedigree = true, checkRF = true, checkLG = true, checkFID = true;
+	try
+	{
+		Rcpp::IntegerVector checkPedigreeRcpp(checkPedigree_);
+		checkPedigree = checkPedigreeRcpp[0];
+	}
+	catch(Rcpp::not_compatible&){}
+	
+	try
+	{
+		Rcpp::IntegerVector checkRFRcpp(checkRF_);
+		checkRF = checkRFRcpp[0];
+	}
+	catch(Rcpp::not_compatible&){}
+	
+	try
+	{
+		Rcpp::IntegerVector checkLGRcpp(checkLG_);
+		checkLG = checkLGRcpp[0];
+	}
+	catch(Rcpp::not_compatible&){}
+	
+	try
+	{
+		Rcpp::IntegerVector checkFIDRcpp(checkFID_);
+		checkFID = checkFIDRcpp[0];
+	}
+	catch(Rcpp::not_compatible&){}
+
+	int nFounders;
+	std::string error;
+	bool valid = validateMPCross(mpcross, nFounders, error, checkPedigree, checkRF, checkLG, checkFID);
+	if(valid)
+	{
+		return R_NilValue;
+	}
+	return Rcpp::wrap(error);
 }
