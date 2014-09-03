@@ -9,17 +9,6 @@ mpsegrat <- function(object)
 	chisq <- vector(length=nmrk)
 	pval <- vector(length=nmrk)
 	badmrk <- vector()
-	if("hets" %in% names(object))
-	{
-		hasHets <- TRUE
-		hets <- object$hets
-	}
-	else
-	{
-		hasHets <- FALSE
-		hets <- replicate(ncol(finals), integer(0), simplify=FALSE)
-		names(hets) <- colnames(finals)
-	}
 	for (i in 1:nmrk)
 	{
 		obs <- table(finals[,i])
@@ -27,10 +16,6 @@ mpsegrat <- function(object)
 		chisq[i] <- NA
 		pval[i] <- NA
 		possibleValues <- names(exp)
-		if(hasHets)
-		{
-			possibleValues <- c(possibleValues, hets[[i]][,1])
-		}
 		if (!all(names(obs) %in% possibleValues))
 		{
 			badmrk <- c(badmrk, i) 

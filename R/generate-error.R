@@ -1,24 +1,43 @@
-generate_error <- function(geno, error.prob)
+generate_error <- function(geno, error.prob, founderErrors = TRUE)
 {
-  obsgeno <- geno
-  n.founders <- nrow(geno$founders)
-  n.mrk <- ncol(geno$founders)
-  n.finals <- nrow(geno$finals) 
+	#Copy input data to return value. 
+	obsgeno <- geno
+	
+	n.founders <- nrow(geno$founders)
+	n.mrk <- ncol(geno$founders)
+	n.finals <- nrow(geno$finals) 
 
-  fdr.err <- matrix(data=sample(c(TRUE,FALSE), n.founders*n.mrk, replace=TRUE, 
-	prob=c(error.prob, 1-error.prob)), nrow=n.founders, ncol=n.mrk)
-  fin.err <- matrix(data=sample(c(TRUE,FALSE), n.finals*n.mrk, replace=TRUE,
-	prob=c(error.prob, 1-error.prob)), nrow=n.finals, ncol=n.mrk)
-
-  # replacing IBD genotypes with something different
-  for (i in 1:n.founders) {
-     prob <- rep(error.prob/(n.founders-1), n.founders) 
-     prob[i] <- 0
-
-     obsgeno$founders[fdr.err==1 & obsgeno$founders==i] <- sample(1:n.founders, sum(fdr.err==1 & obsgeno$founders==i), replace=TRUE, prob=prob)
-     obsgeno$finals[fin.err==1 & obsgeno$finals==i] <- sample(1:n.founders, sum(fin.err==1 & obsgeno$finals==i), replace=TRUE, prob=prob)
-  }
-
-  return(obsgeno)
+	founderGenotypes <- lapply(1:ncol(geno$founders), function(x) unique(geno$founders[,x]))
+	
+	if(founderErrors)
+	{
+		#Matrix telling us where the founder errors are
+		founderErrors <- matrix(data=sample(c(TRUE,FALSE), n.founders*n.mrk, replace=TRUE, prob=c(error.prob, 1-error.prob)), nrow=n.founders, ncol=n.mrk)
+		for(markerIndex in 1:n.mrk)
+		{
+			#The founders which are going to have the wrong value, for this marker
+			founderErrorsThisMarker <- which(founderErrors[,markerIndex])
+			for(founderIndex in founderErrorsThisMarker)
+			{
+				#Put in one of the other alleles (chosen uniformly)
+				obsgeno$founders[founderIndex,markerIndex] <- sample(setdiff(founderGenotypes[[markerIndex]], obsgeno$founders[founderIndex, markerIndex]), 1)
+			}
+		}
+	}
+	
+	#Matrix telling us where the final errors are.
+	finalErrors <- matrix(data=sample(c(TRUE,FALSE), n.finals*n.mrk, replace=TRUE, prob=c(error.prob, 1-error.prob)), nrow=n.finals, ncol=n.mrk)
+	for(markerIndex in 1:n.mrk)
+	{
+		#Possible observed values at this marker
+		for (finalValue in founderGenotypes[[markerIndex]]) 
+		{
+			#The other possible observed values (the ones errors will be changed to)
+			otherValues <- setdiff(founderGenotypes[[markerIndex]], finalValue)
+			#For the values which are going to be errors and previously had observation finalValue, choose uniformly from the alternatives
+			obsgeno$finals[finalErrors[,markerIndex] & obsgeno$finals[,markerIndex] == finalValue, markerIndex] <- sample(otherValues, sum(finalErrors[,markerIndex] & obsgeno$finals[,markerIndex] == finalValue), replace=TRUE)
+		}
+	}
+	return(obsgeno)
 }
 

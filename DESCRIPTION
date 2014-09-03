@@ -60,7 +60,6 @@ Collate:
     'gen4ped.R'
     'gen8ped.R'
     'generate-error.R'
-    'generate-error2.R'
     'generate-obs.R'
     'generate-pheno.R'
     'getpval.R'
