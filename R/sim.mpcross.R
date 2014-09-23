@@ -177,8 +177,14 @@ sim.mpcross <- function(map, pedigree, qtl=NULL, vare=1, error.prob=0, missing.p
 		obsgeno$finals[sample(c(TRUE, FALSE), length(obsgeno$finals), replace=TRUE, prob=c(missing.prob, 1-missing.prob))] <- NA
 	}
 
-	rownames(pheno) <- rownames(obsgeno$finals) <- rownames(geno$finals) <- rownames(qtlgeno$finals) <- rownames(pedigree)[genotypedLines]
-	rownames(obsgeno$founders) <- rownames(geno$founders) <- rownames(qtlgeno$founders) <- rownames(pedigree)[geno$fid]
+	rownames(pheno) <- rownames(obsgeno$finals) <- rownames(geno$finals) <- rownames(pedigree)[genotypedLines]
+	
+	rownames(obsgeno$founders) <- rownames(geno$founders) <- rownames(pedigree)[geno$fid]
+	if(n.qtl > 0)
+	{
+		rownames(qtlgeno$founders) <- rownames(pedigree)[geno$fid]
+		rownames(qtlgeno$finals) <- rownames(pedigree)[genotypedLines]
+	}
 	
 	mpcross <- list(founders=obsgeno$founders, finals=obsgeno$finals, ibd=list(founders=geno$founders, finals=geno$finals), pheno=pheno, map=map, pedigree=pedigree, id=geno$id, fid=geno$fid) 
 
