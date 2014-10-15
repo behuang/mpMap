@@ -36,7 +36,7 @@ Imports:
   ggplot2,
   seriation,
   Rcpp
-LinkingTo: Rcpp
+LinkingTo: Rcpp, qtl
 Collate:
     'gen2ped.R'
     'add3pt.R'
@@ -80,6 +80,7 @@ Collate:
     'mpprob.R'
     'mpsegrat.R'
     'nai.R'
+    'outputPedigreeGraph.R'
     'plot.mpcross.R'
     'plot.mpprob.R'
     'plot.mpqtl.R'
