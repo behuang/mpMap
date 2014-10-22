@@ -71,7 +71,6 @@ Collate:
     'mpcross.R'
     'mpestrf.R'
     'mpgroup.R'
-    'mpgroupgraph.R'
     'mpIM.R'
     'mpimpute.R'
     'mpimputerf.R'
