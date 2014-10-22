@@ -3,6 +3,16 @@
 #define fidToFounderNumber(id) std::distance(fid.begin(), std::find(fid.begin(), fid.end(), id)) + 1
 bool getFunnel(int id, Rcpp::DataFrame pedigree, std::vector<int>& fid, int aiGenerations, int* funnel, int nPedigreeRows, int nFounders)
 {
+	//The funnel should be NA if there are intercrossing generations
+	if(aiGenerations > 0)
+	{
+		for(int i = 0; i < nFounders; i++)
+		{
+			funnel[i] = NA_INTEGER;
+		}
+		return true;
+	}
+
 	Rcpp::IntegerVector idColumn = pedigree("id");
 	int row = findIDInPedigree(id, pedigree);
 	if(row == -1) return false;
@@ -13,14 +23,6 @@ bool getFunnel(int id, Rcpp::DataFrame pedigree, std::vector<int>& fid, int aiGe
 		int newID = male(row);
 		row = findIDInPedigree(newID, pedigree);
 		if(row == -1) return false;
-	}
-	int counter = aiGenerations;
-	while(counter)
-	{
-		int newID = female(row);
-		row = findIDInPedigree(newID, pedigree);
-		if(row == -1) return false; 
-		counter--;
 	}
 	int motherID = female(row), fatherID = male(row);
 	int motherRow = findIDInPedigree(motherID, pedigree), fatherRow = findIDInPedigree(fatherID, pedigree);
