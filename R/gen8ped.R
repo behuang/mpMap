@@ -1,6 +1,7 @@
 gen8ped <-
 function(nfunnels=1, nperfam=50, nssdgen=6, nseeds=1, iripgen=0, seed=1)
 {
+  set.seed(seed)
   # could allow nseeds to be a vector, in which case it should have length ?  - one entry for each stage. if length 1, assume that  
  
   ped <- cbind(c(1:8), rep(0, 8), rep(0, 8))
@@ -83,13 +84,24 @@ function(nfunnels=1, nperfam=50, nssdgen=6, nseeds=1, iripgen=0, seed=1)
 
     # irip
     if (iripgen>0)
-    for (i in 1:iripgen)
-    {
-      for (j in n4:n8)
-	ped <- rbind(ped, c(nrow(ped)+1, j, sample(setdiff(n4:n8, j), 1)))
-      n4 <- n8+1
-      n8 <- nrow(ped)
-    }
+	{
+		for (i in 1:iripgen)
+		{
+			for (j in n4:n8)
+			{
+				if(length(setdiff(n4:n8, j)) == 1)
+				{
+					ped <- rbind(ped, c(nrow(ped)+1, j, setdiff(n4:n8, j)))
+				}
+				else
+				{
+					ped <- rbind(ped, c(nrow(ped)+1, j, sample(setdiff(n4:n8, j), 1)))
+				}
+			}
+			n4 <- n8+1
+			n8 <- nrow(ped)
+		}
+	}
 
     obs <- rep(0, nrow(ped))
     
