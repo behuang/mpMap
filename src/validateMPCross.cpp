@@ -1,5 +1,87 @@
 #include "validateMPCross.h"
 #include <Rinternals.h>
+bool validatePedigree(Rcpp::RObject pedigree_, Rcpp::DataFrame& pedigree, std::string& error)
+{
+	Rcpp::Function asInteger("as.integer");
+	Rcpp::IntegerVector dim;
+	//Here we change the object in-place, if it's numeric instead of integer
+	if(pedigree_.sexp_type() == REALSXP)
+	{
+		Rcpp::IntegerMatrix converted(Rf_coerceVector(pedigree_.get__(), INTSXP));
+		DUPLICATE_ATTRIB(converted.get__(), pedigree_.get__());
+		pedigree_ = converted;
+	}
+	//If it's a matrix, convert to data.frame
+	if(pedigree_.sexp_type() == INTSXP)
+	{
+		//check it's 2-d
+		if(!pedigree_.hasAttribute("dim"))
+		{
+			error = "mpcross$pedigree did not have a dimension attribute";
+			return false;
+		}
+		dim = pedigree_.attr("dim");
+		if(dim.length() != 2) 
+		{
+			error = "Internal error, pedigree had more than two dimensions";
+			return false;
+		}
+		pedigree = Rcpp::Language("as.data.frame", pedigree_).eval();
+	}
+	else if(pedigree_.sexp_type() == VECSXP && Rcpp::as<std::string>(pedigree_.attr("class")) == "data.frame")
+	{
+		pedigree = Rcpp::as<Rcpp::DataFrame>(pedigree_);
+	}
+	else
+	{
+		error = "Input mpcross$pedigree must be an integer matrix or data.frame";
+		return false;
+	}
+	//Colnames should be id, Male, Female, Observed, and then optionally Design
+	Rcpp::List dimnames = Rcpp::Language("dimnames", pedigree).eval();
+	dim = Rcpp::Language("dim", pedigree).eval();
+	std::vector<std::string> colnames = Rcpp::as<std::vector<std::string> >(dimnames[1]);
+	if(dim[1] != 4 && dim[1] != 5)
+	{
+		error = "Wrong number of columns in pedigree";
+		return false;
+	}
+	if(colnames[0] != "id" || colnames[1] != "Male" || colnames[2] != "Female" || colnames[3] != "Observed")
+	{
+		error = "Column names of pedigree must be 'id', 'Male', 'Female' and 'Observed'";
+		return false;
+	}
+	if(dim[1] == 5)
+	{
+		if(colnames[4] != "Design")
+		{
+			error = "If a pedigree has five columns the fifth must be named 'Design'";
+			return false;
+		}
+	}
+#define check_ped_column(INDEX, NAME)	\
+	if(Rcpp::as<Rcpp::RObject>(pedigree(INDEX)).sexp_type() == REALSXP)	\
+	{	\
+		pedigree(INDEX) = asInteger(pedigree(INDEX));	\
+	}	\
+	if(Rcpp::as<Rcpp::RObject>(pedigree(INDEX)).sexp_type() != INTSXP)	\
+	{	\
+		error = "Pedigree column " NAME " must be numeric";	\
+		return false;	\
+	}	
+	//convert first column, if it's numeric
+	check_ped_column(0, "id");
+	check_ped_column(1, "Male");
+	check_ped_column(2, "Female");
+	check_ped_column(3, "Observed");
+#undef check_ped_column
+	if(pedigree.length() == 5 && Rcpp::as<Rcpp::RObject>(pedigree("Design")).sexp_type() != STRSXP)
+	{
+		error = "Pedigree column Design must be a string";
+		return false;
+	}
+	return true;
+}
 bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error, bool checkPedigree, bool checkRF, bool checkLG, bool checkFID)
 {
 	Rcpp::Function asInteger("as.integer");
@@ -53,82 +135,12 @@ bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error,
 		}
 		Rcpp::RObject pedigree_ = mpcross["pedigree"];
 		Rcpp::DataFrame pedigree;
-		//Here we change the object in-place, if it's numeric instead of integer
-		if(pedigree_.sexp_type() == REALSXP)
+		bool pedigreeOK = validatePedigree(pedigree_, pedigree, error);
+		if(!pedigreeOK)
 		{
-			Rcpp::IntegerMatrix converted(Rf_coerceVector(pedigree_.get__(), INTSXP));
-			DUPLICATE_ATTRIB(converted.get__(), pedigree_.get__());
-			pedigree_ = mpcross["pedigree"] = converted;
-		}
-		//If it's a matrix, convert to data.frame
-		if(pedigree_.sexp_type() == INTSXP)
-		{
-			//check it's 2-d
-			if(!pedigree_.hasAttribute("dim"))
-			{
-				error = "mpcross$pedigree did not have a dimension attribute";
-				return false;
-			}
-			dim = pedigree_.attr("dim");
-			if(dim.length() != 2) 
-			{
-				error = "Internal error, pedigree had more than two dimensions";
-				return false;
-			}
-			mpcross["pedigree"] = pedigree = Rcpp::Language("as.data.frame", pedigree_).eval();
-		}
-		else if(pedigree_.sexp_type() == VECSXP && Rcpp::as<std::string>(pedigree_.attr("class")) == "data.frame")
-		{
-			pedigree = Rcpp::as<Rcpp::DataFrame>(pedigree_);
-		}
-		else
-		{
-			error = "Input mpcross$pedigree must be an integer matrix or data.frame";
 			return false;
 		}
-		//Colnames should be id, Male, Female, Observed, and then optionally Design
-		Rcpp::List dimnames = Rcpp::Language("dimnames", pedigree).eval();
-		Rcpp::IntegerVector dim = Rcpp::Language("dim", pedigree).eval();
-		std::vector<std::string> colnames = Rcpp::as<std::vector<std::string> >(dimnames[1]);
-		if(dim[1] != 4 && dim[1] != 5)
-		{
-			error = "Wrong number of columns in pedigree";
-			return false;
-		}
-		if(colnames[0] != "id" || colnames[1] != "Male" || colnames[2] != "Female" || colnames[3] != "Observed")
-		{
-			error = "Column names of pedigree must be 'id', 'Male', 'Female' and 'Observed'";
-			return false;
-		}
-		if(dim[1] == 5)
-		{
-			if(colnames[4] != "Design")
-			{
-                error = "If a pedigree has five columns the fifth must be named 'Design'";
-				return false;
-			}
-		}
-#define check_ped_column(INDEX, NAME)	\
-		if(Rcpp::as<Rcpp::RObject>(pedigree(INDEX)).sexp_type() == REALSXP)	\
-		{	\
-			pedigree(INDEX) = asInteger(pedigree(INDEX));	\
-		}	\
-		if(Rcpp::as<Rcpp::RObject>(pedigree(INDEX)).sexp_type() != INTSXP)	\
-		{	\
-			error = "Pedigree column " NAME " must be numeric";	\
-			return false;	\
-		}	
-		//convert first column, if it's numeric
-		check_ped_column(0, "id");
-		check_ped_column(1, "Male");
-		check_ped_column(2, "Female");
-		check_ped_column(3, "Observed");
-#undef check_ped_column
-		if(pedigree.length() == 5 && Rcpp::as<Rcpp::RObject>(pedigree("Design")).sexp_type() != STRSXP)
-		{
-			error = "Pedigree column Design must be a string";
-			return false;
-		}
+		mpcross["pedigree"] = pedigree;
 	}
 	//check type of founders
 	Rcpp::RObject founders_ = mpcross["founders"];
