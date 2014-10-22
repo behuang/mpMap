@@ -62,9 +62,9 @@ outputPedigreeGraph <- function(pedigree, fileName, omitFunnel = TRUE)
 	
 	if(is.numeric(pedigree[,1]) && !is.null(rownames(pedigree)))
 	{
-		edges <- lapply(edges, function(x) rownames(pedigree)[match(x, pedigree[,1])])
-		names(edges) <- rownames(pedigree)[match(as.numeric(names(edges)), pedigree[,1])]
-		nodes <- rownames(pedigree)[match(nodes, pedigree[,1])]
+		edges <- lapply(edges, function(x) rownames(pedigree)[as.integer(x)])
+		names(edges) <- rownames(pedigree)[as.integer(names(edges))]
+		nodes <- rownames(pedigree)[as.integer(nodes)]
 	}
 	graph <- new("graphNEL", nodes=nodes, edgeL=edges, edgemode="directed")
 	
