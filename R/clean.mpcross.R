@@ -46,7 +46,8 @@ clean.mpcross <- function(object, ...)
 	stop("Number of markers for finals and founders does not match")
 
  # Check pedigree format
- object$pedigree <- convertped(object$pedigree, nFounders = nrow(object$founders))
+ # Altered to conform with new convertped function
+ object$pedigree <- convertped(object$pedigree)
 
  # Remove markers which do not differ among founders
  fdr.alleles <- apply(object$founders, 2, function(x) return(length(table(x))))
