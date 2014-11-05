@@ -67,19 +67,52 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
 
   if (program=="mpMap")
     out$prob <- calcmpprob(object, chr, step, mapfx, ibd, mrkpos)
-  if (program=="qtl"){
-	funnels <- getAllFunnels(object)
-	if(any(apply(funnels, 1, function(x) length(unique(x))) != ncol(funnels)))
+  if (program=="qtl")
+  {
+    if(!("Design" %in% names(object$pedigree)))
+    {
+		object$pedigree <- cbind(object$pedigree, identifyDesign(object$pedigree))
+		colnames(object$pedigree)[ncol(object$pedigree)] <- "Design"
+    }
+	removeSelfing <- function(designName)
 	{
-		stop("R/qtl cannot be used in situations where a founder is repeated within a funnel. Please remove such lines and try again")
+		searchResult <- regexpr("self", designName, fixed=T	)
+		if(searchResult != -1)
+		{
+			return(substr(designName, 1, searchResult-1))
+		}
+		return(designName)
 	}
+	designColumn <- object$pedigree[, "Design"]
+	observedDesigns <- unique(sapply(designColumn[object$pedigree[, "Observed"] == 1], removeSelfing))
+	if(length(observedDesigns) != 1)	
+	{
+		stop("Only one type of design can currently be used with program qtl")
+	}
+	if(observedDesigns == "8wayG3aic1")
+	{
+		qtlType <- "ri8selfIRIP1"
+	}
+	else if(observedDesigns == "8wayG3aic2")
+	{
+		qtlType <- "ri8selfIRIP2"
+	}
+	else if(observedDesigns == "8wayG3")
+	{
+		qtlType <- "ri8self"
+	}
+	else if(observedDesigns == "4wayG3")
+	{
+		qtlType <- "ri4self"
+	}
+	else
+	{
+		stop("Unable to convert design to one known by R/qtl")
+	}
+
 	if (tempfiledirectory != "") write2cross(object, filestem=paste(tempfiledirectory, "/tmp", sep=""))
 	else write2cross(object, filestem="tmp")
-	if(is.null(attr(object, "type")))
-	{
-		stop("When using qtl to compute probabilities a \"type\" attribute must be provided")
-	}
-   	cr <- qtl:::readMWril(tempfiledirectory, "tmp.ril.csv", "tmp.founder.csv", type=attr(object, "type"))
+   	cr <- qtl:::readMWril(tempfiledirectory, "tmp.ril.csv", "tmp.founder.csv", type=qtlType)
  	cr <- subset(cr, chr=chr)
 	if (!missing(impmap)) 
 	gp <- calc.genoprob2(cr, pos=impmap, error.prob=geprob)

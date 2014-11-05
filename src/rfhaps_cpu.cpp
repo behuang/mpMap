@@ -83,6 +83,15 @@ template<int nFounders> void genotypeProbabilitiesWithIntercross(double (&expand
 }
 template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cpu_args& args)
 {
+	typedef std::pair<markerPatternID, markerPatternID> markerPair;
+	typedef std::array<std::array<double, maxMarkerAlleles>, maxMarkerAlleles> arrayType;
+	struct PerRecombinationFractionData
+	{
+		sharedArray<arrayType> perFunnelData;
+		sharedArray<arrayType> perAIGenerationData;
+	};
+	typedef std::map<markerPair, sharedArray<PerRecombinationFractionData> > PerMarkerPairData;
+
 	int nFinals = args.finalsMatrix.nrow(), nRecombLevels = args.recombinationVector.size();
 	int nDifferentFunnels = args.funnelEncodings.size();
 	int marker2RangeSize = args.marker2End - args.marker2Start;
@@ -97,19 +106,12 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 	int nMarkerPatternIDs = args.markerEncodings.size();
 	int maxAIGenerations = *std::max_element(args.nIntercrossingGenerations.begin(), args.nIntercrossingGenerations.end());
 	
-	typedef std::pair<markerPatternID, markerPatternID> markerPair;
-	
-	typedef std::array<std::array<double, maxMarkerAlleles>, maxMarkerAlleles> arrayType;
-	typedef sharedArray<arrayType> PerAIGenerationData;
-	typedef sharedArray<PerAIGenerationData> PerRecombinationFractionData;
-	typedef std::map<markerPair, sharedArray<PerRecombinationFractionData> > PerMarkerPairData;
-	
-	//data structure goes marker pair -> recombination level -> number of AI generations -> funnelID -> marker1 value -> marker2Value. Basically a huge array. 
+	//This is basically just a huge lookup table
 	PerMarkerPairData computedContributions;
 #ifdef USE_OPENMP
 	#pragma omp parallel for schedule(static, 1)
 #endif
-	//This is a big chunk of code, but does NOT grow with problem size. 
+	//This is a big chunk of code, but does NOT grow with problem size (number of markers, number of lines). Well, it grows but to some fixed limit. 
 	for(int firstPattern = 0; firstPattern < nMarkerPatternIDs; firstPattern++)
 	{
 		int firstMarkerEncoding = args.markerEncodings[firstPattern];
@@ -136,63 +138,86 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 			{
 				double recombFraction = args.recombinationVector[recombCounter];
 				PerRecombinationFractionData& currentRecomb = perRecombData[recombCounter];
-				currentRecomb = PerRecombinationFractionData(new PerAIGenerationData[maxAIGenerations+1]);
-				for(int intercrossingGeneration = 0; intercrossingGeneration <= maxAIGenerations; intercrossingGeneration++)
+				currentRecomb.perFunnelData = new arrayType[nDifferentFunnels];
+				currentRecomb.perAIGenerationData = new arrayType[maxAIGenerations];
+				for(int intercrossingGeneration = 1; intercrossingGeneration <= maxAIGenerations; intercrossingGeneration++)
 				{
-					PerAIGenerationData& markerProbabilitiesAllFunnels = currentRecomb[intercrossingGeneration];
-					markerProbabilitiesAllFunnels = PerAIGenerationData(new arrayType[nDifferentFunnels]);
+					arrayType& markerProbabilities = currentRecomb.perAIGenerationData[intercrossingGeneration-1];
 					double haplotypeProbabilities[nFounders][nFounders];
-					if(intercrossingGeneration == 0)
+					genotypeProbabilitiesWithIntercross<nFounders>(haplotypeProbabilities, intercrossingGeneration, recombFraction);
+					for(int firstMarkerValue = 0; firstMarkerValue <= nFirstMarkerAlleles; firstMarkerValue++)
 					{
-						genotypeProbabilitiesNoIntercross<nFounders>(haplotypeProbabilities, recombFraction);
-					}
-					else
-					{
-						genotypeProbabilitiesWithIntercross<nFounders>(haplotypeProbabilities, intercrossingGeneration, recombFraction);
-					}
-					for(int funnelCounter = 0; funnelCounter < nDifferentFunnels; funnelCounter++)
-					{
-						arrayType& markerProbabilitiesThisFunnel = markerProbabilitiesAllFunnels[funnelCounter];
-						memset(&(markerProbabilitiesThisFunnel[0][0]), 0, sizeof(double)*maxMarkerAlleles*maxMarkerAlleles);
-						funnelEncoding enc = args.funnelEncodings[funnelCounter];
-						int funnel[8];
-						for(int founderCounter = 0; founderCounter < nFounders; founderCounter++)
+						for(int firstFounder = 0; firstFounder < nFounders; firstFounder++)
 						{
-							funnel[founderCounter] = ((enc & (7 << (3*founderCounter))) >> (3*founderCounter));
-						}
-						
-						for(int firstMarkerValue = 0; firstMarkerValue <= nFirstMarkerAlleles; firstMarkerValue++)
-						{
-							//firstFounder is the index of the founder within the current funnel
-							for(int firstFounder = 0; firstFounder < nFounders; firstFounder++)
+							if(firstMarkerPattern[firstFounder] == firstMarkerValue)
 							{
-								if(firstMarkerPattern[funnel[firstFounder]] == firstMarkerValue)
+								for(int secondMarkerValue = 0; secondMarkerValue <= nSecondMarkerAlleles; secondMarkerValue++)
 								{
-									for(int secondMarkerValue = 0; secondMarkerValue <= nSecondMarkerAlleles; secondMarkerValue++)
+									for(int secondFounder = 0; secondFounder < nFounders; secondFounder++)
 									{
-										for(int secondFounder = 0; secondFounder < nFounders; secondFounder++)
-										{
-											 if(secondMarkerPattern[funnel[secondFounder]] == secondMarkerValue)
-											 {
-												markerProbabilitiesThisFunnel[firstMarkerValue][secondMarkerValue] += haplotypeProbabilities[firstFounder][secondFounder];
-											 }
+										 if(secondMarkerPattern[secondFounder] == secondMarkerValue)
+										 {
+											markerProbabilities[firstMarkerValue][secondMarkerValue] += haplotypeProbabilities[firstFounder][secondFounder];
 										 }
-									}
+									 }
 								}
 							}
 						}
-						//now take logs of every value in markerProbabilities
-						for(int firstMarkerValue = 0; firstMarkerValue <= nFirstMarkerAlleles; firstMarkerValue++)
+					}
+					//now take logs of every value in markerProbabilities
+					for(int firstMarkerValue = 0; firstMarkerValue <= nFirstMarkerAlleles; firstMarkerValue++)
+					{
+						for(int secondMarkerValue = 0; secondMarkerValue <= nSecondMarkerAlleles; secondMarkerValue++)
 						{
-							for(int secondMarkerValue = 0; secondMarkerValue <= nSecondMarkerAlleles; secondMarkerValue++)
+							markerProbabilities[firstMarkerValue][secondMarkerValue] = log10(markerProbabilities[firstMarkerValue][secondMarkerValue]);
+						}
+					}
+				}
+				for(int funnelCounter = 0; funnelCounter < nDifferentFunnels; funnelCounter++)
+				{
+					arrayType& markerProbabilitiesThisFunnel = currentRecomb.perFunnelData[funnelCounter];
+					memset(&(markerProbabilitiesThisFunnel[0][0]), 0, sizeof(double)*maxMarkerAlleles*maxMarkerAlleles);
+					funnelEncoding enc = args.funnelEncodings[funnelCounter];
+					int funnel[8];
+					for(int founderCounter = 0; founderCounter < nFounders; founderCounter++)
+					{
+						funnel[founderCounter] = ((enc & (7 << (3*founderCounter))) >> (3*founderCounter));
+					}
+					double haplotypeProbabilities[nFounders][nFounders];
+					genotypeProbabilitiesNoIntercross<nFounders>(haplotypeProbabilities, recombFraction);
+					for(int firstMarkerValue = 0; firstMarkerValue <= nFirstMarkerAlleles; firstMarkerValue++)
+					{
+						//firstFounder is the index of the founder within the current funnel
+						for(int firstFounder = 0; firstFounder < nFounders; firstFounder++)
+						{
+							if(firstMarkerPattern[funnel[firstFounder]] == firstMarkerValue)
 							{
-								markerProbabilitiesThisFunnel[firstMarkerValue][secondMarkerValue] = log10(markerProbabilitiesThisFunnel[firstMarkerValue][secondMarkerValue]);
+								for(int secondMarkerValue = 0; secondMarkerValue <= nSecondMarkerAlleles; secondMarkerValue++)
+								{
+									for(int secondFounder = 0; secondFounder < nFounders; secondFounder++)
+									{
+										 if(secondMarkerPattern[funnel[secondFounder]] == secondMarkerValue)
+										 {
+											markerProbabilitiesThisFunnel[firstMarkerValue][secondMarkerValue] += haplotypeProbabilities[firstFounder][secondFounder];
+										 }
+									 }
+								}
 							}
+						}
+					}
+					//now take logs of every value in markerProbabilitiesThisFunnel
+					for(int firstMarkerValue = 0; firstMarkerValue <= nFirstMarkerAlleles; firstMarkerValue++)
+					{
+						for(int secondMarkerValue = 0; secondMarkerValue <= nSecondMarkerAlleles; secondMarkerValue++)
+						{
+							markerProbabilitiesThisFunnel[firstMarkerValue][secondMarkerValue] = log10(markerProbabilitiesThisFunnel[firstMarkerValue][secondMarkerValue]);
 						}
 					}
 				}
 			}
+#ifdef USE_OPENMP
 			#pragma omp critical
+#endif
 			{
 				computedContributions.insert(make_pair(currentPair, perRecombData));
 			}
@@ -225,10 +250,20 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 						int marker2Value = args.finalsMatrix(finalCounter, markerCounter2);
 						if(marker1Value != NA_INTEGER && marker2Value != NA_INTEGER)
 						{
+							double contribution;
 							int intercrossingGenerations = args.nIntercrossingGenerations[finalCounter];
-							funnelID currentLineFunnelID = args.funnelIDs[finalCounter];
-							arrayType& perMarkerGenotypeValues = perRecombLevelData[intercrossingGenerations][currentLineFunnelID];
-							double contribution = perMarkerGenotypeValues[marker1Value][marker2Value];
+							if(intercrossingGenerations == 0)
+							{
+								funnelID currentLineFunnelID = args.funnelIDs[finalCounter];
+								arrayType& perMarkerGenotypeValues = perRecombLevelData.perFunnelData[currentLineFunnelID];
+								contribution = perMarkerGenotypeValues[marker1Value][marker2Value];
+							}
+							else
+							{
+								arrayType& perMarkerGenotypeValues = perRecombLevelData.perAIGenerationData[intercrossingGenerations-1];
+								contribution = perMarkerGenotypeValues[marker1Value][marker2Value];
+							}
+							if(contribution != contribution) contribution = -std::numeric_limits<double>::infinity();
 							args.result[(long)(markerCounter1 - args.marker1Start) *(long)nRecombLevels*(long)marker2RangeSize + (long)(markerCounter2-args.marker2Start) * (long)nRecombLevels + (long)recombCounter] += lineWeights[finalCounter] * contribution;
 						}
 					}

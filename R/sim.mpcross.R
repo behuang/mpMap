@@ -144,11 +144,11 @@ sim.mpcross <- function(map, pedigree, qtl=NULL, vare=1, error.prob=0, missing.p
 	#Also obsgeno contains any errors (if errors were specified)
   	if (error.prob>0) 
   	{
-		if(!is.null(fg))
-		{
-			warning("Input fg was specified, so no errors are created in the founders")
-		}
-    	obsgeno <- generate_error(obsgeno, error.prob, founderErrors = is.null(fg))
+#		if(!is.null(fg))
+#		{
+#			warning("Input fg was specified, so no errors are created in the founders")
+#		}
+    	obsgeno <- generate_error(obsgeno, error.prob, founderErrors = FALSE)
   	}
 
 	#Drop QTL markers from genetic data
@@ -195,4 +195,3 @@ sim.mpcross <- function(map, pedigree, qtl=NULL, vare=1, error.prob=0, missing.p
 	validate(mpcross)
 	mpcross
 }
-

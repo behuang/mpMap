@@ -74,17 +74,39 @@ function(object, filestem, chr, ...)
   rilfile <- paste(filestem, ".ril.csv", sep="")
   founderfile <- paste(filestem, ".founder.csv", sep="")
 
-  # rilfile needs to include a phenotype cross with funnels
-  # construct cross phenotype
-  cross <- apply(getAllFunnels(obj), 1, function(x) return(paste(strains[x], collapse="")))
-
-#sapply(object$id, function(x) return(paste(strains[as.numeric(pedtofun(object$pedigree,x))],collapse="")))
+  if("Design" %in% names(object$pedigree))
+  {
+	uniqueDesigns <- unique(object$pedigree["Design", object$pedigree[,"Observed"] == 1])
+  }
+  else
+  {
+	designColumn <- identifyDesign(object)
+	uniqueDesigns <- unique(designColumn[object$pedigree[,"Observed"] == 1])
+  }
+  if(length(uniqueDesigns) > 1)
+  {
+	stop("Currently only able to output a single design at a time")
+  }
+  # rilfile needs to include a phenotype cross with funnels, unless we have an IRIP / AIC design 
+  
+  if(length(grep("IRIP", uniqueDesigns)) > 0)
+  {
+    ril <- data.frame(obj$pheno, obj$finals)
+    names(ril)[(n.pheno+1):ncol(ril)] <- colnames(obj$finals) 
+  }
+  else
+  {
+  	funnels <- getAllFunnels(object)
+	if(any(apply(funnels, 1, function(x) length(unique(x))) != ncol(funnels)))
+	{
+		stop("R/qtl cannot be used in situations where a founder is repeated within a funnel. Please remove such lines and try again")
+	}
+    cross <- apply(funnels, 1, function(x) return(paste(strains[x], collapse="")))
+    ril <- data.frame(obj$pheno, cross, obj$finals)
+    ril[,n.pheno+1] <- as.character(ril[,n.pheno+1])
+    names(ril)[(n.pheno+2):ncol(ril)] <- colnames(obj$finals) 
+  }
   chrnam <- rep(names(obj$map), unlist(lapply(obj$map, length))) 
- 
-  ril <- data.frame(obj$pheno, cross, obj$finals)
-  ril[,n.pheno+1] <- as.character(ril[,n.pheno+1])
-  names(ril)[(n.pheno+2):ncol(ril)] <- colnames(obj$finals) 
-
   vec <- c(rep("", n.pheno+1), as.character(chrnam))
   names(vec) <- colnames(ril)
   write.csv(t(vec), rilfile, quote=FALSE, row.names=FALSE)
