@@ -46,6 +46,7 @@ clean.mpcross <- function(object, ...)
 	stop("Number of markers for finals and founders does not match")
 
  # Check pedigree format
+ # Altered to conform with new convertped function
  object$pedigree <- convertped(object$pedigree)
 
  # Remove markers which do not differ among founders
