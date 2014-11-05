@@ -186,7 +186,7 @@ sim.mpcross <- function(map, pedigree, qtl=NULL, vare=1, error.prob=0, missing.p
 		rownames(qtlgeno$finals) <- rownames(pedigree)[genotypedLines]
 	}
 	
-	mpcross <- list(founders=obsgeno$founders, finals=obsgeno$finals, ibd=list(founders=geno$founders, finals=geno$finals), pheno=pheno, map=map, pedigree=pedigree, id=geno$id, fid=geno$fid) 
+	mpcross <- list(founders=obsgeno$founders, finals=obsgeno$finals, ibd=list(founders=geno$founders, finals=geno$finals), pheno=pheno, map=map2, pedigree=pedigree, id=geno$id, fid=geno$fid) 
 
 	if (keep.qtlgeno==TRUE)mpcross$qtlgeno <- qtlgeno
 
