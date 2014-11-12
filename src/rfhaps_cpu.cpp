@@ -224,6 +224,7 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 		}
 	}
 #ifdef USE_OPENMP
+	#pragma omp barrier
 	#pragma omp parallel for schedule(static, 1)
 #endif
 	//This set of loops DOES grow with problem size. 
