@@ -36,17 +36,28 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
 
   output <- x
 
-  if (!is.null(chr)) {
-    if (is.numeric(chr)) chr <- names(x$map)[chr]
-    output$map <- as.list(output$map[chr])
-	class(output$map) <- "map"
+	if (!is.null(chr)) 
+	{
+		if(is.null(names(x$map)) || length(unique(names(x$map))) != length(x$map))
+		{
+			stop("A map with unique chromosome names is required to use input chr")
+		}
+		if (is.numeric(chr)) chr <- names(x$map)[chr]
+		if(!all(chr %in% names(x$map)))
+		{
+			stop("Invalid chromosome names entered")
+		}
+		output$map <- as.list(output$map[chr])
+		class(output$map) <- "map"
 
-    if (is.null(x$lg)) x <- mpgroup(x)
-    groups <- match(chr, names(x$map))
+		if (is.null(x$lg)) x <- mpgroup(x)
+		groups <- match(chr, names(x$map))
 
-    for (ii in chr)
-      markers <- unique(c(markers, names(x$map[[ii]])))
-  }
+		for (ii in chr)
+		{
+			markers <- unique(c(markers, names(x$map[[ii]])))
+		}
+	}
 
   if(!is.null(groups))
   {
@@ -112,16 +123,17 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
 			output$map <- NULL
 		}
 	}
-	#If we kept the map, strip out any lg structure
-#	if(!is.null(output$map)) output$lg <- NULL
-	
 	#If there's still an LG structure, reorder it
-        if (!is.null(output$lg)) 
+	if (!is.null(output$lg)) 
 	{
 		m2 <- match(markers, names(output$lg$groups))
-		output$lg$groups <- x$lg$groups[m2]
+		output$lg$groups <- output$lg$groups[m2]
 		output$lg$all.groups <- unique(output$lg$groups)
-        } 
+		if(any(is.na(output$lg$groups)))
+		{
+			stop("Cannot have an NA value for linkage group")
+		}
+	} 
   }
 
   if (!is.null(lines)) {

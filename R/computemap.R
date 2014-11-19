@@ -51,6 +51,13 @@ computemap <- function(object, mapfx=c("haldane", "kosambi"), maxOffset = 1)
 			names(object$map) <- "Chr1"
 		}
 	}
+	else
+	{
+		if(is.null(names(object$map)) || length(unique(names(object$map))) != length(map))
+		{
+			stop("An existing map was used to assign linkage groups, but it did not have unique chromosome names")
+		}
+	}
 	#Remove lg component because we now have a map object, and mpimpute will warn if there are both.
 	object$lg <- NULL
 	object <- mpimputerf(object)

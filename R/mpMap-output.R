@@ -76,7 +76,7 @@ function(object, filestem, chr, ...)
 
   if("Design" %in% names(object$pedigree))
   {
-	uniqueDesigns <- unique(object$pedigree["Design", object$pedigree[,"Observed"] == 1])
+	uniqueDesigns <- unique(object$pedigree[object$pedigree[,"Observed"] == 1, "Design"])
   }
   else
   {
@@ -89,7 +89,7 @@ function(object, filestem, chr, ...)
   }
   # rilfile needs to include a phenotype cross with funnels, unless we have an IRIP / AIC design 
   
-  if(length(grep("IRIP", uniqueDesigns)) > 0)
+  if(length(grep("aic", uniqueDesigns)) > 0)
   {
     ril <- data.frame(obj$pheno, obj$finals)
     names(ril)[(n.pheno+1):ncol(ril)] <- colnames(obj$finals) 
@@ -107,10 +107,10 @@ function(object, filestem, chr, ...)
     names(ril)[(n.pheno+2):ncol(ril)] <- colnames(obj$finals) 
   }
   chrnam <- rep(names(obj$map), unlist(lapply(obj$map, length))) 
-  vec <- c(rep("", n.pheno+1), as.character(chrnam))
+  vec <- c(rep("", n.pheno), as.character(chrnam))
   names(vec) <- colnames(ril)
   write.csv(t(vec), rilfile, quote=FALSE, row.names=FALSE)
-  write.table(t(c(rep("", n.pheno+1), unlist(obj$map))), rilfile, col.names=FALSE, quote=FALSE, row.names=FALSE, append=TRUE, sep=",")
+  write.table(t(c(rep("", n.pheno), unlist(obj$map))), rilfile, col.names=FALSE, quote=FALSE, row.names=FALSE, append=TRUE, sep=",")
 
 #  write.csv(ril, rilfile, row.names=FALSE, quote=FALSE)
   write.table(ril, rilfile, append=TRUE, row.names=FALSE, col.names=FALSE, quote=FALSE, sep=",")

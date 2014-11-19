@@ -65,6 +65,8 @@ function(object, chr, type=c("2", "m"), mapfx=c("haldane", "kosambi"), window=3,
 			object$map[[i]] <- rep(0, sum(object$lg$groups==object$lg$all.groups[i], na.rm=TRUE))
 			names(object$map[[i]]) <- colnames(object$finals)[which(object$lg$groups==object$lg$all.groups[i])]
 		}
+		names(object$map) <- paste("Chr", 1:length(object$map), sep="")
+		object$lg <- NULL
 	}
 	output <- object
 	
@@ -88,7 +90,8 @@ function(object, chr, type=c("2", "m"), mapfx=c("haldane", "kosambi"), window=3,
 		}
 		
 		#Create a copy of the old map, purely to preserve the chromosome names
-		newmap <- list()
+		newmap <- vector(mode="list", length = length(object$map))
+		names(newmap) <- names(object$map)
 		for (i in chr)
 		{
 			cat(paste("Ordering chromosome ", i, "...\n", sep=""))
@@ -96,26 +99,6 @@ function(object, chr, type=c("2", "m"), mapfx=c("haldane", "kosambi"), window=3,
 			nam <- match(names(object$map[[i]]), colnames(object$rf$theta))
 			mat <- originalmat <- object$rf$theta[nam, nam, drop=FALSE] 
 			diag(mat) <- diag(originalmat) <- 0
-			#For the subgroups, replace that chunk with a single averaged column, and accept that afterwards we may get something that's flipped relative to what we want - fix it up later, in a later stage. 
-			if("subgroups" %in% names(object$lg))
-			{
-				for(subgroup in 1:10)
-				{
-					markers <- intersect(names(which(object$lg$subgroups == subgroup)), names(object$map[[i]]))
-					if(length(markers) > 0)
-					{
-						indices <- match(markers, colnames(mat))
-						relevantColumns <- mat[,indices][-indices,]
-						mat <- mat[-indices, -indices]
-						replacementColumn <- apply(relevantColumns, 1, function(x) mean(x, na.rm=TRUE))
-						
-						mat <- rbind(cbind(mat, replacementColumn), c(replacementColumn, 0))
-						newColName <- paste("subgroup", subgroup, sep="")
-						if((newColName %in% rownames(mat)) || (newColName %in% colnames(mat))) stop("Markers with names beginning with 'subgroup' are reserved for internal use")
-						rownames(mat)[nrow(mat)] <- colnames(mat)[ncol(mat)] <- newColName
-					}
-				}
-			}
 			dmat <- as.dist(mat)
 		
 			#If there are more than two markers, actually look for orderings
@@ -130,35 +113,6 @@ function(object, chr, type=c("2", "m"), mapfx=c("haldane", "kosambi"), window=3,
 				order <- 1:length(object$map[[i]])
 			}
 			markerOrder <- rownames(mat)[order]
-			#OK, now for the subgroups we need to order these separately
-			if("subgroups" %in% names(object$lg))
-			{
-				for(subgroup in 1:10)
-				{
-					markers <- intersect(names(which(object$lg$subgroups == subgroup)), names(object$map[[i]]))
-					if(length(markers) > 0)
-					{
-						submat <- originalmat[markers, markers]
-						dsubmat <- as.dist(submat)
-						suborder <- mporderchunk(object, dsubmat, criterion, cr, decreasing, use.identity, seriate.control=seriate.control, ...)
-						if(!is.null(dim(suborder))) suborder <- as.vector(suborder)
-					
-						subgroupIndex <- match(paste("subgroup", subgroup, sep=""), markerOrder)
-						if(subgroupIndex == 1)
-						{
-							markerOrder <- c(colnames(submat)[suborder], markerOrder[2:length(markerOrder)])
-						}
-						else if(subgroupIndex == length(markerOrder))
-						{
-							markerOrder <- c(markerOrder[1:(length(markerOrder)-1)], colnames(submat)[suborder])
-						}
-						else
-						{
-							markerOrder <- c(markerOrder[1:(subgroupIndex-1)], colnames(submat)[suborder], markerOrder[(subgroupIndex+1):length(markerOrder)])
-						}
-					}
-				}
-			}
 			newmap[[i]] <- rep(0, length(markerOrder))
 			names(newmap[[i]]) <- markerOrder
 		}

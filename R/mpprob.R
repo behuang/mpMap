@@ -71,7 +71,7 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
   {
     if(!("Design" %in% names(object$pedigree)))
     {
-		object$pedigree <- cbind(object$pedigree, identifyDesign(object$pedigree))
+		object$pedigree <- cbind(object$pedigree, identifyDesign(object$pedigree), stringsAsFactors = FALSE)
 		colnames(object$pedigree)[ncol(object$pedigree)] <- "Design"
     }
 	removeSelfing <- function(designName)
