@@ -1,8 +1,8 @@
 Package: mpMap
 Type: Package
 Title: Multi-parent RIL genetic analysis
-Version: 1.25.2
-Date: 2013-12-19
+Version: 1.25.5
+Date: 2014-12-08
 Author: Emma Huang and Rohan Shah, with contributions from Daniel Ahfock
 Maintainer: Emma Huang <Emma.Huang@csiro.au>
 Description: Tools for constructing linkage maps, reconstructing haplotypes,

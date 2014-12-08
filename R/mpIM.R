@@ -15,6 +15,7 @@
 #' @param responsename Optional input of response name to look for in object$pheno 
 #' @param ncov Number of marker covariates to search for - default is to search for as many as possible using stepAIC (forward/backward selection)
 #' @param window Window of cM on each side of markers where we exclude covariates in CIM
+#' @param dwindow Window of markers to use for smoothing in QTL detection 
 #' @param mrkpos Flag for whether to consider both marker positions and step positions or just steps. Is overridden if step=0
 #' @param ... Additional arguments
 #' @return The original input object with additional component QTLresults containing the following elements:
@@ -24,8 +25,7 @@
 #' \item{fndrfx}{Each component contains founder effects estimated at each position on a given chromosome}
 #' \item{qtl}{Each component contains the position and effects of a detected QTL}
 #' \item{call}{Input arguments to function} 
-#' and with attributes describing the number of QTL detected, and the threshold used for detection. Will only return one QTL per chromosome; to find more 
-#' QTL see \code{\link[mpMap]{findqtl2}}
+#' and with attributes describing the number of QTL detected, and the threshold used for detection. Note: Now uses the function findqtl to find all QTL peaks, see \code{\link[mpMap]{findqtl}} for more information. 
 #' @details 
 #' Depending on the options selected, different models will be fit for QTL
 #' detection. If the baseModel input does not include a term matching the 
@@ -60,7 +60,7 @@
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 
 
-mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, mrkpos=TRUE, ...)
+mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, dwindow=5, mrkpos=TRUE, ...)
 {
   ### Initial setup for all approaches
   lines <- rownames(object$finals)
@@ -315,7 +315,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     	} ## end of "lm" loop
      }
   }
-  
+ 
   minp <- unlist(lapply(pval, function(x) min(x, na.rm=TRUE)))
   maxw <- unlist(lapply(wald, which.max))
   sigchr <- which(minp < threshold)
@@ -350,7 +350,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   results$qtl <- qtl
   results$call <- match.call()
   attr(results$qtl, "threshold") <- threshold
-  attr(results$qtl, "nqtl") <- sum(!is.na(pos)) 
+#  attr(results$qtl, "nqtl") <- sum(!is.na(pos)) 
   attr(results$qtl, "ncov") <- ncov
   attr(results$qtl, "window") <- window
   attr(results, "method") <- method
@@ -359,5 +359,6 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   output$QTLresults$cofactors <- cofactors
   class(output) <- c("mpqtl", class(object))
 
+  output <- findqtl(output, dwindow, threshold=-log10(threshold))
   output
 }
