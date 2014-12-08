@@ -4,7 +4,7 @@
 #' @export
 #' @param mpqtl Object of class \code{mpqtl}
 #' @param dwindow Window over which to smooth p-values - default is five markers
-#' @threshold Threshold peaks must exceed to be detected (-log10(p))
+#' @param threshold Threshold peaks must exceed to be detected (-log10(p))
 #' @return The original input object with additional entries for newly detected QTL. 
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{plot.mpqtl}}, \code{\link[mpMap]{summary.mpqtl}}
 #' @examples
