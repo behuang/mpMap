@@ -9,5 +9,10 @@ getAllFunnels <- function(mpcross)
 	if(mode(mpcross$finals) == "numeric") mode(mpcross$finals) <- "integer"
 	if(!inherits(mpcross, "mpcross")) stop("Input must have class mpcross")
 	funnels <- .Call("getAllFunnels", mpcross, PACKAGE="mpMap")
+
+	if (ncol(funnels)==4) colnames(funnels) <- c("ff", "mf", "fm", "mm")
+	if (ncol(funnels)==8) colnames(funnels) <- c("fff", "mff", "fmf", "mmf", "ffm", "mfm", "fmm", "mmm")
+	if (ncol(funnels)==16) colnames(funnels) <- c("ffff", "mfff", "fmff", "mmff", "ffmf", "mfmf", "fmmf", "mmmf", "fffm", "mffm", "fmfm", "mmfm", "ffmm", "mfmm", "fmmm", "mmmm")
+
 	return(funnels)
 }
