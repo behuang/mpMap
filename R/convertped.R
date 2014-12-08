@@ -49,7 +49,7 @@ convertped <- function(pedigree)
 	nFounders <- sum(pedigree[,"Male"]==0 & pedigree[,"Female"]==0)
 	if (nFounders != 2 && nFounders !=4 && nFounders !=8)
 	{
-		stop("Cannot process a number of founders which is not 2, 4 or 8")
+		cat("Warning: Number of founders is not 2, 4 or 8")
 	}
 	#Keep line names, if there were any
 	if(!is.null(lineNames))
