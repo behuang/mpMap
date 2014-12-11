@@ -108,7 +108,7 @@ function(object, filestem, chr, ...)
   }
   chrnam <- rep(names(obj$map), unlist(lapply(obj$map, length))) 
   vec <- c(rep("", n.pheno), as.character(chrnam))
-  names(vec) <- colnames(ril)
+  names(vec) <- names(ril)
   write.csv(t(vec), rilfile, quote=FALSE, row.names=FALSE)
   write.table(t(c(rep("", n.pheno), unlist(obj$map))), rilfile, col.names=FALSE, quote=FALSE, row.names=FALSE, append=TRUE, sep=",")
 
