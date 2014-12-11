@@ -110,7 +110,7 @@ function(object, filestem, chr, ...)
   vec <- c(rep("", n.pheno+(length(grep("aic", uniqueDesigns))==0)), as.character(chrnam))
   names(vec) <- names(ril)
   write.csv(t(vec), rilfile, quote=FALSE, row.names=FALSE)
-  write.table(t(c(rep("", n.pheno), unlist(obj$map))), rilfile, col.names=FALSE, quote=FALSE, row.names=FALSE, append=TRUE, sep=",")
+  write.table(t(c(rep("", n.pheno+(length(grep("aic", uniqueDesigns))==0)), unlist(obj$map))), rilfile, col.names=FALSE, quote=FALSE, row.names=FALSE, append=TRUE, sep=",")
 
 #  write.csv(ril, rilfile, row.names=FALSE, quote=FALSE)
   write.table(ril, rilfile, append=TRUE, row.names=FALSE, col.names=FALSE, quote=FALSE, sep=",")
