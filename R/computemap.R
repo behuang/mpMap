@@ -16,6 +16,7 @@
 
 computemap <- function(object, mapfx=c("haldane", "kosambi"), maxOffset = 1)
 {
+	require(nnls)
 	if (missing(mapfx)) mapfx <- "haldane"
 	if (mapfx=="haldane") mf <- haldaneR2X else mf <- kosambiR2X
 
@@ -53,7 +54,7 @@ computemap <- function(object, mapfx=c("haldane", "kosambi"), maxOffset = 1)
 	}
 	else
 	{
-		if(is.null(names(object$map)) || length(unique(names(object$map))) != length(map))
+		if(is.null(names(object$map)) || length(unique(names(object$map))) != length(object$map))
 		{
 			stop("An existing map was used to assign linkage groups, but it did not have unique chromosome names")
 		}
