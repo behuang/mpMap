@@ -107,7 +107,7 @@ function(object, filestem, chr, ...)
     names(ril)[(n.pheno+2):ncol(ril)] <- colnames(obj$finals) 
   }
   chrnam <- rep(names(obj$map), unlist(lapply(obj$map, length))) 
-  vec <- c(rep("", n.pheno+(length(grep("aic", uniqueDesigns)==0))), as.character(chrnam))
+  vec <- c(rep("", n.pheno+(length(grep("aic", uniqueDesigns))==0)), as.character(chrnam))
   names(vec) <- names(ril)
   write.csv(t(vec), rilfile, quote=FALSE, row.names=FALSE)
   write.table(t(c(rep("", n.pheno), unlist(obj$map))), rilfile, col.names=FALSE, quote=FALSE, row.names=FALSE, append=TRUE, sep=",")
