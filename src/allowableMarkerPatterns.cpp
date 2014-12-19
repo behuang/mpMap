@@ -58,6 +58,11 @@ template<> bool isAllowable<4>(int (&weights)[4][3])
 }
 template<> bool isAllowable<8>(int (&weights)[4][3])
 {
+	/*This corresponsd to a case such as:
+	m1 = (0,0,1,1,0,0,1,1), m2 = (0,1,0,1,0,1,0,1)
+	and also cases
+	m1 = (0,0,1,1,0,0,1,1), m2 = (0,0,1,1,1,1,0,0)
+*/
 	bool flat = (
 		((weights[0][0] == weights[0][1]) && (weights[0][2] + 3 * weights[0][1] - 9 * weights[0][0] == 0)) && 
 		((weights[1][0] == weights[1][1]) && (weights[1][2] + 3 * weights[1][1] - 9 * weights[1][0] == 0)) &&
@@ -65,6 +70,17 @@ template<> bool isAllowable<8>(int (&weights)[4][3])
 		((weights[3][0] == weights[3][1]) && (weights[3][2] + 3 * weights[3][1] - 9 * weights[3][0] == 0))
 		);
 	if(flat) return false;
+	/*The approximately uninformative case where for all of (00, 01, 10, 11), the number of recombinants is close to 7 times the number of non-recombinants. This case is also bad enough that we exclude it. This includes cases such as 
+	m1 = (1,0,0,1,1,0,1,1), m2 = (0,0,1,0,0,0,1,1)
+	*/
+	bool almostFlat = (
+		(abs(7 * weights[0][0] - weights[0][1] - weights[0][2]) <= 1) &&
+		(abs(7 * weights[1][0] - weights[1][1] - weights[1][2]) <= 1) &&
+		(abs(7 * weights[2][0] - weights[2][1] - weights[2][2]) <= 1) &&
+		(abs(7 * weights[3][0] - weights[3][1] - weights[3][2]) <= 1)
+		);
+	if(almostFlat) return false;
+
 	//if it isn't flat it could still be unidentifiable, by having a turning point for the probabilities in terms of r, in the range [0, 0.5].
 	//it SEEMS as if the non-identifiability condition holds for all four probabilities (00, 30, 03 and 33) or none, so just check one. 
 	if((weights[0][0] < weights[0][1] && weights[0][2] > 9*weights[0][0] - 3 * weights[0][1]) || (weights[0][0] > weights[0][1] && weights[0][2] < 9*weights[0][0] - 3 * weights[0][1]))
@@ -78,10 +94,39 @@ template<> bool isAllowable<8>(int (&weights)[4][3])
 	}
 	return true;
 }
-//getAllowableMarkerPatterns passes through to a templated version because the code that needs to change is deeply nested and I don't want to duplicate the outer loop
-template<unsigned int nFounders> void getAllowableMarkerPatterns(bool* allowableMarkerPatternsPtr, std::map<markerEncoding, markerPatternID>& markerPatterns)
+template<unsigned int nFounders> bool isAllowableIRIP(int (&weights)[4][3])
 {
-	memset(allowableMarkerPatternsPtr, 1, sizeof(bool) * markerPatterns.size() * markerPatterns.size());
+	throw std::runtime_error("Internal error");
+}
+//This is the same as for the 4-way case. 
+template<> bool isAllowableIRIP<4>(int (&weights)[4][3])
+{
+	return (
+		weights[0][1] - 3 * weights[0][0] != 0 ||
+		weights[1][1] - 3* weights[1][0] != 0 ||
+		weights[2][1] - 3* weights[2][0] != 0 ||
+		weights[3][1] - 3* weights[3][0] != 0
+		);
+}
+//But the 8-way case is different. Note that weights[2] and weights[1] have to be summed (there are only two different probabilities)
+template<> bool isAllowableIRIP<8>(int (&weights)[4][3])
+{
+	/*This accounts for both flat and almost flat likelihoods. E.g, the case
+	m1 = (1,0,1,0,1,0,1,0), m2 = (1,1,0,0,1,1,0,0) is flat, whereas the case
+	m1 = (1,0,0,1,1,0,1,1), m2 = (0,0,1,0,0,0,1,1) is almost flat. 
+	Both of these cases are caught by this one condition. */
+	return !(
+		(abs(7 * weights[0][0] - weights[0][1] - weights[0][2]) <= 1) &&
+		(abs(7 * weights[1][0] - weights[1][1] - weights[1][2]) <= 1) &&
+		(abs(7 * weights[2][0] - weights[2][1] - weights[2][2]) <= 1) &&
+		(abs(7 * weights[3][0] - weights[3][1] - weights[3][2]) <= 1)
+		);
+}
+//getAllowableMarkerPatterns passes through to a templated version because the code that needs to change is deeply nested and I don't want to duplicate the outer loop
+template<unsigned int nFounders> void getAllowableMarkerPatterns(bool* allowableMarkerPatternsStandardPtr, bool* allowableMarkerPatternsIRIPPtr, std::map<markerEncoding, markerPatternID>& markerPatterns)
+{
+	memset(allowableMarkerPatternsStandardPtr, 1, sizeof(bool) * markerPatterns.size() * markerPatterns.size());
+	memset(allowableMarkerPatternsIRIPPtr, 1, sizeof(bool) * markerPatterns.size() * markerPatterns.size());
 	//array to decode the marker segregation patterns into
 	int valuesMarker1[nFounders], valuesMarker2[nFounders];
 	//we decompose P(00), etc, into integer combinations of basis functions. This array holds those weights, first dimension is 00, 01, 10, 11, and the second dimension is the AA, AB, and AC. In the case of the 4-way AC will always be 0 because this never occurs. 
@@ -114,27 +159,35 @@ template<unsigned int nFounders> void getAllowableMarkerPatterns(bool* allowable
 				valuesMarker2[founderCounter] = alleleValue;
 			}
 			int nAlleles2 = allelesPresent2[0] + allelesPresent2[1] + allelesPresent2[2] + allelesPresent2[3] + allelesPresent2[4] + allelesPresent2[5] + allelesPresent2[6] + allelesPresent2[7];
+			//Again, assume that multi-allelic markers are ok by default. 
 			if(nAlleles2 > 2) continue;
 			//Ok, now we have our pair of marker patterns, and we need to work out the form of the function that calculates the probability of a 00, 01, 11 or 10. This is going to be an integer combination of three basis functions (probabilities of AA, AB, and AC - The others such as BC, EF, etc are all just combinations of these)
 			getWeights<nFounders>(weights, valuesMarker1, valuesMarker2);
-			bool allowable;
-			//non-polymorphic markers are marked as not informative
-			if(nAlleles1 == 1 || nAlleles2 == 1) allowable = false;
-			else allowable = isAllowable<nFounders>(weights); 
 			int marker1ToIndex = markerPattern1->second, marker2ToIndex = markerPattern2->second;
-			allowableMarkerPatternsPtr[marker1ToIndex*markerPatterns.size() + marker2ToIndex] = allowableMarkerPatternsPtr[marker2ToIndex*markerPatterns.size() + marker1ToIndex] = allowable;
+			bool allowableStandard;
+			//non-polymorphic markers are marked as not informative
+			if(nAlleles1 == 1 || nAlleles2 == 1) allowableStandard = false;
+			else allowableStandard = isAllowable<nFounders>(weights); 
+
+			allowableMarkerPatternsStandardPtr[marker1ToIndex*markerPatterns.size() + marker2ToIndex] = allowableMarkerPatternsStandardPtr[marker2ToIndex*markerPatterns.size() + marker1ToIndex] = allowableStandard;
+
+			//Also check if this combination is OK for IRIP lines. 
+			bool allowableIRIP;
+			if(nAlleles1 == 1 || nAlleles2 == 1) allowableIRIP = false;
+			else allowableIRIP = isAllowableIRIP<nFounders>(weights);
+			allowableMarkerPatternsIRIPPtr[marker1ToIndex*markerPatterns.size() + marker2ToIndex] = allowableMarkerPatternsIRIPPtr[marker2ToIndex*markerPatterns.size() + marker1ToIndex] = allowableIRIP;
 		}
 	}
 }
-void getAllowableMarkerPatterns(bool* allowableMarkerPatternsPtr, std::map<markerEncoding, markerPatternID>& markerPatterns, unsigned int nFounders)
+void getAllowableMarkerPatterns(bool* allowableMarkerPatternsPtr, bool* allowableMarkerPatternsIRIPPtr, std::map<markerEncoding, markerPatternID>& markerPatterns, unsigned int nFounders)
 {
 	if(nFounders == 4)
 	{
-		getAllowableMarkerPatterns<4>(allowableMarkerPatternsPtr, markerPatterns);
+		getAllowableMarkerPatterns<4>(allowableMarkerPatternsPtr, allowableMarkerPatternsIRIPPtr, markerPatterns);
 	}
 	else if(nFounders == 8)
 	{
-		getAllowableMarkerPatterns<8>(allowableMarkerPatternsPtr, markerPatterns);
+		getAllowableMarkerPatterns<8>(allowableMarkerPatternsPtr, allowableMarkerPatternsIRIPPtr, markerPatterns);
 	}
 	else throw std::runtime_error("Internal error");
 }

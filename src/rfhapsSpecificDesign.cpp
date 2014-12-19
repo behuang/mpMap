@@ -312,10 +312,12 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 	
 	//Construct boolean matrix where rows and columns represent marker segregation patterns, and the boolean values refer to whether or not that pair of marker segregation patterns can be used to estimate recombination fractions
 	//A pair can be unaccetable as all parameters lead to the same probability model (complete unidentifiability) or there are pairs of parameters that lead to the same probability model (We will be able to estimate the "best pair", but get no further).
-	sharedArray<bool> allowableMarkerPatterns(new bool[markerPatterns.size() * markerPatterns.size()]);
-	bool* allowableMarkerPatternsPtr = allowableMarkerPatterns.get();
+	sharedArray<bool> allowableMarkerPatternsStandard(new bool[markerPatterns.size() * markerPatterns.size()]);
+	bool* allowableMarkerPatternsStandardPtr = allowableMarkerPatternsStandard.get();
+	sharedArray<bool> allowableMarkerPatternsIRIP(new bool[markerPatterns.size() * markerPatterns.size()]);
+	bool* allowableMarkerPatternsIRIPPtr = allowableMarkerPatternsIRIP.get();
 
-	getAllowableMarkerPatterns(allowableMarkerPatternsPtr, markerPatterns, nFounders);
+	getAllowableMarkerPatterns(allowableMarkerPatternsStandardPtr, allowableMarkerPatternsIRIPPtr, markerPatterns, nFounders);
 	bool resultOK;
 
 	rfhaps_cpu_args cpu_args(nIntercrossingGenerations, markerPatternIDs, lineWeights, markerEncodings, funnelIDs, funnelEncodings);
@@ -332,7 +334,8 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 	cpu_args.marker2Start = marker2Start;
 	cpu_args.marker1End = marker1End;
 	cpu_args.marker2End = marker2End;
-	cpu_args.allowableMarkerPatterns = allowableMarkerPatterns;
+	cpu_args.allowableMarkerPatternsStandard = allowableMarkerPatternsStandard;
+	cpu_args.allowableMarkerPatternsIRIP = allowableMarkerPatternsIRIP;
 	cpu_args.maxMarkerAlleles = maxAlleles;
 #ifndef HAS_CUDA
 	if(useGPU)

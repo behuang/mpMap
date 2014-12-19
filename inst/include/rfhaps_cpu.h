@@ -22,7 +22,7 @@ struct rfhaps_cpu_args
 	//vector with entry i containing an encoding of the marker segregation pattern for a marker with markerPatternID i
 	std::vector<markerEncoding>& markerEncodings;
 	//A symmetric boolean matrix, with dimensions translations.size(). This says whether segregation patterns NUMBER i and j (numbered among all segregation patterns by the translations map) can be used to estimate recombination fractions. 
-	std::shared_ptr<bool> allowableMarkerPatterns;
+	std::shared_ptr<bool> allowableMarkerPatternsStandard, allowableMarkerPatternsIRIP;
 	int nFounders;
 	bool hasAI;
 	int marker1Start, marker1End;

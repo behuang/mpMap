@@ -96,7 +96,8 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 	int nDifferentFunnels = args.funnelEncodings.size();
 	int marker2RangeSize = args.marker2End - args.marker2Start;
 	int maxStart = std::max(args.marker1Start, args.marker2Start), minEnd = std::min(args.marker1End, args.marker2End);
-	bool* allowableMarkerPatternsPtr = args.allowableMarkerPatterns.get();
+	bool* allowableMarkerPatternsStandardPtr = args.allowableMarkerPatternsStandard.get();
+	bool* allowableMarkerPatternsIRIPPtr = args.allowableMarkerPatternsIRIP.get();
 	std::vector<double>& lineWeights = args.lineWeights;
 	Rcpp::List finalDimNames = args.finalsMatrix.attr("dimnames");
 	Rcpp::CharacterVector finalNames = finalDimNames[0];
@@ -143,6 +144,7 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 				for(int intercrossingGeneration = 1; intercrossingGeneration <= maxAIGenerations; intercrossingGeneration++)
 				{
 					arrayType& markerProbabilities = currentRecomb.perAIGenerationData[intercrossingGeneration-1];
+					memset(&(markerProbabilities[0][0]), 0, sizeof(double)*maxMarkerAlleles*maxMarkerAlleles);
 					double haplotypeProbabilities[nFounders][nFounders];
 					genotypeProbabilitiesWithIntercross<nFounders>(haplotypeProbabilities, intercrossingGeneration, recombFraction);
 					for(int firstMarkerValue = 0; firstMarkerValue <= nFirstMarkerAlleles; firstMarkerValue++)
@@ -224,7 +226,6 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 		}
 	}
 #ifdef USE_OPENMP
-	#pragma omp barrier
 	#pragma omp parallel for schedule(static, 1)
 #endif
 	//This set of loops DOES grow with problem size. 
@@ -236,7 +237,9 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 			//For some bits in the lower triangle we have already calculated a corresponding bit in the upper triangle, so don't recalculate these. This means we have some values in args.result which are never set, but later code is aware of this
 			if(markerCounter2 >= maxStart && markerCounter2 < minEnd && markerCounter1 >= maxStart && markerCounter1 < minEnd && markerCounter2 < markerCounter1) continue;
 			int markerPatternID2 = args.markerPatternIDs[markerCounter2];
-			if(allowableMarkerPatternsPtr[markerPatternID1*nMarkerPatternIDs + markerPatternID2])
+			bool allowableStandard = allowableMarkerPatternsStandardPtr[markerPatternID1*nMarkerPatternIDs + markerPatternID2];
+			bool allowableIRIP = allowableMarkerPatternsIRIPPtr[markerPatternID1*nMarkerPatternIDs + markerPatternID2];
+			if(allowableStandard || allowableIRIP)
 			{
 				typename PerMarkerPairData::iterator patternData = computedContributions.find(markerPair(markerPatternID1, markerPatternID2));
 				if(patternData == computedContributions.end()) throw std::runtime_error("Internal error");
@@ -253,13 +256,13 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 						{
 							double contribution;
 							int intercrossingGenerations = args.nIntercrossingGenerations[finalCounter];
-							if(intercrossingGenerations == 0)
+							if(intercrossingGenerations == 0 && allowableStandard)
 							{
 								funnelID currentLineFunnelID = args.funnelIDs[finalCounter];
 								arrayType& perMarkerGenotypeValues = perRecombLevelData.perFunnelData[currentLineFunnelID];
 								contribution = perMarkerGenotypeValues[marker1Value][marker2Value];
 							}
-							else
+							else if(intercrossingGenerations > 0 && allowableIRIP)
 							{
 								arrayType& perMarkerGenotypeValues = perRecombLevelData.perAIGenerationData[intercrossingGenerations-1];
 								contribution = perMarkerGenotypeValues[marker1Value][marker2Value];
