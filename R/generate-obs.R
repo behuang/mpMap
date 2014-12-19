@@ -129,30 +129,33 @@ generate_obs_with_fg <- function(geno, map, full.prob, fg, transpos, transval)
 	fg2[, na.omit(indices)] <- as.matrix(fg)[,which(!is.na(indices))]
 
 	#Put in fg for the most tightly linked marker, for each QTL marker
-	for (i in 1:length(qtlpos))
+	if(length(qtlpos) > 0)
 	{
-		if(qtlpos[i] == 1)
+		for (i in 1:length(qtlpos))
 		{
-			warning("QTL found as first marker")
-			fg2[,1]  <- fg2[,2]
-		}
-		else if(qtlpos[i] == length(allmrk))
-		{
-			warning("QTL found as last marker")
-			fg2[,length(allmrk)]  <- fg2[,length(allmrk)-1]
-		}
-		else if(recfr[qtlpos[i]] == 0.5 && recfr[qtlpos[i]-1] == 0.5)
-		{
-			warning("A QTL marker was the only one on a chromosome. Setting founders = 1:nFounders")
-			fg2[,qtlpos[i]] <- 1:n.founders
-		}
-		else if(recfr[qtlpos[i]] <= recfr[qtlpos[i]-1])
-		{
-			fg2[,qtlpos[i]] <- fg2[,qtlpos[i]+1]
-		}
-		else
-		{
-			fg2[,qtlpos[i]] <- fg2[,qtlpos[i]-1]
+			if(qtlpos[i] == 1)
+			{
+				warning("QTL found as first marker")
+				fg2[,1]  <- fg2[,2]
+			}
+			else if(qtlpos[i] == length(allmrk))
+			{
+				warning("QTL found as last marker")
+				fg2[,length(allmrk)]  <- fg2[,length(allmrk)-1]
+			}
+			else if(recfr[qtlpos[i]] == 0.5 && recfr[qtlpos[i]-1] == 0.5)
+			{
+				warning("A QTL marker was the only one on a chromosome. Setting founders = 1:nFounders")
+				fg2[,qtlpos[i]] <- 1:n.founders
+			}
+			else if(recfr[qtlpos[i]] <= recfr[qtlpos[i]-1])
+			{
+				fg2[,qtlpos[i]] <- fg2[,qtlpos[i]+1]
+			}
+			else
+			{
+				fg2[,qtlpos[i]] <- fg2[,qtlpos[i]-1]
+			}
 		}
 	}
 	#fg2 is the founder genotypes
