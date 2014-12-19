@@ -101,7 +101,7 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
 	{
 		qtlType <- "ri8self"
 	}
-	else if(observedDesigns == "4wayG3")
+	else if(observedDesigns == "4wayG2")
 	{
 		qtlType <- "ri4self"
 	}

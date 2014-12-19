@@ -1,8 +1,8 @@
 Package: mpMap
 Type: Package
 Title: Multi-parent RIL genetic analysis
-Version: 1.25.2
-Date: 2013-12-19
+Version: 1.25.5
+Date: 2014-12-08
 Author: Emma Huang and Rohan Shah, with contributions from Daniel Ahfock
 Maintainer: Emma Huang <Emma.Huang@csiro.au>
 Description: Tools for constructing linkage maps, reconstructing haplotypes,
@@ -10,7 +10,8 @@ Description: Tools for constructing linkage maps, reconstructing haplotypes,
     designs (e.g. MAGIC)
 License: GPL-2
 LazyLoad: yes
-Depends: qtl
+Depends:
+    qtl
 Suggests:
     Rcpp,
     R.utils,
@@ -27,86 +28,13 @@ Suggests:
     mpMIM,
     RColorBrewer
 Imports:
-  wgaim, 
-  VPdtw,
-  nnls, 
-  gdata,
-  reshape,
-  lattice,
-  ggplot2,
-  seriation,
-  Rcpp
+    wgaim,
+    VPdtw,
+    nnls,
+    gdata,
+    reshape,
+    lattice,
+    ggplot2,
+    seriation,
+    Rcpp
 LinkingTo: Rcpp, qtl
-Collate:
-    'gen2ped.R'
-    'add3pt.R'
-    'calc.genoprob2.R'
-    'calcmpprob.R'
-    'check-QTL.R'
-    'clean.mpcross.R'
-    'cleanmap.R'
-    'cleanrf.R'
-    'combine-chr.R'
-    'combine-ibd.R'
-    'combine-ld.R'
-    'compare-orders.R'
-    'compute-bnld.R'
-    'computemap.R'
-    'convertped.R'
-    'CR-calcLD.R'
-    'fillmiss.R'
-    'findqtl2.R'
-    'fit.mpqtl.R'
-    'gen4ped.R'
-    'gen8ped.R'
-    'generate-error.R'
-    'generate-obs.R'
-    'generate-pheno.R'
-    'getpval.R'
-    'mapcomp.R'
-    'mp-mapdist.R'
-    'mpadd.R'
-    'mpchrrf.R'
-    'mpcalcld.R'
-    'mpcross.R'
-    'mpestrf.R'
-    'mpgroup.R'
-    'mpIM.R'
-    'mpimpute.R'
-    'mpimputerf.R'
-    'mpMap-output.R'
-    'mporder.R'
-    'mpprob.R'
-    'mpsegrat.R'
-    'nai.R'
-    'outputPedigreeGraph.R'
-    'plot.mpcross.R'
-    'plot.mpprob.R'
-    'plot.mpqtl.R'
-    'plotlink.map.R'
-    'print.mapcomp.R'
-    'print.mpcross.R'
-    'print.mpprob.R'
-    'print.mpqtl.R'
-    'qtlmap.R'
-    'read.mpcross.R'
-    'sim.mpcross.R'
-    'sim.mpped.R'
-    'sim.sigthr.R'
-    'subset.mpcross.R'
-    'subset.mpprob.R'
-    'summary.mpcross.R'
-    'summary.mpprob.R'
-    'summary.mpqtl.R'
-    'supportinterval.R'
-    'waldTests.R'
-    'getAllFunnels.R'
-    'maporder.R'
-    'mpclean.R'
-    'testFunnelEffects.R'
-    'identifyDesign.R'
-    'mpcollapse.R'
-    'mpexpand.R'
-    'subset.binmpcross.R'
-    'mpMap2gs.R'
-	'validate.R'
