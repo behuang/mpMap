@@ -20,7 +20,7 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
    if (all(sapply(c(chr, markers, lines), length)==0)) return(x)
    if(!is.null(markers) && !is.null(chr)) stop("Inputs chr and markers cannot be used simultaneously")
 
-   output <- subset.mpcross(x, chr, markers, lines)
+   output <- subset.mpcross(x, chr=chr, markers=markers, lines=lines)
 
 	if (!is.null(chr)) 
 	{
