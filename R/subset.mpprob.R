@@ -67,7 +67,7 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
           output$estfnd[[i]] <- NULL
           output$prob[[i]] <- NULL
         }
-			
+      }
 			#Copy attributes. The map was subsetted by the subset.mpcross function
 			attr(output$prob, "map") <- output$map
 			
