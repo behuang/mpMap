@@ -71,6 +71,7 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
   {
     if(!("Design" %in% names(object$pedigree)))
     {
+    if (!inherits(object$pedigree, "data.frame")) object$pedigree <- as.data.frame(object$pedigree)
 		object$pedigree <- cbind(object$pedigree, identifyDesign(object$pedigree), stringsAsFactors = FALSE)
 		colnames(object$pedigree)[ncol(object$pedigree)] <- "Design"
     }
