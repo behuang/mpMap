@@ -59,6 +59,7 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
 		{
       for (i in names(x$map)) {
         removedMarkers <- setdiff(names(x$map[[i]]), names(output$map[[i]]))
+        removedMarkers <- match(removedMarkers, names(x$map[[i]]))
         if (length(removedMarkers)>0) {
     			output$estfnd[[i]] <- output$estfnd[[i]][, -removedMarkers]
           output$prob[[i]] <- output$prob[[i]][, -(rep((removedMarkers-1)*n.founders, each=n.founders)+rep(1:4, length(removedMarkers)))]
