@@ -11,7 +11,8 @@ Description: Tools for constructing linkage maps, reconstructing haplotypes,
 License: GPL-2
 LazyLoad: yes
 Depends:
-    qtl
+    qtl,
+    Rcpp
 Suggests:
     Rcpp,
     R.utils,
