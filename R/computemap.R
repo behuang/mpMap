@@ -66,30 +66,33 @@ computemap <- function(object, mapfx=c("haldane", "kosambi"), maxOffset = 1)
 	{
 		#Now rearrange recombination fractions into the same order as the design matrix
 		m <- match(names(object$map[[chr]]), colnames(object$finals))
-		rf <- object$rf$theta[m, m]
-		maxOffset <- min(maxOffset,(nrow(rf)-1))
-		#maxOffset <- (nrow(rf)-1)
-		
-		#Construct design matrix
-		#d <- designMat(length(object$map[[chr]])-1, maxOffset)
-		offset <- maxOffset
-		if(offset > length(object$map[[chr]])-1) offset <- length(object$map[[chr]])-1
-		d <- .Call("generateDesignMatrix", length(object$map[[chr]])-1, offset, package="mpMap")
-		indices <- matrix(nrow=maxOffset *nrow(rf) - maxOffset * (maxOffset + 1) / 2, ncol = 2)
-		counter <- 1
-		for(offset in 1:maxOffset)
+		rf <- object$rf$theta[m, m, drop=FALSE]
+		maxOffsetThisChr <- min(maxOffset,(nrow(rf)-1))
+		if(maxOffsetThisChr > 0)
 		{
-			for(i in 1:(nrow(rf)-offset))
+		
+			#Construct design matrix
+			#d <- designMat(length(object$map[[chr]])-1, maxOffsetThisChr)
+			offset <- maxOffsetThisChr
+			if(offset > length(object$map[[chr]])-1) offset <- length(object$map[[chr]])-1
+			d <- .Call("generateDesignMatrix", length(object$map[[chr]])-1, offset, package="mpMap")
+			indices <- matrix(nrow=maxOffsetThisChr *nrow(rf) - maxOffsetThisChr * (maxOffsetThisChr + 1) / 2, ncol = 2)
+			counter <- 1
+			for(offset in 1:maxOffsetThisChr)
 			{
-				indices[counter,] <- c(i+offset, i)
-				counter <- counter + 1
+				for(i in 1:(nrow(rf)-offset))
+				{
+					indices[counter,] <- c(i+offset, i)
+					counter <- counter + 1
+				}
 			}
-		}
-		#B vector for nnls
-		b <- rf[indices]
-		b[b == 0.5] <- 0.49
-		result <- nnls(d, mf(b))
-    object$map[[chr]] <- c(0, cumsum(pmin(result$x[which(indices[,1] == indices[,2]+1)], haldaneR2X(rf[row(rf)==(col(rf)+1)]))))
+			#B vector for nnls
+			b <- rf[indices]
+			b[b == 0.5] <- 0.49
+			result <- nnls(d, mf(b))
+	    	object$map[[chr]] <- c(0, cumsum(pmin(result$x[which(indices[,1] == indices[,2]+1)], haldaneR2X(rf[row(rf)==(col(rf)+1)]))))
+    	}
+    	else object$map[[chr]] <- 0
 		names(object$map[[chr]]) <- colnames(object$finals)[m]
 		#m <- match(names(object$map[[chr]]), colnames(object$finals))
 		#rf <- fill(fill(object$rf$theta[m,m], missfx), 1)

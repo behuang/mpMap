@@ -12,7 +12,8 @@ License: GPL-2
 LazyLoad: yes
 Depends:
     qtl,
-    Rcpp
+    Rcpp,
+    seriation
 Suggests:
     Rcpp,
     R.utils,
