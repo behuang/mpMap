@@ -1,18 +1,19 @@
 #' Collapse an mpcross object into a binned object
 #' 
-#' Collapses an mpcross object into bins. Markers are recoded as binned markers (BM) where the genotype at a BM is determined from the haplotypes observed in the founders within the bin. Information on which markers belong to each bin is retained within the output object. 
+#' Collapses an mpcross object into bins. Within bins, markers are grouped by founder distribution pattern and missing genotypes imputed. Haplotypes are formed for markers with unique FDPs and determine the bin alleles. Information on which markers belong to each bin is retained within the output object. 
 #' @export
 #' @useDynLib mpMap
 #' @param object Object of class \code{mpcross}
 #' @param method Choice of whether to bin based on recombination fraction or correlation 
 #' @param adj Flag for whether require bins to be based on adjacent markers only 
 #' @param cutoff Max RF allowed before starting a new bin
+#' @param consensusProbability Proportion of genotypes within FDP groups which must match for imputation to occur. 
+#' @param missingCutoff Proportion of missing data allowed within markers before not using to create haplotypes
 #' @return A binned object of class \code{binmpcross}
 #' @seealso \code{link{mpexpand}}
-#' @note Markers are assigned to a bin if there is zero recombination between any of the markers within the bin (or correlation of 1). Missing values at markers are imputed based on the assumption that the true haplotype within a bin matches one of the founder haplotypes. Patterns matching more than one or none of the founder haplotypes will be coded as NA in the returned object. Bins are collapsed to "bin markers" after missing values are imputed, with each unique founder
-#' haplotype being assigned an allele and progeny matching those founder haplotypes assigned the same allele. 
+#' @note Markers are assigned to a bin if there is zero recombination between any of the markers within the bin (or correlation of 1). Next, a three-step process is performed to create the new set of bin markers. First, markers within a bin are grouped based on founder distribution pattern (FDP). Second, for each FDP, a single representative marker is chosen, with missing values imputed from all markers sharing that FDP. Third, haplotypes formed from these representative markers are used to replace genotypes for the bin marker. 
 
-mpcollapse<-function(object, method=c("rf", "cor"), adj=FALSE, cutoff=0) {
+mpcollapse<-function(object, method=c("rf", "cor"), adj=FALSE, cutoff=0, consensusProbability=.75, missingCutoff=.25) {
 
   enlist <- function(X) lapply(1:ncol(X), function(j) X[,j])
   
@@ -24,6 +25,13 @@ mpcollapse<-function(object, method=c("rf", "cor"), adj=FALSE, cutoff=0) {
     match(do.call(paste0, enlist(X)), paste(x, collapse=""), 0L)
   }
     
+  ## Collapse a matrix of similar values down to one column with missing
+  ## values imputed from all the rest
+  formConsensus <- function(X, consensusProbability) {
+    vec <- apply(X, 1, function(x) if (max(table(x))/sum(table(x))>consensusProbability) names(table(x))[which.max(table(x))] else NA)  
+    vec
+  }
+
   if (missing(method)) method <- "rf"
 
   if (is.null(object$rf$theta) & method=="rf") 
@@ -79,7 +87,6 @@ mpcollapse<-function(object, method=c("rf", "cor"), adj=FALSE, cutoff=0) {
         if (mat[k-1, k]==0) binInfo[[i]][k] <- binInfo[[i]][k-1]
       binInfo[[i]] <- match(binInfo[[i]], names(table(binInfo[[i]])))
       nbins <- length(table(binInfo[[i]]))
-  
     }
     ## Note that after this there will be a substantial amount of recoding. Do not return original object
     ## within each bin recode genotypes to haplotypes
@@ -92,17 +99,34 @@ mpcollapse<-function(object, method=c("rf", "cor"), adj=FALSE, cutoff=0) {
     for (j in 1:nbins) {
       indexBin <- indexGroup[which(binInfo[[i]]==j)]    
       if(length(indexBin)>1) {
-        haplotypes <- object$founders[,indexBin]
-        uniqueHaps <- unique(haplotypes, MARGIN=1)
-        ## impute final haplotypes based on founder haplotypes if possible
-        missFinals <- which(apply(object$finals[,indexBin], 1, function(x) any(is.na(x))))
+##### Add in extra step here to pull out unique FDPs and impute missingness
+	finstart <- object$finals[, indexBin]
+	foustart <- object$founders[, indexBin]
+	fdp <- unique(foustart, MARGIN=2)
+	fin <- matrix(nrow=nFinals, ncol=ncol(fdp))
+	if(ncol(fdp)<ncol(foustart))
+	  for (k in 1:ncol(fdp)) {
+	     cols <- which(apply(foustart, 2, function(x) all(x==fdp[,k]))==T)
+	     if (length(cols)>1)
+	      	vec <- formConsensus(finstart[, cols], consensusProbability) else vec <- finstart[,cols]
+	     fin[,k] <- as.numeric(vec)
+	  } else fin <- finstart
+
+	## If any of the markers have too much missing data, don't use
+	## them to form haplotypes (even if you end up with less informative 
+	## markers) - better off having more values
+	nm <- apply(fin, 2, function(x) sum(is.na(x))/length(x))
+	if (all(nm>missingCutoff)) touse <- 1:ncol(fin) else touse <- which(nm<missingCutoff) 
+###### next go back to previous routine, taking out missingness imputation
+        uniqueHaps <- unique(fdp[, touse, drop=F], MARGIN=1)
+        missFinals <- which(apply(fin[, touse, drop=F], 1, function(x) any(is.na(x))))
     #    uniqueMissFinals <- unique(object$finals[missFinals, indexBin], MARGIN=1)
         matches <- matrix(nrow=length(missFinals), ncol=nrow(uniqueHaps))
         for (k in 1:nrow(uniqueHaps)) 
-            matches[,k] <- Matches(uniqueHaps[k,], object$finals[missFinals, indexBin, drop=F])
+            matches[,k] <- Matches(uniqueHaps[k,], fin[missFinals, touse,drop=F])
         for (k in 1:nrow(uniqueHaps)) {
-	    toreplace <- which(matches[,k]==1 & rowSums(matches)==1)
-            object$finals[missFinals[toreplace], indexBin] <- matrix(rep(uniqueHaps[k,], length(toreplace)), ncol=ncol(uniqueHaps), byrow=TRUE)
+	    toreplace <- which(matches[,k]==1 & rowSums(matches)==1) 
+           fin[missFinals[toreplace], touse] <- matrix(rep(uniqueHaps[k,], length(toreplace)), ncol=ncol(uniqueHaps), byrow=TRUE)
         }
 #        matchHap <- vector(length=nrow(uniqueMissFinals))
 #        for (k in 1:nrow(uniqueMissFinals)) {
@@ -115,8 +139,9 @@ mpcollapse<-function(object, method=c("rf", "cor"), adj=FALSE, cutoff=0) {
 #            }  
 #        }
         ## Now that we've filled in missing values, should better be able to fill out haps
-        binFounders[[i]][, j] <- apply(object$founders[,indexBin], 1, function(x) match(paste(x, collapse=""), do.call(paste0, enlist(uniqueHaps))))
-        binFinals[[i]][,j] <- apply(object$finals[,indexBin], 1, function(x) match(paste(x, collapse=""), do.call(paste0, enlist(uniqueHaps))))
+
+        binFounders[[i]][, j] <- apply(fdp[, touse, drop=F], 1, function(x) match(paste(x, collapse=""), do.call(paste0, enlist(uniqueHaps))))
+        binFinals[[i]][,j] <- apply(fin[, touse, drop=F], 1, function(x) match(paste(x, collapse=""), do.call(paste0, enlist(uniqueHaps))))
       } else {
         binFounders[[i]][,j] <- object$founders[, indexBin]
         binFinals[[i]][,j] <- object$finals[,indexBin]

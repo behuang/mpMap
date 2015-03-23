@@ -282,6 +282,6 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
 	for(i in names(out$prob))
 	 	rownames(out$prob[[i]]) = paste("L", 1:n.finals, sep="")
 	
-  class(out) <- c("mpprob", class(object))
+  class(out) <- unique(c("mpprob", class(object)))
   return(out)
 }

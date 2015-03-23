@@ -254,7 +254,7 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 						int marker2Value = args.finalsMatrix(finalCounter, markerCounter2);
 						if(marker1Value != NA_INTEGER && marker2Value != NA_INTEGER)
 						{
-							double contribution;
+							double contribution = 0;
 							int intercrossingGenerations = args.nIntercrossingGenerations[finalCounter];
 							if(intercrossingGenerations == 0 && allowableStandard)
 							{
@@ -267,8 +267,9 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 								arrayType& perMarkerGenotypeValues = perRecombLevelData.perAIGenerationData[intercrossingGenerations-1];
 								contribution = perMarkerGenotypeValues[marker1Value][marker2Value];
 							}
-							if(contribution != contribution) contribution = -std::numeric_limits<double>::infinity();
-							args.result[(long)(markerCounter1 - args.marker1Start) *(long)nRecombLevels*(long)marker2RangeSize + (long)(markerCounter2-args.marker2Start) * (long)nRecombLevels + (long)recombCounter] += lineWeights[finalCounter] * contribution;
+							//We get an NA from trying to take the logarithm of zero - That is, this parameter is completely impossible for the given data, so put in -Inf
+							if(contribution != contribution) args.result[(long)(markerCounter1 - args.marker1Start) *(long)nRecombLevels*(long)marker2RangeSize + (long)(markerCounter2-args.marker2Start) * (long)nRecombLevels + (long)recombCounter] = -std::numeric_limits<double>::infinity();
+							else if(contribution != 0) args.result[(long)(markerCounter1 - args.marker1Start) *(long)nRecombLevels*(long)marker2RangeSize + (long)(markerCounter2-args.marker2Start) * (long)nRecombLevels + (long)recombCounter] += lineWeights[finalCounter] * contribution;
 						}
 					}
 				}
