@@ -77,7 +77,7 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
     }
 	removeSelfing <- function(designName)
 	{
-		searchResult <- regexpr("self", designName, fixed=T	)
+		searchResult <- regexpr("self", designName, fixed=T)
 		if(searchResult != -1)
 		{
 			return(substr(designName, 1, searchResult-1))
@@ -97,6 +97,10 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
 	else if(observedDesigns == "8wayG3aic2")
 	{
 		qtlType <- "ri8selfIRIP2"
+	}
+	else if(observedDesigns == "8wayG3aic10")
+	{
+		qtlType <- "ri8selfIRIP10"
 	}
 	else if(observedDesigns == "8wayG3")
 	{

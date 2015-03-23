@@ -36,21 +36,30 @@ identifyDesignPair <- function(pair, nFounders)
 	headStr <- paste0(nFounders, "wayG", maxG, "aic")
 	if(substr(pair[1], 1, 9) == headStr && pair[1] == pair[2])
 	{
+		#We need to check that it has the form <Founders>wayG<log2(nFounders)>aic<number>. Specifically, we need to check that the end is a number.
+		aicNumberLength <- char1 - 9
+		aicNumberPart <- substr(pair[1], 10, char1)
+		aicRegex <- regexec("[0-9]+", aicNumberPart)[[1]]
+		aicNumberLength <- attr(aicRegex, "match.length")
+		aicEndsWithNumber <- aicNumberLength == nchar(aicNumberPart)
 		#AIC line?
-		if(motherName != fatherName && char1 == 10)
+		if(motherName != fatherName && aicEndsWithNumber)
 		{
-			generation <- as.integer(substr(pair[1], 10, 10))
+			generation <- as.integer(substr(pair[1], 10, char1))
 			return(paste0(nFounders, "wayG", maxG, "aic", generation+1))
 		}
 		#Initial selfing of an AIC line?
-		if(motherName == fatherName && char1 == 10)
+		if(motherName == fatherName && aicEndsWithNumber)
 		{
-			return(paste0(substr(pair[1], 1, 10), "self1"))
+			return(paste0(substr(pair[1], 1, char1), "self1"))
 		}
-		if(motherName == fatherName && substr(pair[1], 11, 14) == "self" && char1 == 15)
+		#Get out selfing number part
+		numberPart <- substr(pair[1], 14+aicNumberLength, char1)
+		endsWithNumber <- attr(regexec("[0-9]+", numberPart)[[1]], "match.length") == nchar(numberPart)
+		if(motherName == fatherName && substr(pair[1], 10+aicNumberLength, 13+aicNumberLength) == "self" && endsWithNumber)
 		{
-			generation <- as.integer(substr(pair[1], 15, 15))
-			return(paste0(substr(pair[1], 1, 14), generation+1))
+			generation <- as.integer(substr(pair[1], 14+aicNumberLength, char1))
+			return(paste0(substr(pair[1], 1, 13+aicNumberLength), generation+1))
 		}
 	}
 	#isG1 <- regexec(paste(nFounders, "wayG[0-9]", sep=""), pair[1])
