@@ -108,13 +108,16 @@ function(nfunnels=1, nperfam=50, nssdgen=6, nseeds=1, iripgen=0, seed=1)
     # self
     for (i in 1:(nperfam*nfunnels))
     {
-     	index <- i+n4-1
-	for (j in 1:nseeds)
-	{
-	  obs <- c(obs, rep(0, nssdgen-1), 1)
-	  ped <- rbind(ped, c(nrow(ped)+1, index, index))
-	  ped <- rbind(ped, cbind(c((nrow(ped)+1):(nrow(ped)+nssdgen-1)), c(nrow(ped):(nrow(ped)+nssdgen-2)), c(nrow(ped):(nrow(ped)+nssdgen-2))))  
-       	}
+      index <- i+n4-1
+      for (j in 1:nseeds)
+      {
+        obs <- c(obs, rep(0, nssdgen-1), 1)
+        ped <- rbind(ped, c(nrow(ped)+1, index, index))
+        if(nssdgen > 1)
+        {
+          ped <- rbind(ped, cbind(c((nrow(ped)+1):(nrow(ped)+nssdgen-1)), c(nrow(ped):(nrow(ped)+nssdgen-2)), c(nrow(ped):(nrow(ped)+nssdgen-2))))  
+        }
+      }
     }
   }
 

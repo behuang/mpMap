@@ -55,7 +55,7 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
   attr(out$estfnd, "threshold") <- threshold
   ## as a default, convert the probabilities to estimated founders as well.
   ffx <- function(x) 
-	if (is.na(max(x)) | max(x) <= threshold) return(NA) else return(which(x>threshold))
+	if (is.na(max(x)) | max(x) <= threshold) return(NA) else return(which.max(x))
  
   chr1 <- vector()
   for (i in chr) 
