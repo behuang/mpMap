@@ -91,7 +91,7 @@ mpadd <- function(mpcross1, mpcross2, gpu)
 		
 		if(class(output$id) != "integer") output$id <- as.integer(output$id)
 
-		offDiagonal <- .Call("rfhaps", list(output), r, c(1,ncol(mpcross1$finals)+1), c(ncol(mpcross1$finals)+1, ncol(output$finals)+1), list(rep(1, nrow(output$finals))), gpu, PACKAGE="mpMap")
+		offDiagonal <- .Call("rfhaps", list(output), r, c(1,ncol(mpcross1$finals)+1), c(ncol(mpcross1$finals)+1, ncol(output$finals)+1), list(rep(1, nrow(output$finals))), gpu, -2, PACKAGE="mpMap")
 		output$rf$lkhd <- rbind(cbind(mpcross1$rf$lkhd, offDiagonal$lkhd), cbind(t(offDiagonal$lkhd), mpcross2$rf$lkhd))
 		output$rf$lod <- rbind(cbind(mpcross1$rf$lod, offDiagonal$lod), cbind(t(offDiagonal$lod), mpcross2$rf$lod))
 		output$rf$theta <- rbind(cbind(mpcross1$rf$theta, offDiagonal$theta), cbind(t(offDiagonal$theta), mpcross2$rf$theta))

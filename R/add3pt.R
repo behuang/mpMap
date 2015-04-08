@@ -32,6 +32,7 @@ add3pt <- function(mpcross, newmpcross, newchr, mapfx=c("haldane", "kosambi"))
 
   lodmax <- list()
   newmap <- list()
+  allNewMarkers <- c()
   for (ii in 1:length(mpcross$map))
   {
     chrmap <- mpcross$map[[ii]]
@@ -88,12 +89,13 @@ add3pt <- function(mpcross, newmpcross, newchr, mapfx=c("haldane", "kosambi"))
      newmrk <- pos[wlod]
      names(newmrk) <- colnames(fon)[indn]
      newmrk <- newmrk[which(lodmax[[ii]]>3)]
+     allNewMarkers <- c(allNewMarkers, names(newmrk))
      newmap[[ii]] <- sort(c(chrmap, newmrk))
      newmap[[ii]] <- newmap[[ii]] - min(newmap[[ii]])
      } else newmap[[ii]] <- chrmap
   } ## end of loop over chromosomes
 
-  out <- mpadd(mpcross, newmpcross)
+  out <- mpadd(mpcross, subset(newmpcross, markers = allNewMarkers))
   out$oldmap <- mpcross$map
   names(newmap) <- names(mpcross$map) 
 
