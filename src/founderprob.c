@@ -153,11 +153,11 @@ void ftobin(int *hap, int x, int n)
   int i;
   int r=x;
 
-  hap[0] = (r >= pow(2,n-1));
+  hap[0] = (r >= (1 << (n-1)));
   for (i=1; i<n; i++)
   {
-    r = r - hap[i-1]*pow(2, n-i);
-    hap[i] = (r >= pow(2, n-i-1));
+    r -= hap[i-1]*(1 << (n-i));
+    hap[i] = (r >= (1 << (n-i-1)));
   }
 
   return;
