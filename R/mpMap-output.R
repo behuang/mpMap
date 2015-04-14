@@ -109,7 +109,7 @@ function(object, filestem, chr, ...)
     names(ril)[(n.pheno+2):ncol(ril)] <- colnames(obj$finals) 
   }
   vec <- c(rep("", n.pheno+!isAIC), as.character(chrnam))
-  names(vec) <- colnames(ril)
+  names(vec) <- names(ril)
   write.csv(t(vec), rilfile, quote=FALSE, row.names=FALSE)
   write.table(t(c(rep("", n.pheno+!isAIC), unlist(obj$map))), rilfile, col.names=FALSE, quote=FALSE, row.names=FALSE, append=TRUE, sep=",")
 
