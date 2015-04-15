@@ -17,6 +17,7 @@
 #' @param window Window of cM on each side of markers where we exclude covariates in CIM
 #' @param dwindow Window of markers to use for smoothing in QTL detection 
 #' @param mrkpos Flag for whether to consider both marker positions and step positions or just steps. Is overridden if step=0
+#' @param fixed If input, vector of fixed effects for each individual to be included in model with main effect and interaction with founder probability 
 #' @param ... Additional arguments
 #' @return The original input object with additional component QTLresults containing the following elements:
 #' \item{pheno}{Input phenotype data}
@@ -24,6 +25,9 @@
 #' \item{wald}{Each component contains Wald statistics at each position on a given chromosome}
 #' \item{fndrfx}{Each component contains founder effects estimated at each position on a given chromosome}
 #' \item{qtl}{Each component contains the position and effects of a detected QTL}
+#' \item{fixedmain}{Each component contains wald statistics for main effect of fixed variable (if input) at each position on a given chromosome}
+#' \item{fixedintx}{Each component contains wald statistics at each position on a given chromosome for gene x fixed interaction (if input)}
+#' \item{fixedintdf}{Each component contains the df for the gene x fixed interaction at each position on a given chromosome}
 #' \item{call}{Input arguments to function} 
 #' and with attributes describing the number of QTL detected, and the threshold used for detection. Note: Now uses the function findqtl to find all QTL peaks, see \code{\link[mpMap]{findqtl}} for more information. 
 #' @details 
@@ -45,6 +49,11 @@
 #' 
 #' Note that no weights are used in the second stage of analysis which may result in a loss of efficiency compared to a one-stage approach.
 #'
+#' If fixed is input will add terms to the model to test for a fixed effect of 
+#' the input vector (so make sure the class is correct) and for an interaction
+#' between the input vector and the founder haplotypes. Note that only a single
+#' fixed covariate can currently be included to avoid overparametrization. 
+#'
 #' If no baseModel is input, it will be assumed that predicted means have been
 #' included in \code{object} as a phenotypic variable named predmn. In this 
 #' case \code{pheno} is not required and asreml does not need to be used. 
@@ -60,7 +69,7 @@
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 
 
-mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, dwindow=5, mrkpos=TRUE, ...)
+mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, dwindow=5, mrkpos=TRUE, fixed, ...)
 {
   ### Initial setup for all approaches
   lines <- rownames(object$finals)
@@ -73,10 +82,23 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   && attr(object$prob, "mrkpos")==mrkpos))  
   object <- mpprob(object, program="qtl", step=step, chr=chr, mrkpos=mrkpos)
 
+  if (!missing(fixed)) { 
+    ## check whether fixed values can be matched up to the genotyped lines
+    if (length(setdiff(names(fixed), rownames(object$finals)))>0) 
+	stop("Observations have fixed effects recorded which have not been genotyped. Please check names and remove lines if necessary\n")
+	vec <- vector(length=nrow(output$pheno))
+	names(vec) <- rownames(output$finals)
+	vec[match(names(fixed), names(vec))] <- fixed
+	class(vec) <- class(fixed)
+	fixed <- vec
+  }
   fmap <- attr(object$prob, "map")
 
   output <- object
 
+  fixedmain <- list()
+  fixedintx <- list()
+  fixedintdf <- list()
   wald <- list()
   pval <- list()
   fndrfx <- list()
@@ -116,6 +138,9 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
       ## otherwise predicted means should already be stored there
     }
    
+    if (!missing(fixed)) 
+	output$pheno <- cbind(output$pheno, fixed)
+
     ## reset this - this is the only part of the phenotype matrix needed
     pheno <- as.data.frame(output$pheno)
     if (missing(idname)) idname <- "id"
@@ -140,7 +165,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 #	    for (k in 1:ncol(mrkgen)) mrkgen[,k] <- mrkgen[,k]-mean(mrkgen[,k], na.rm=TRUE)
 
 
- 	    #largest possible formula
+ 	#largest possible formula
     	formula <- as.formula(paste("predmn~", paste(paste("mrkgen[,", seq(1, ncol(mrkgen), n.founders), ":", seq(n.founders, ncol(mrkgen), n.founders), "]", sep=""), collapse="+")))
     	mod <- lm(as.formula(paste("predmn~1", sep="")))
     	modc <- stepAIC(mod, scope=formula, steps=ncov)  
@@ -222,6 +247,11 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     degf[[nam]] <- rep(NA, length=ncol(gen)/n.founders)
     fndrfx[[nam]] <- matrix(nrow=n.founders, ncol=ncol(gen)/n.founders)
     se[[nam]] <- matrix(nrow=n.founders, ncol=ncol(gen)/n.founders)
+    if (!missing(fixed)) {
+	fixed[[nam]] <- rep(NA, ncol(gen)/n.founders)
+	fixedintx[[nam]] <- rep(NA, ncol(gen)/n.founders)
+	fixedintdf[[nam]] <- rep(NA, ncol(gen)/n.founders)
+    }
     df <- matrix(nrow=nrow(pheno), ncol=ncol(gen))
   
     colnames(gen) <- paste("P", rep(1:(ncol(gen)/n.founders), each=n.founders), "F", LETTERS[1:n.founders], sep="")
@@ -266,6 +296,13 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 		paste(c(as.character(baseModel$call$fixed[3]), 
 		names(df)[ncol(pheno)+k:(k+n.founders-1)]), collapse="+"), sep=""))), 
 		data=df, Cfixed=TRUE, na.method.X="include")
+	  if (!missing(fixed)) 
+	    mod <- update(baseModel, 
+	  	fixed=eval(as.formula(paste(baseModel$call$fixed[2], 
+		baseModel$call$fixed[1], 
+		paste(c(as.character(baseModel$call$fixed[3]), 
+		names(df)[ncol(pheno)+k:(k+n.founders-1)]), paste("fixed*", names(df)[ncol(pheno)+k:(k+n.founders-1)], sep=""), collapse="+"), sep=""))), 
+		data=df, Cfixed=TRUE, na.method.X="include")
 	
 	  summ <- summary(mod, all=TRUE)	
     	  fndrfx[[nam]][,index] <- summ$coef.fixed[n.founders:1,1]
@@ -275,6 +312,20 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     	  wald[[nam]][(k-1)/n.founders+1] <- wta$zwald
     	  degf[[nam]][(k-1)/n.founders+1] <- nrow(wta$ZRows[[1]])
     	  pval[[nam]][(k-1)/n.founders+1] <- wta$zpval
+	  if (!missing(fixed)) {
+	     index <- grep("fixed*", names(mod$coefficients$fixed))
+	     index <- index[which(mod$coefficients$fixed[index]!=0)]
+	     man <- list(index, "zero") ## need to check whether these are correct anymore with intx
+	     wta <- wald.test.asreml(mod, list(man))$zres
+	     fixedintx[[nam]][(k-1)/n.founders+1] <- wta$zwald
+	     fixedintdf[[nam]][(k-1)/n.founders+1] <- nrow(wta$ZRows[[1]])
+	     index2 <- grep("fixed", names(mod$coefficients$fixed))
+	     ## remove interaction terms? 
+	     index2 <- setdiff(index2, index)
+	     index2 <- index2[which(mod$coefficients$fixed[index2]!=0)] 
+	     man <- list(index2, "zero")
+	     wta <- wald.test.asreml(mod, list(man))$zres
+	     fixed[[nam]][(k-1)/n.founders+1] <- wta$zwald
       	}
 
 	if (method=="lm") {
@@ -283,7 +334,10 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	    form <- as.formula(paste("predmn~", paste(termlab[which(terms[[j]][,index]==1)], collapse="+"), "+", paste(names(df)[grep(paste("P", index, "F", sep=""), names(df))], collapse="+"), sep="")) 
 	  else form <- as.formula(paste("predmn~", paste(names(df)[grep(paste("P", index, "F", sep=""), names(df))], collapse="+"), sep=""))
 	  # fit the model
-    
+	
+	  if (!missing(fixed)) 
+	    form <- as.formula(paste("predmn~", paste("fixed*", paste(names(df)[grep(paste("P", index, "F", sep=""), names(df))],collapse="+"), sep=""), sep="")) 
+	    
     qq <- which(cor(df[, k-1+ncol(pheno)+1:n.founders])>.95, arr.ind=T)
     qq <- qq[qq[,1]<qq[,2],, drop=F]
     if (nrow(qq)>0) {
@@ -299,8 +353,25 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	  # if we did not get any non NA values, window was not large enough
 	  if(length(grep(paste("P", index, "F", sep=""), names(coe))) != 0)
 	  {
+	    if (!missing(fixed)) {
+	    	# Need to do terms separately
+	    	index1 <- grep("fixed:", names(coe))
+	    	wt <- wald.test(varb=vcov(mod), b=coe, Terms=index1)
+	    	fixedintx[[nam]][index] <- wt$result$chi2[1]
+		fixedintdf[[nam]][index] <- wt$result$chi2[2]
+	   	
+		## now do main effect
+		index2 <- grep("fixed", names(coe))
+		index2 <- setdiff(index2, index1)
+		wt <- wald.test(varb=vcov(mod), b=coe, Terms=index2)
+		fixed[[nam]][index] <- wt$result$chi2[1]
+	    } else index1 <- NULL
+		
+	    index3 <- grep(paste("P", index, "F", sep=""), names(coe))
+	    index3 <- setdiff(index3, index1) 
+
 	    #test the current location for significance (actually a joint test)
-	    wt <- wald.test(varb=vcov(mod), b=coe, Terms=grep(paste("P", index, "F", sep=""), names(coe)))
+	    wt <- wald.test(varb=vcov(mod), b=coe, Terms=index3)
 
 	    pval[[nam]][index] <- wt$result$chi2[3] 
 	    wald[[nam]][index] <- wt$result$chi2[1]
@@ -354,6 +425,11 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   attr(results$qtl, "ncov") <- ncov
   attr(results$qtl, "window") <- window
   attr(results, "method") <- method
+  if (!missing(fixed)) {
+	results$fixed <- fixed
+	results$fixedintx <- fixedintx
+	results$fixedintdf <- fixedintdf
+  }
 
   output$QTLresults <- results
   output$QTLresults$cofactors <- cofactors
