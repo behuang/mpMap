@@ -380,8 +380,10 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	    degf[[nam]][index] <- wt$result$chi2[2]
 
 	    a <- summary(mod)$coefficients
-	    fndrfx[[nam]][,index] <- c(a[grep(paste("P", index, "F", sep=""), rownames(a)),1], rep(NA, n.founders-length(grep(paste("P", index, "F", sep=""), rownames(a))))) 
-	    se[[nam]][,index] <- c(a[grep(paste("P", index, "F", sep=""), rownames(a)),2], rep(NA, n.founders-length(grep(paste("P", index, "F", sep=""), rownames(a))))) 
+	    index4 <- grep(paste("P", index, "F", sep=""), rownames(a))
+	    index4 <- setdiff(index4, grep("fixed:", rownames(a)))
+	    fndrfx[[nam]][,index] <- c(a[index4,1], rep(NA, n.founders-length(index4))) 
+	    se[[nam]][,index] <- c(a[index4,2], rep(NA, n.founders-length(index4))) 
 	  }
 	  else
 	    cat("Error when testing location ", index, " along chromosome ", j, ". Window may be too small.\n ")
