@@ -248,7 +248,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     fndrfx[[nam]] <- matrix(nrow=n.founders, ncol=ncol(gen)/n.founders)
     se[[nam]] <- matrix(nrow=n.founders, ncol=ncol(gen)/n.founders)
     if (!missing(fixed)) {
-	fixed[[nam]] <- rep(NA, ncol(gen)/n.founders)
+	fixedmain[[nam]] <- rep(NA, ncol(gen)/n.founders)
 	fixedintx[[nam]] <- rep(NA, ncol(gen)/n.founders)
 	fixedintdf[[nam]] <- rep(NA, ncol(gen)/n.founders)
     }
@@ -325,9 +325,9 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	     index2 <- index2[which(mod$coefficients$fixed[index2]!=0)] 
 	     man <- list(index2, "zero")
 	     wta <- wald.test.asreml(mod, list(man))$zres
-	     fixed[[nam]][(k-1)/n.founders+1] <- wta$zwald
-      	}
-
+	     fixedmain[[nam]][(k-1)/n.founders+1] <- wta$zwald
+      	    }
+	}
 	if (method=="lm") {
 	  if (ncov>0) 
 	    # include all necessary covariates
@@ -364,7 +364,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 		index2 <- grep("fixed", names(coe))
 		index2 <- setdiff(index2, index1)
 		wt <- wald.test(varb=vcov(mod), b=coe, Terms=index2)
-		fixed[[nam]][index] <- wt$result$chi2[1]
+		fixedmain[[nam]][index] <- wt$result$chi2[1]
 	    } else index1 <- NULL
 		
 	    index3 <- grep(paste("P", index, "F", sep=""), names(coe))
@@ -426,7 +426,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   attr(results$qtl, "window") <- window
   attr(results, "method") <- method
   if (!missing(fixed)) {
-	results$fixed <- fixed
+	results$fixedmain <- fixedmain
 	results$fixedintx <- fixedintx
 	results$fixedintdf <- fixedintdf
   }
