@@ -86,8 +86,10 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     ## check whether fixed values can be matched up to the genotyped lines
     if (length(setdiff(names(fixed), rownames(object$finals)))>0) 
 	stop("Observations have fixed effects recorded which have not been genotyped. Please check names and remove lines if necessary\n")
-	vec <- vector(length=nrow(output$pheno))
-	names(vec) <- rownames(output$finals)
+    if (length(setdiff(rownames(object$finals), names(fixed)))>0)
+	cat("You do not have fixed effects for all individuals, may want to check this \n")
+	vec <- vector(length=nrow(object$pheno))
+	names(vec) <- rownames(object$finals)
 	vec[match(names(fixed), names(vec))] <- fixed
 	class(vec) <- class(fixed)
 	fixed <- vec
@@ -336,7 +338,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	  # fit the model
 	
 	  if (!missing(fixed)) 
-	    form <- as.formula(paste("predmn~", paste("fixed*", paste(names(df)[grep(paste("P", index, "F", sep=""), names(df))],collapse="+"), sep=""), sep="")) 
+	    form <- as.formula(paste("predmn~", paste(paste("fixed*", names(df)[grep(paste("P", index, "F", sep=""), names(df))], sep=""),collapse="+"), sep="")) 
 	    
     qq <- which(cor(df[, k-1+ncol(pheno)+1:n.founders])>.95, arr.ind=T)
     qq <- qq[qq[,1]<qq[,2],, drop=F]
