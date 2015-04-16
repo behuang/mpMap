@@ -91,7 +91,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	vec <- vector(length=nrow(object$pheno))
 	names(vec) <- rownames(object$finals)
 	vec[match(names(fixed), names(vec))] <- fixed
-	class(vec) <- class(fixed)
+	if (class(fixed)=="factor") vec <- as.factor(vec)
 	fixed <- vec
   }
   fmap <- attr(object$prob, "map")
@@ -357,7 +357,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	  {
 	    if (!missing(fixed)) {
 	    	# Need to do terms separately
-	    	index1 <- grep("fixed:", names(coe))
+	    	index1 <- grep(":P", names(coe))
 	    	wt <- wald.test(varb=vcov(mod), b=coe, Terms=index1)
 	    	fixedintx[[nam]][index] <- wt$result$chi2[1]
 		fixedintdf[[nam]][index] <- wt$result$chi2[2]
@@ -381,7 +381,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 
 	    a <- summary(mod)$coefficients
 	    index4 <- grep(paste("P", index, "F", sep=""), rownames(a))
-	    index4 <- setdiff(index4, grep("fixed:", rownames(a)))
+	    index4 <- setdiff(index4, grep(":P", rownames(a)))
 	    fndrfx[[nam]][,index] <- c(a[index4,1], rep(NA, n.founders-length(index4))) 
 	    se[[nam]][,index] <- c(a[index4,2], rep(NA, n.founders-length(index4))) 
 	  }
