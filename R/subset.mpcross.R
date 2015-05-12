@@ -1,7 +1,7 @@
 #' Subset mpcross object
 #'
 #' Reduces an mpcross object down to a specified set of chromosomes, markers and/or lines
-#' @S3method subset mpcross
+#' @export subset mpcross
 #' @method subset mpcross
 #' @param x Object of class \code{mpcross}
 #' @param chr Selected chromosomes TO KEEP. Default is all

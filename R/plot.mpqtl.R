@@ -1,7 +1,7 @@
 #' Plot output from interval mapping with detected QTL
 #'
 #' Plot -log10(p-value) or test statistic against cM position for (composite) interval mapping in multi-parent crosses. QTL support intervals are indicated with rectangles surrounding peaks. 
-#' @S3method plot mpqtl
+#' @export plot mpqtl
 #' @method plot mpqtl
 #' @param x Object of class \code{mpqtl}
 #' @param wald Flag for whether to plot the Wald statistic or -log10(p)

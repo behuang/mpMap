@@ -83,7 +83,7 @@ mapcomp <- function(object1, object2) {
 	class(output) <- "mapcomp" 
 	output
 }
-#' @S3method plot mapcomp
+#' @export plot mapcomp
 #' @method plot mapcomp
 #' @rdname mapcomp-all
 #' @param lines Whether straight lines with slope +1 / -1 (indicating complete map agreement) should be shown
@@ -112,7 +112,7 @@ plot.mapcomp <- function(x, lines=FALSE, ...)
 	xyplot(pos1~pos2|chr1, data=x$samechr, pch=20, as.table=TRUE, panel = panel.func, ...)
 }
 
-#' @S3method summary mapcomp
+#' @export summary mapcomp
 #' @method summary mapcomp
 #' @rdname mapcomp-all
 

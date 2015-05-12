@@ -18,6 +18,7 @@
 #' @param dwindow Window of markers to use for smoothing in QTL detection 
 #' @param mrkpos Flag for whether to consider both marker positions and step positions or just steps. Is overridden if step=0
 #' @param fixed If input, vector of fixed effects for each individual to be included in model with main effect and interaction with founder probability 
+#' @param foundergroups If input, groups of founders for which to cluster parental alleles together at every marker. Currently overrides mrkpos and step arguments. Note that this is not currently working with ncov>0
 #' @param ... Additional arguments
 #' @return The original input object with additional component QTLresults containing the following elements:
 #' \item{pheno}{Input phenotype data}
@@ -54,6 +55,9 @@
 #' between the input vector and the founder haplotypes. Note that only a single
 #' fixed covariate can currently be included to avoid overparametrization. 
 #'
+#' If foundergroups is input, then probabilities at each location will be collapsed within the groups of founders
+#' in fitting the model.  
+#'
 #' If no baseModel is input, it will be assumed that predicted means have been
 #' included in \code{object} as a phenotypic variable named predmn. In this 
 #' case \code{pheno} is not required and asreml does not need to be used. 
@@ -78,9 +82,16 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   if (missing(chr)) chr <- 1:length(object$map) 
   else if (is.character(chr)) chr <- match(chr, names(object$map))
 
+  ## Set this to the default of computation at every marker. 
+  if (!missing(foundergroups)) { 
+	mrkpos <- TRUE
+	step <- 0
+  }
+ 
   if (!(inherits(object, "mpprob") && attr(object$prob, "step")==step 
   && attr(object$prob, "mrkpos")==mrkpos))  
   object <- mpprob(object, program="qtl", step=step, chr=chr, mrkpos=mrkpos)
+
 
   if (!missing(fixed)) { 
     ## check whether fixed values can be matched up to the genotyped lines
@@ -96,6 +107,11 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   }
   fmap <- attr(object$prob, "map")
 
+  ## If this argument is not input - all founders form their own groups; i.e. nothing changes. 
+  if (missing(foundergroups)) {
+	foundergroups <- matrix(rep(1:n.founders, length(unlist(fmap))), nrow=n.founders)
+	colnames(foundergroups) <- unlist(lapply(fmap, names)) 
+  }
   output <- object
 
   fixedmain <- list()
@@ -242,6 +258,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     nam <- names(object$map)[j]
     cat("------Analyzing Chr ",nam,"----------\n")
     gen <- object$prob[[nam]]
+    fgc <- foundergroups[, match(names(fmap)[[j]], colnames(foundergroups))] ## need to make sure of naming scheme
 
     ## All set to NA by default
     wald[[nam]] <- rep(NA, ncol(gen)/n.founders)
@@ -290,26 +307,37 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     for (k in seq(1, ncol(gen), n.founders))
     {
 	index <- (k-1)/n.founders+1
+	df2 <- df[, 1:ncol(pheno)]
+
+	### Need to update the probabilities so that founders within groups are summed
+	### Should be able to do this in some way with matrix multiplication
+
+	mat <- df[, ncol(pheno)+k:(k+n.founders-1)]
+	mm <- t(model.matrix(~factor(fgc[, index])))
+ 	mat <- mm %*% mat
+	colnames(mat) <- paste("P", index, "G", 1:ncol(mat), sep="")
+	df2 <- cbind(df2, mat)
+	ngrps <- nrow(mm)
 
 	if (method=="mm") {
 	  mod <- update(baseModel, 
 	  	fixed=eval(as.formula(paste(baseModel$call$fixed[2], 
 		baseModel$call$fixed[1], 
 		paste(c(as.character(baseModel$call$fixed[3]), 
-		names(df)[ncol(pheno)+k:(k+n.founders-1)]), collapse="+"), sep=""))), 
-		data=df, Cfixed=TRUE, na.method.X="include")
+		names(df2)[(ncol(pheno)+1):ncol(df2)]), collapse="+"), sep=""))), 
+		data=df2, Cfixed=TRUE, na.method.X="include")
 	  if (!missing(fixed)) 
 	    mod <- update(baseModel, 
 	  	fixed=eval(as.formula(paste(baseModel$call$fixed[2], 
 		baseModel$call$fixed[1], 
 		paste(c(as.character(baseModel$call$fixed[3]), 
-		names(df)[ncol(pheno)+k:(k+n.founders-1)]), paste("fixed*", names(df)[ncol(pheno)+k:(k+n.founders-1)], sep=""), collapse="+"), sep=""))), 
-		data=df, Cfixed=TRUE, na.method.X="include")
+		names(df2)[(ncol(pheno)+1):ncol(df2)]), paste("fixed*", names(df2)[(ncol(pheno)+1):ncol(df2)], sep=""), collapse="+"), sep=""))), 
+		data=df2, Cfixed=TRUE, na.method.X="include")
 	
 	  summ <- summary(mod, all=TRUE)	
-    	  fndrfx[[nam]][,index] <- summ$coef.fixed[n.founders:1,1]
-	  se[[nam]][,index] <- summ$coef.fixed[n.founders:1, 2]
-    	  man <- list(which(mod$coefficients$fixed[1:n.founders]!=0), "zero")
+    	  fndrfx[[nam]][,index] <- summ$coef.fixed[ngrps:1,1]
+	  se[[nam]][,index] <- summ$coef.fixed[ngrps:1, 2]
+    	  man <- list(which(mod$coefficients$fixed[1:ngrps]!=0), "zero")
 	  wta <- wald.test.asreml(mod, list(man))$zres
     	  wald[[nam]][(k-1)/n.founders+1] <- wta$zwald
     	  degf[[nam]][(k-1)/n.founders+1] <- nrow(wta$ZRows[[1]])
@@ -331,29 +359,31 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
       	    }
 	}
 	if (method=="lm") {
+
 	  if (ncov>0) 
 	    # include all necessary covariates
 	    form <- as.formula(paste("predmn~", paste(termlab[which(terms[[j]][,index]==1)], collapse="+"), "+", paste(names(df)[grep(paste("P", index, "F", sep=""), names(df))], collapse="+"), sep="")) 
-	  else form <- as.formula(paste("predmn~", paste(names(df)[grep(paste("P", index, "F", sep=""), names(df))], collapse="+"), sep=""))
+	  else form <- as.formula(paste("predmn~", paste(names(df2)[(ncol(pheno)+1):ncol(df2)], collapse="+"), sep=""))
 	  # fit the model
 	
 	  if (!missing(fixed)) 
-	    form <- as.formula(paste("predmn~", paste(paste("fixed*", names(df)[grep(paste("P", index, "F", sep=""), names(df))], sep=""),collapse="+"), sep="")) 
+	    form <- as.formula(paste("predmn~", paste(paste("fixed*", names(df2)[(ncol(pheno)+1):ncol(df2)], sep=""),collapse="+"), sep="")) 
 	    
-    qq <- which(cor(df[, k-1+ncol(pheno)+1:n.founders])>.95, arr.ind=T)
+    ### Note: unlikely to need this when founders are compressed
+    qq <- which(cor(df2[, (ncol(pheno)+1):ncol(df2)])>.95, arr.ind=T)
     qq <- qq[qq[,1]<qq[,2],, drop=F]
     if (nrow(qq)>0) {
       for (pp in 1:nrow(qq))
-        df[,k-1+ncol(pheno)+qq[pp,1]] <- df[,k-1+ncol(pheno)+qq[pp,2]] <- (df[,k-1+ncol(pheno)+qq[pp,1]]+df[,k-1+ncol(pheno)+qq[pp,2]])/2
+        df2[, ncol(pheno)+qq[pp,1]] <- df2[,ncol(pheno)+qq[pp,2]] <- (df2[,ncol(pheno)+qq[pp,1]]+df2[,ncol(pheno)+qq[pp,2]])/2
     }
     
-	  mod <- lm(form, data=df)
+	  mod <- lm(form, data=df2)
     
 	  # Collinearity means some coefficients will be NA
 	  coe <- coef(mod)[which(!is.na(coef(mod)))]	
 
 	  # if we did not get any non NA values, window was not large enough
-	  if(length(grep(paste("P", index, "F", sep=""), names(coe))) != 0)
+	  if(length(grep(paste("P", index, "G", sep=""), names(coe))) != 0)
 	  {
 	    if (!missing(fixed)) {
 	    	# Need to do terms separately
@@ -369,7 +399,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 		fixedmain[[nam]][index] <- wt$result$chi2[1]
 	    } else index1 <- NULL
 		
-	    index3 <- grep(paste("P", index, "F", sep=""), names(coe))
+	    index3 <- grep(paste("P", index, "G", sep=""), names(coe))
 	    index3 <- setdiff(index3, index1) 
 
 	    #test the current location for significance (actually a joint test)
@@ -380,7 +410,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	    degf[[nam]][index] <- wt$result$chi2[2]
 
 	    a <- summary(mod)$coefficients
-	    index4 <- grep(paste("P", index, "F", sep=""), rownames(a))
+	    index4 <- grep(paste("P", index, "G", sep=""), rownames(a))
 	    index4 <- setdiff(index4, grep(":P", rownames(a)))
 	    fndrfx[[nam]][,index] <- c(a[index4,1], rep(NA, n.founders-length(index4))) 
 	    se[[nam]][,index] <- c(a[index4,2], rep(NA, n.founders-length(index4))) 

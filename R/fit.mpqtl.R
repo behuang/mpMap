@@ -5,7 +5,7 @@
 #' all QTL effects. 
 #' @aliases fit fit.mpqtl
 #' @export fit
-#' @S3method fit mpqtl
+#' @export fit mpqtl
 #' @param object Object of class \code{mpqtl}
 # @param baseModel asreml output from fit of base model
 # @param pheno data frame containing phenotypes required to fit base model

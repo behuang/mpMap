@@ -5,7 +5,7 @@
 #' Summary statistics for the genotypes are printed, included the number of markers with varying levels of missing data, with varying levels of segregation distortion, and with different numbers of alleles. 
 #' @export 
 #' @import qtl
-#' @S3method clean mpcross
+#' @export clean mpcross
 #' @method clean mpcross
 #' @aliases mpsegrat
 #' @param object Object of class \code{mpcross}

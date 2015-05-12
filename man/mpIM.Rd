@@ -36,6 +36,8 @@ mpIM(baseModel, object, pheno, idname = "id", threshold = 0.001, chr,
 \item{fixed}{If input, vector of fixed effects for each individual to be included in model with main effect and interaction with founder probability}
 
 \item{...}{Additional arguments}
+
+\item{foundergroups}{If input, groups of founders for which to cluster parental alleles together at every marker. Currently overrides mrkpos and step arguments. Note that this is not currently working with ncov>0}
 }
 \value{
 The original input object with additional component QTLresults containing the following elements:
@@ -78,6 +80,9 @@ If fixed is input will add terms to the model to test for a fixed effect of
 the input vector (so make sure the class is correct) and for an interaction
 between the input vector and the founder haplotypes. Note that only a single
 fixed covariate can currently be included to avoid overparametrization.
+
+If foundergroups is input, then probabilities at each location will be collapsed within the groups of founders
+in fitting the model.
 
 If no baseModel is input, it will be assumed that predicted means have been
 included in \code{object} as a phenotypic variable named predmn. In this

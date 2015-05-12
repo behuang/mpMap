@@ -1,7 +1,7 @@
 #' Plot summary of founder probabilities and haplotype blocks
 #' 
 #' Plot the percentage of each chromosome inherited from each founder
-#' @S3method plot mpprob
+#' @export plot mpprob
 #' @method plot mpprob
 #' @param x Object of class \code{mpprob}
 #' @param chr Chromosomes to plot. Default is all
