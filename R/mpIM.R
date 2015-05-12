@@ -312,9 +312,9 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	### Need to update the probabilities so that founders within groups are summed
 	### Should be able to do this in some way with matrix multiplication
 
-	mat <- df[, ncol(pheno)+k:(k+n.founders-1)]
-	mm <- t(model.matrix(~factor(fgc[, index])))
- 	mat <- mm %*% mat
+	mat <- as.matrix(df[, ncol(pheno)+k:(k+n.founders-1)])
+	mm <- model.matrix(~factor(fgc[, index])-1)
+ 	mat <- mat %*% mm
 	colnames(mat) <- paste("P", index, "G", 1:ncol(mat), sep="")
 	df2 <- cbind(df2, mat)
 	ngrps <- nrow(mm)
