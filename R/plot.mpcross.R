@@ -1,7 +1,7 @@
 #' Plot summary of mpcross object
 #'
 #' Plots summary of phenotypes and genetic map for mpcross object. If calculated, plots a heatmap of recombination fraction estimates and transformed LOD scores with legend.
-#' @export 
+#' @export plot.mpcross 
 #' @method plot mpcross
 #' @param x Object of class \code{mpcross}
 #' @param chr Selected chromosomes. Default is all

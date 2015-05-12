@@ -1,7 +1,7 @@
 #' Summary of mpcross object
 #'
 #' Summarizes mpcross object in terms of number of markers, lines, type of markers, and quality of markers
-#' @export 
+#' @export summary.mpcross 
 #' @method summary mpcross
 #' @param object Object of class \code{mpcross}
 #' @param ... Additional arguments

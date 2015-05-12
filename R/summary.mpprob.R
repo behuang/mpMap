@@ -1,7 +1,7 @@
 #' Summary of mpprob object
 #' 
 #' Summarizes details about underlying mpcross object as well as descriptive statistics about estimated founder haplotypes
-#' @export 
+#' @export summary.mpprob 
 #' @method summary mpprob
 #' @param object Object of class \code{mpprob}
 #' @param ... Additional arguments

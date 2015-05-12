@@ -1,4 +1,4 @@
-#' @export
+#' @export print.mpqtl
 print.mpqtl <-
 function(x, ...)
 {

@@ -1,7 +1,7 @@
 #' Summary of mpqtl object
 #' 
 #' Prints a summary of the detected QTL
-#' @export 
+#' @export summary.mpqtl 
 #' @method summary mpqtl
 #' @param object Object of class \code{mpqtl}
 #' @param ... Additional arguments
