@@ -258,7 +258,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     nam <- names(object$map)[j]
     cat("------Analyzing Chr ",nam,"----------\n")
     gen <- object$prob[[nam]]
-    fgc <- foundergroups[, match(names(fmap)[[j]], colnames(foundergroups))] ## need to make sure of naming scheme
+    fgc <- foundergroups[, match(names(fmap[[j]]), colnames(foundergroups)), drop=F] ## need to make sure of naming scheme
 
     ## All set to NA by default
     wald[[nam]] <- rep(NA, ncol(gen)/n.founders)
