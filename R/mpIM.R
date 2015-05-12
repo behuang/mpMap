@@ -317,7 +317,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
  	mat <- mat %*% mm
 	colnames(mat) <- paste("P", index, "G", 1:ncol(mat), sep="")
 	df2 <- cbind(df2, mat)
-	ngrps <- nrow(mm)
+	ngrps <- ncol(mm)
 
 	if (method=="mm") {
 	  mod <- update(baseModel, 
@@ -412,8 +412,8 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	    a <- summary(mod)$coefficients
 	    index4 <- grep(paste("P", index, "G", sep=""), rownames(a))
 	    index4 <- setdiff(index4, grep(":P", rownames(a)))
-	    fndrfx[[nam]][,index] <- c(a[index4,1], rep(NA, n.founders-length(index4))) 
-	    se[[nam]][,index] <- c(a[index4,2], rep(NA, n.founders-length(index4))) 
+	    fndrfx[[nam]][,index, drop=F] <- c(a[index4,1], rep(NA, n.founders-length(index4))) 
+	    se[[nam]][,index, drop=F] <- c(a[index4,2], rep(NA, n.founders-length(index4))) 
 	  }
 	  else
 	    cat("Error when testing location ", index, " along chromosome ", j, ". Window may be too small.\n ")
