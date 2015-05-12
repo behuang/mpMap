@@ -1,7 +1,7 @@
 #' Subset mpprob object
 #'
 #' Reduces an mpprob object down to a specified set of chromosomes, markers and/or lines
-#' @export subset mpprob
+#' @export 
 #' @method subset mpprob
 #' @param x Object of class \code{mpprob}
 #' @param chr Selected chromosomes TO KEEP. Default is all

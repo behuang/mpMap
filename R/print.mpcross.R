@@ -1,4 +1,4 @@
-#' @export print mpcross
+#' @export 
 print.mpcross <-
 function(x, ...)
 {
