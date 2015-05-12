@@ -73,7 +73,7 @@
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 
 
-mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, dwindow=5, mrkpos=TRUE, fixed, ...)
+mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, dwindow=5, mrkpos=TRUE, fixed, foundergroups, ...)
 {
   ### Initial setup for all approaches
   lines <- rownames(object$finals)
