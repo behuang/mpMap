@@ -61,8 +61,10 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
   chr <- rep(names(qtlres), unlist(lapply(qtlres, function(x) return(nrow(x)))))
   gen <- list()
   ## check this is extracting the right columns
+  pr <- do.call("cbind", object$prob)
   for (i in 1:nqtl) {
-	gen[[i]] <- object$prob[[chr[i]]][,(index[i]-1)*n.founders+1:n.founders]
+	gen[[i]] <- pr[, (index[i]-1)*n.founders+1:n.founders]
+#object$prob[[chr[i]]][,(index[i]-1)*n.founders+1:n.founders]
   
 	qq <- which(cor(gen[[i]][, 1:n.founders])>.95, arr.ind=T)
 	qq <- qq[qq[,1]<qq[,2],, drop=F]
