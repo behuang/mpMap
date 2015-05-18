@@ -33,7 +33,7 @@ summary.mpqtl <- function(object, ...)
 	else 
 	{
 		chr <- rep(names(qtlres), unlist(lapply(qtlres, function(x) return(nrow(x)))))
-		cm <- round(unlist(lapply(qtlres, function(x) return(x[,1]))),2)
+		cm <- unlist(lapply(qtlres, function(x) return(x[,1])))
 		effect <- round(matrix(unlist(lapply(qtlres, function(x) return(as.vector(t(x[, 1+1:n.founders]))))), nrow=n.founders, ncol=length(cm)), 3)
 		se <- round(matrix(unlist(lapply(qtlres, function(x) return(as.vector(t(x[, 1+n.founders+1:n.founders]))))), nrow=n.founders, ncol=length(cm)), 3)
 
@@ -57,6 +57,7 @@ summary.mpqtl <- function(object, ...)
 		}
 		eff3 <- paste("Effect_",f3,sep="")
 		se3 <- paste("SE_",f3,sep="")
+		cm <- round(cm, 2)
 	if (n.founders==4)
 		table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], "Wald"=wald, "df"=degf, "pvalue"=pval)
 	else if (n.founders==8)
