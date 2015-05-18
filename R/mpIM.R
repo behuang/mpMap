@@ -419,6 +419,9 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	    cat("Error when testing location ", index, " along chromosome ", j, ". Window may be too small.\n ")
     	} ## end of "lm" loop
      }
+  ind <- which(pval[[nam]]==0)
+  if (length(ind)>0)
+  for (m in ind) pval[[nam]][m] <- -pchisq(wald[[nam]][m], degf[[nam]][m], log.p=TRUE)
   }
  
   minp <- unlist(lapply(pval, function(x) min(x, na.rm=TRUE)))
