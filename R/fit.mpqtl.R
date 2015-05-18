@@ -56,7 +56,8 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
   ## each QTL
   ## b) replace the third term in the fixed model statement
   ## c) extract all the estimates etc. and store them
-  index <- unlist(lapply(qtlres, function(x) attr(x, "index")))
+#  index <- unlist(lapply(qtlres, function(x) attr(x, "index")))
+  index <- unlist(attr(qtlres, "index"))
   chr <- rep(names(qtlres), unlist(lapply(qtlres, function(x) return(nrow(x)))))
   gen <- list()
   ## check this is extracting the right columns

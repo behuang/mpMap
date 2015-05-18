@@ -48,11 +48,11 @@ findqtl <- function(mpqtl, dwindow=5, threshold)
     dlm <- c(diff(tmp3), dwindow)
     locmax[dlm<dwindow] <- FALSE
     index[[j]] <- tmp3[locmax]+startind-1
-    attr(output$QTLresults$qtl[[j]], "index") <- index[[j]]
     nqtl <- length(index[[j]])
     output$QTLresults$qtl[[j]] <- cbind(sc[index[[j]], 2], matrix(mpqtl$QTLresults$fndrfx[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T), matrix(mpqtl$QTLresults$se[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T))
     } else index[[j]] <- NULL
   }
+  attr(output$QTLresults$qtl, "index") <- index
   attr(output$QTLresults$qtl, "nqtl") <- length(unlist(index))
 
   output
