@@ -55,7 +55,7 @@ findqtl <- function(mpqtl, dwindow=5, threshold)
 
     index[[j]] <- oldindex+startind-1
     nqtl <- length(index[[j]])
-    output$QTLresults$qtl[[j]] <- cbind(sc[index[[j]], 2], matrix(mpqtl$QTLresults$fndrfx[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T), matrix(mpqtl$QTLresults$se[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T))
+    output$QTLresults$qtl[[j]] <- cbind(sc[index[[j]], 2], matrix(mpqtl$QTLresults$fndrfx[[j]][, oldindex], nrow=nqtl, byrow=T), matrix(mpqtl$QTLresults$se[[j]][, oldindex], nrow=nqtl, byrow=T))
     } else index[[j]] <- NULL
   }
   attr(output$QTLresults$qtl, "index") <- index
