@@ -31,8 +31,10 @@ findqtl <- function(mpqtl, dwindow=5, threshold)
   index <- list()
   for (j in unique(sc$chr)) {
     startind <- min(which(sc$chr==j))
-    ts <- sc$lod[sc$chr==j]
-    ts[ts>100] <- max(ts[ts<100])+5
+    y <- sc$lod[sc$chr==j]
+    x <- sc$pos[sc$chr==j]
+    ap <- approx(x, y, xout=unique(sort(c(x, seq(min(x), max(x), .1)))))
+    ts <- ap$y
     tmp1 <- dilation(ts, dwindow)
     tmp2 <- which(ts==tmp1)
     tmp3 <- tmp2[which(ts[tmp2]>threshold)]
@@ -47,7 +49,11 @@ findqtl <- function(mpqtl, dwindow=5, threshold)
   
     dlm <- c(diff(tmp3), dwindow)
     locmax[dlm<dwindow] <- FALSE
-    index[[j]] <- tmp3[locmax]+startind-1
+    ## need to rematch the tmp3 indices up to the original ones. 
+    oldindex <- vector(length=length(tmp3[locmax]))
+    for (k in 1:length(oldindex)) oldindex[k] <- which.min(abs(ap$x[tmp3[locmax][k]]-x))
+
+    index[[j]] <- oldindex+startind-1
     nqtl <- length(index[[j]])
     output$QTLresults$qtl[[j]] <- cbind(sc[index[[j]], 2], matrix(mpqtl$QTLresults$fndrfx[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T), matrix(mpqtl$QTLresults$se[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T))
     } else index[[j]] <- NULL
