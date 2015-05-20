@@ -315,11 +315,13 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	mat <- as.matrix(df[, ncol(pheno)+k:(k+n.founders-1)])
 	mm <- model.matrix(~factor(fgc[, index])-1)
  	mat <- mat %*% mm
+	if (ncol(mat)<19) {
 	varc <- apply(mat, 2, function(x) var(x, na.rm=T))
 	if (any(varc<1e-6)) {
 	  mat <- mat[, -(which(varc<1e-6))]
 	  mat <- t(apply(mat, 1, function(x) x/sum(x, na.rm=T)))
 	}
+ 	}
 	colnames(mat) <- paste("P", index, "G", 1:ncol(mat), sep="")
 	df2 <- cbind(df2, mat)
 	ngrps <- ncol(mat)
