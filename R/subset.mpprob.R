@@ -37,6 +37,7 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
 		attr(output$prob, "program") <- attr(x$prob, "program")
 		attr(output$estfnd, "threshold") <- attr(x$estfnd, "threshold")
 		attr(output$prob, "mapfx") <- attr(x$prob, "mapfx")
+		attr(output$prob, "mrkpos") <- attr(x$prob, "mrkpos")
 	}
  
 	if (!is.null(lines)) 
@@ -51,6 +52,7 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
 		attr(output$estfnd, "threshold") <- attr(x$estfnd, "threshold")
 		attr(output$prob, "mapfx") <- attr(x$prob, "mapfx")
 		attr(output$prob, "map") <- attr(x$prob, "map")
+	 	attr(output$prob, "mrkpos") <- attr(x$prob, "mrkpos")
 	}
 
 	if (!is.null(markers))
@@ -76,6 +78,7 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
 			attr(output$prob, "program") <- attr(x$prob, "program")
 			attr(output$estfnd, "threshold") <- attr(x$estfnd, "threshold")
 			attr(output$prob, "mapfx") <- attr(x$prob, "mapfx")
+			attr(output$prob, "mrkpos") <- attr(x$prob, "mrkpos")
 		}
 		else
 		{	
