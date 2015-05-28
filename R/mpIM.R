@@ -273,7 +273,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
     }
     df <- matrix(nrow=nrow(pheno), ncol=ncol(gen))
   
-    colnames(gen) <- paste("P", rep(1:(ncol(gen)/n.founders), each=n.founders), "F", LETTERS[1:n.founders], sep="")
+    colnames(gen) <- paste("P", rep(1:(ncol(gen)/n.founders), each=n.founders), "G", LETTERS[1:n.founders], sep="")
 
     genid <- vector()
     for (k in 1:nrow(pheno)) 
@@ -369,7 +369,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 
 	  if (ncov>0) 
 	    # include all necessary covariates
-	    form <- as.formula(paste("predmn~", paste(termlab[which(terms[[j]][,index]==1)], collapse="+"), "+", paste(names(df)[grep(paste("P", index, "F", sep=""), names(df))], collapse="+"), sep="")) 
+	    form <- as.formula(paste("predmn~", paste(termlab[which(terms[[j]][,index]==1)], collapse="+"), "+", paste(names(df)[grep(paste("P", index, "G", sep=""), names(df))], collapse="+"), sep="")) 
 	  else form <- as.formula(paste("predmn~", paste(names(df2)[(ncol(pheno)+1):ncol(df2)], collapse="+"), sep=""))
 	  # fit the model
 	
