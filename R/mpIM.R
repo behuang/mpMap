@@ -322,7 +322,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	  mat <- t(apply(mat, 1, function(x) x/sum(x, na.rm=T)))
 	}
  	}
-	colnames(mat) <- paste("P", index, "G", 1:ncol(mat), sep="")
+	colnames(mat) <- paste("P", index, "G", LETTERS[1:ncol(mat)], sep="")
 	df2 <- cbind(df2, mat)
 	ngrps <- ncol(mat)
 
