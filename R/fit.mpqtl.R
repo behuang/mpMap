@@ -118,7 +118,7 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
 	names(df)[ncol(pheno)+1:ncol(gen)]), collapse="+"), sep=""))), 
 	data=df)
 
-    cat("Percent Phenotypic Variance explained by full model: ", signif(summary(mod)$adj.r.squared, 2), "\n")
+    cat("Percent Phenotypic Variance explained by full model: ", signif(100*summary(mod)$adj.r.squared, 2), "\n")
 
     summ <- summary(mod)$coefficients
     effect <- se <- rep(NA, length(grep("P", names(coef(mod)))))
@@ -148,7 +148,7 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
 	mod1 <- update(baseModel, 
 		formula=eval(as.formula(paste(baseModel$call$formula[2], 
 		baseModel$call$formula[1], paste(c(as.character(baseModel$call$formula[3]), grep(paste("P", j, "F", sep=""), names(df), value=T)), collapse="+"), sep=""))), data=df)	 
-	pvar[j] <- summary(mod1)$adj.r.squared
+	pvar[j] <- summary(mod1)$adj.r.squared*100
 
 	}
   else fmrkl[j] <- fmrkr[j] <- names(map[[chr[j]]])[mrkli]
