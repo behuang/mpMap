@@ -118,7 +118,7 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
 	names(df)[ncol(pheno)+1:ncol(gen)]), collapse="+"), sep=""))), 
 	data=df)
 
-    cat("Percent Phenotypic Variance explained by full model: ", signif(100*summary(mod)$adj.r.squared, 2), "\n")
+    cat("Percent Phenotypic Variance explained by full model: ", round(100*summary(mod)$adj.r.squared, 2), "\n")
 
     summ <- summary(mod)$coefficients
     effect <- se <- rep(NA, length(grep("P", names(coef(mod)))))
@@ -191,11 +191,11 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
    eff3 <- paste("Effect_",f3,sep="")
    se3 <- paste("SE_",f3,sep="")
    if (n.founders==4)
-	table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3), "PctVar"=signif(pvar, 2))
+	table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3), "PctVar"=round(pvar, 2))
    else if (n.founders==8)
-	table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], effect[5,], se[5,], effect[6,], se[6,], effect[7,], se[7,], effect[8,], se[8,], "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3), "PctVar"=signif(pvar, 2))
+	table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], effect[5,], se[5,], effect[6,], se[6,], effect[7,], se[7,], effect[8,], se[8,], "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3), "PctVar"=round(pvar, 2))
   else 
-    table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3), "PctVar"=signif(pvar, 2))
+    table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3), "PctVar"=round(pvar, 2))
   if (n.founders %in% c(4, 8)) {
     names(table)[seq(5, 4+(2*n.founders), 2)] <- eff3
     names(table)[seq(6, 4+(2*n.founders), 2)] <- se3
