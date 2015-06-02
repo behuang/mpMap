@@ -10,6 +10,7 @@
 # @param baseModel asreml output from fit of base model
 # @param pheno data frame containing phenotypes required to fit base model
 # @param effects Flag for whether to include QTL as fixed or random effects
+# @param qindex Optional indices for which QTL to include
 #' @param \dots Additional arguments to be used in \code{asreml}
 #' @return An asreml model and summary table of QTL effects, p-values and Wald statistics from fitting the full model; also, percent phenotypic variance explained by full model and by each QTL individually.
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{summary.mpqtl}}
@@ -27,7 +28,7 @@ fit <- function(object, ...)
 }
 
 # note: random effects fitting will eventually be added. Not currently an option
-fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
+fit.mpqtl <- function(object, baseModel, pheno, effects="fixed", qindex,  ...)
 {
 
   if (!inherits(object, "mpqtl")) stop("Must have object of type mpqtl to
@@ -48,6 +49,9 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
   pheno <- object$QTLresults$pheno
   method <- attr(object$QTLresults, "method")
 
+  if (missing(qindex)) qindex <- 1:nqtl
+  nqtl <- length(qindex)
+
   ## need to figure out what position they're at
   ## attr(, "index") may be useful for this
   ## is this something updated with findqtl2?
@@ -59,11 +63,12 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
 #  index <- unlist(lapply(qtlres, function(x) attr(x, "index")))
   index <- unlist(attr(qtlres, "index"))
   chr <- rep(names(qtlres), unlist(lapply(qtlres, function(x) return(nrow(x)))))
+  chr <- chr[qindex]
   gen <- list()
   ## check this is extracting the right columns
   pr <- do.call("cbind", object$prob)
-  for (i in 1:nqtl) {
-	gen[[i]] <- pr[, (index[i]-1)*n.founders+1:n.founders]
+  for (i in 1:length(qindex)) {
+	gen[[i]] <- pr[, (index[qindex[i]]-1)*n.founders+1:n.founders]
 #object$prob[[chr[i]]][,(index[i]-1)*n.founders+1:n.founders]
   
 	qq <- which(cor(gen[[i]][, 1:n.founders])>.95, arr.ind=T)
@@ -127,7 +132,7 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
     effect[ind] <- summ[grep("P", rownames(summ)), 1]
     se[ind] <- summ[grep("P", rownames(summ)),2]
 
-    cm <- round(unlist(lapply(qtlres, function(x) return(x[,1]))),2)
+    cm <- round(unlist(lapply(qtlres, function(x) return(x[,1]))),2)[qindex]
     ## these should be done individually for each QTL to test for significance
     for (j in 1:nqtl) {	
 	subind <- grep(paste("P", j, "F", sep=""), rownames(summ))
@@ -167,7 +172,7 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed",  ...)
     effect <- summary(mod, all=T)$coef.fixed[ncol(gen):1,1]
     se <- summary(mod, all=T)$coef.fixed[ncol(gen):1, 2]
 
-    cm <- round(unlist(lapply(qtlres, function(x) return(x[,1]))),2)
+    cm <- round(unlist(lapply(qtlres, function(x) return(x[,1]))),2)[qindex]
     ## these should be done individually for each QTL to test for significance
     for (j in 1:nqtl) {	
 	subind <- grep(paste("P", j, "F", sep=""), names(mod$coefficients$fixed))
