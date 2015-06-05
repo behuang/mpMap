@@ -6,7 +6,7 @@
 \usage{
 mpIM(baseModel, object, pheno, idname = "id", threshold = 0.001, chr,
   step = 0, responsename = "predmn", ncov = 1000, window = 10,
-  dwindow = 5, mrkpos = TRUE, fixed, ...)
+  dwindow = 5, mrkpos = TRUE, fixed, foundergroups, ...)
 }
 \arguments{
 \item{baseModel}{Base phenotypic model for analysis}
@@ -35,9 +35,9 @@ mpIM(baseModel, object, pheno, idname = "id", threshold = 0.001, chr,
 
 \item{fixed}{If input, vector of fixed effects for each individual to be included in model with main effect and interaction with founder probability}
 
-\item{...}{Additional arguments}
-
 \item{foundergroups}{If input, groups of founders for which to cluster parental alleles together at every marker. Currently overrides mrkpos and step arguments. Note that this is not currently working with ncov>0}
+
+\item{...}{Additional arguments}
 }
 \value{
 The original input object with additional component QTLresults containing the following elements:

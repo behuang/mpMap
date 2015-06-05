@@ -13,7 +13,7 @@ fit(object, ...)
 \item{\dots}{Additional arguments to be used in \code{asreml}}
 }
 \value{
-An asreml model and summary table of QTL effects, p-values and Wald statistics from fitting the full model.
+An asreml model and summary table of QTL effects, p-values and Wald statistics from fitting the full model; also, percent phenotypic variance explained by full model and by each QTL individually.
 }
 \description{
 Given the output from a scan of chromosomes with significant genetic
