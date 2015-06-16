@@ -125,7 +125,7 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
  	cr <- subset(cr, chr=chr)
 	if (!missing(impmap)) 
 	gp <- calc.genoprob2(cr, pos=impmap, error.prob=geprob)
-	else if (step >= 0 & mrkpos=F)
+	else if (step >= 0 & mrkpos==F)
 	{
 	  impmap <- list()
 	  for (i in chr)  {
