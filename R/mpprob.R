@@ -129,8 +129,8 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
 	{
 	  impmap <- list()
 	  for (i in chr)  {
-		impmap[[i]] <- c(seq(0, max(cr$map[[i]]), step), max(cr$map[[i]]))
-	 	names(impmap[[i]]) <- c(paste("loc", impmap[[i]][1:(length(impmap[[i]])-1)],sep=""), names(cr$map[[i]])[length(cr$map[[i]])])
+		impmap[[i]] <- c(seq(0, max(object$map[[i]]), step), max(object$map[[i]]))
+	 	names(impmap[[i]]) <- c(paste("loc", impmap[[i]][1:(length(impmap[[i]])-1)],sep=""), names(object$map[[i]])[length(object$map[[i]])])
 	  } 
 	  gp <- calc.genoprob2(cr, pos=impmap, error.prob=geprob)
    	}
