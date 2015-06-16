@@ -179,13 +179,13 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
 		colnames(prob[[i]])[(rep(isStep, each=n.founders) - 1) * n.founders + rep(1:n.founders, length(isStep))] <- paste(rep(stepNames, each=n.founders), ", Founder ", rep(1:n.founders, times=length(isStep)), sep="")
 		colnames(prob[[i]])[(rep(isMarker, each=n.founders) - 1) * n.founders + rep(1:n.founders, length(isMarker))] <- paste(rep(markerNames, each=n.founders), ", Founder ", rep(1:n.founders, times=length(isMarker)), sep="")
 		rownames(prob[[i]]) <- rownames(object$finals)
-	}
 	#If there aren't meant to be any markers, remove them? Not clear why this is here, unless the R/qtl code always generates data at marker locations and it has to be removed later (as in here). 
-	if (length(isMarker)>0 & mrkpos == FALSE)
-	{
+	  if (length(isMarker)>0 & mrkpos == FALSE)
+	  {
     	  	m2 <- (rep(isMarker, each=n.founders)-1)*n.founders+rep(1:n.founders, length(isMarker))
 		crmap[[i]] <- crmap[[i]][-isMarker]
 		prob[[i]] <- prob[[i]][,-m2]
+	  }
 	}
 	attr(prob, "map") <- crmap
 
