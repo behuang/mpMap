@@ -125,15 +125,6 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
  	cr <- subset(cr, chr=chr)
 	if (!missing(impmap)) 
 	gp <- calc.genoprob2(cr, pos=impmap, error.prob=geprob)
-	else if (step >= 0 & mrkpos==F)
-	{
-	  impmap <- list()
-	  for (i in chr)  {
-		impmap[[i]] <- c(seq(min(object$map[[i]]), max(object$map[[i]]), step), max(object$map[[i]]))
-	 	names(impmap[[i]]) <- c(names(object$map[[i]])[1], paste("loc", impmap[[i]][2:(length(impmap[[i]])-1)],sep=""), names(object$map[[i]])[length(object$map[[i]])])
-	  } 
-	  gp <- calc.genoprob2(cr, pos=impmap, error.prob=geprob)
-   	}
 	else if (step >= 0)
 	gp <- calc.genoprob(cr, step=step, error.prob=geprob)
 	else if (step < 0) {
@@ -190,10 +181,9 @@ mpprob <- function(object, chr, step=0, impmap, mrkpos=TRUE, mapfx=c("haldane", 
 		rownames(prob[[i]]) <- rownames(object$finals)
 	}
 	#If there aren't meant to be any markers, remove them? Not clear why this is here, unless the R/qtl code always generates data at marker locations and it has to be removed later (as in here). 
-	if (length(isMarker)>0 && mrkpos == FALSE)
+	if (length(isMarker)>0 & mrkpos == FALSE)
 	{
-	  m <- match(names(object$map[[i]]), colnames(object$finals))
-    m2 <- (rep(isMarker, each=n.founders)-1)*n.founders+rep(1:n.founders, length(m))
+    	  	m2 <- (rep(isMarker, each=n.founders)-1)*n.founders+rep(1:n.founders, length(isMarker))
 		crmap[[i]] <- crmap[[i]][-isMarker]
 		prob[[i]] <- prob[[i]][,-m2]
 	}
