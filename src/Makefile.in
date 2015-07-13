@@ -1,7 +1,8 @@
-C_OBJS := add3pt.o calcLD.o founderprob.o qsort.o rngs.o sim.o impute.o
-CPP_OBJS := rfhaps.o rfhaps_cpu.o getFunnel.o validateMPCross.o findIDInPedigree.o intercrossingGenerations.o getAllFunnels.o orderFunnels.o allowableMarkerPatterns.o generateDesignMatrix.o generateGenotypes.o
+C_OBJS := add3pt.o calcLD.o founderprob.o qsort.o impute.o
+CPP_OBJS := rfhaps.o rfhaps_cpu.o getFunnel.o validateMPCross.o findIDInPedigree.o intercrossingGenerations.o getAllFunnels.o orderFunnels.o allowableMarkerPatterns.o generateDesignMatrix.o generateGenotypes.o rfhapsSpecificDesign.o
 CUDA_OBJS := @CUDA_OBJS@
-PKG_CPPFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. -std=gnu++0x 
+PKG_CXXFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. -std=gnu++0x 
+PKG_CFLAGS := -I../inst/include -I.
 CUDA_CPPFLAGS := @CUDA_CPPFLAGS@
 
 #compiler/preprocessor options
@@ -19,9 +20,9 @@ all: $(TARGETS)
 
 $(TARGETS): $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS)
 	$(CC) -shared $(LD_PARAMS) $(LIBS) $(C_OBJS) $(CPP_OBJS) $(CUDA_OBJS) -o $@
-
-$(CUDA_OBJS): %.o: %.cu
-	$(NVCC) -c -I. -I../inst/include -I@CUDA_HOME@/include $(PARAMS) $(CUDA_CPPFLAGS) $^ -o $@
+.SUFFIXES: .cu
+.cu.o:
+	$(NVCC) -c -I. -I../inst/include -I@CUDA_HOME@/include $(PARAMS) $(CUDA_CPPFLAGS) $< -o $@
 clean: 
 	rm -rf *o
 
