@@ -1,30 +1,34 @@
 #' Plot summary of founder probabilities and haplotype blocks
 #' 
 #' Plot the percentage of each chromosome inherited from each founder
-#' @export plot.mpprob 
+#' @export 
 #' @method plot mpprob
 #' @param x Object of class \code{mpprob}
-#' @param chr Chromosomes to plot. Default is all
+#' @param chr Chromosomes to plot. Default is all.
+#' @param locations Locations to plot. Default is all. 
 #' @param compositionPercent Flag for whether to plot the percent alleles inherited from each founder
 #' @param nlines Number of most recombinant lines to plot
 #' @param lines Flag for whether to plot haplotype reconstructions
-#' @param compositionTrace Flag for ??
-#' @param compositionTraceArgs List of ??
-#' @param compositionTracePlotArgs List of ??
+#' @param colours Colours for lines. Default is rainbow. 
 #' @param ... Additional arguments to plot function
 #' @return Barplot of the percentage of each founder on each chromosome; individual heatmaps of which chunks of each chromosome are inherited from each founder.
 #' @seealso \code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{summary.mpprob}}, \code{\link[Heatplus]{heatmap_2}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl")
 #' plot(mpp.dat)
 
 plot.mpprob <-
-function(x, chr, locations, compositionPercent = TRUE, lines=TRUE, nlines, compositionTrace = TRUE, compositionTraceArgs = list(), compositionTracePlotArgs = list(), linesPlotArgs = list(), ...)
+function(x, chr, locations, compositionPercent = TRUE, lines=TRUE, nlines, colours, ...)
 {
-  require(RColorBrewer)
+ 	compositionTrace <- TRUE
+	compositionTraceArgs <- list()
+	compositionTracePlotArgs <- list()
+	linesPlotArgs <- list()
 	if(!is.list(compositionTraceArgs))
 	{
 		stop("Input compositionTraceArgs must be a list")
@@ -40,15 +44,16 @@ function(x, chr, locations, compositionPercent = TRUE, lines=TRUE, nlines, compo
   ## first plot is the stacked barplot of founder probabilities
   cts1 <- cbind(cts, rep(NA, nrow(cts))) 
   cts1 <- rbind(cts1, 100 - colSums(cts1))
-    
-  colours <- brewer.pal(n.founders, "Spectral") 
-  #colours <- rainbow(n.founders)
+ 
+  if (missing(colours)) 
+    colours <- rainbow(n.founders)
 
 	if(compositionPercent)
 	{
 		barplot(cts1, col=c(colours, "white"), main="Founder %age by Chromosome", xlab="Chromosome", legend.text = c(rownames(cts1)[1:n.founders], "Unknown"))
 	}
 
+	sum <- vector(length=nrow(x$finals))
   if (lines) {
   	for (i in chr)
 		{
@@ -113,13 +118,17 @@ function(x, chr, locations, compositionPercent = TRUE, lines=TRUE, nlines, compo
 		chrEndPoints <- unlist(lapply(probabilitiesMap, max))
 		chrEndPoints <- cumsum(chrEndPoints)
 
-		library(lattice)
+		if (missing(colours)) {
+    		  colours <- rainbow(length(relevantFounders))
+  		}
+		if (!requireNamespace("lattice", quietly = TRUE)) 
+    		stop("lattice needed for plot.mpprob to work. Please install it.\n",
+      		call. = FALSE)
 
-		colors <- brewer.pal(length(relevantFounders), "Spectral")
 		xyargs <- list(prob~cm|founders, data=joinedProbabilities, ylab="Founder Probability", xlab="Chromosome", as.table=T, layout=c(1,length(relevantFounders)), panel=
-		function(x,y) {panel.xyplot(x,y, col=colors[panel.number()], type="l", lwd=2) 
-			 if(length(probabilitiesMap) > 1) for (i in 1:(length(probabilitiesMap)-1)) panel.abline(v=chrEndPoints[i], lwd=2, col="tomato")})
-		tmp <- do.call(xyplot, c(xyargs, compositionTraceArgs))
+		function(x,y) {lattice::panel.xyplot(x,y, col=colours[lattice::panel.number()], type="l", lwd=2) 
+			 if(length(probabilitiesMap) > 1) for (i in 1:(length(probabilitiesMap)-1)) lattice::panel.abline(v=chrEndPoints[i], lwd=2, col="tomato")})
+		tmp <- do.call(lattice::xyplot, c(xyargs, compositionTraceArgs))
 		tmp$x.scales$at <- c(0, cumsum(unlist(lapply(probabilitiesMap, max))[1:(length(probabilitiesMap)-1)]))+unlist(lapply(probabilitiesMap, max))/2
 		tmp$x.scales$labels <- names(probabilitiesMap)
 		do.call(plot, c(list(tmp), compositionTracePlotArgs))

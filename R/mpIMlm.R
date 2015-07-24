@@ -1,18 +1,14 @@
-#' (Composite) Interval Mapping for QTL detection in multi-parent crosses
+#' (Composite) Interval Mapping with linear models for QTL detection in multi-parent crosses
 #'
-#' Interval mapping in multi-parent crosses with options for single-stage mixed
-#' model approach; multi-stage approach using predicted means; multi-stage
-#' approach including cofactors (CIM)
+#' Interval mapping in multi-parent crosses using multi-stage linear model 
+#' approach including ability to use cofactors (CIM)
 #'
 #' @export
-#' @param baseModel Base phenotypic model for analysis
 #' @param object Object of class \code{mpcross}
-#' @param pheno Phenotypic object
-#' @param idname The idname in phenotypic data for which to output predicted means. Should match rownames of the object$finals
 #' @param threshold Significance threshold for QTL p-values
 #' @param chr Subset of chromosomes for which to compute QTL profile
 #' @param step Step size at which to compute the QTL profile. See \code{\link[mpMap]{mpprob}} for further description of default values
-#' @param responsename Optional input of response name to look for in object$pheno 
+#' @param responsename Response name for testing 
 #' @param ncov Number of marker covariates to search for - default is to search for as many as possible using stepAIC (forward/backward selection)
 #' @param window Window of cM on each side of markers where we exclude covariates in CIM
 #' @param dwindow Window of markers to use for smoothing in QTL detection 
@@ -31,24 +27,18 @@
 #' \item{fixedintdf}{Each component contains the df for the gene x fixed interaction at each position on a given chromosome}
 #' \item{call}{Input arguments to function} 
 #' and with attributes describing the number of QTL detected, and the threshold used for detection. Note: Now uses the function findqtl to find all QTL peaks, see \code{\link[mpMap]{findqtl}} for more information. 
-#' @details 
-#' Depending on the options selected, different models will be fit for QTL
-#' detection. If the baseModel input does not include a term matching the 
-#' idname input, it will be assumed that a single-stage QTL mapping approach
-#' is desired. In this case, no covariates will be added (ncov will be set to
-#' 0); all models will be fitted in asreml; and all phenotypic covariates and
-#' design factors specified in the baseModel will be fitted along with genetic
-#' covariates in mixed model interval mapping. 
-#'
-#' If the baseModel input does include a term matching the idname, then it will
-#' be assumed that a two-stage QTL mapping approach is desired. In this case,
-#' the baseModel will be fit using asreml and predicted means will be output
-#' to be used as a response in linear model interval mapping. If 
-#' \code{ncov>0} additional marker cofactors will be fit; otherwise simple
-#' interval mapping will be run. All phenotypic covariates and design factors
-#' specified in the baseModel will be fit in the first stage.  
-#' 
-#' Note that no weights are used in the second stage of analysis which may result in a loss of efficiency compared to a one-stage approach.
+#' @details
+#' Modified version of mpIM to just fit linear models for QTL mapping. 
+#' This has been separated off from the main function as some functionality
+#' has been recently implemented just for the linear model fitting - this 
+#' allows for rapid development of the linear model functionality while
+#' maintaining the mixed model functionality in a stable state more easily. 
+#' No argument names have been changed, hence mpIMlm will be called in the
+#' same way as the previous version of mpIM. The only requirement is that
+#' phenotypes are included in the mpcross object rather than allowing
+#' for separate input of a phenotype matrix. 
+ 
+#' Note that no weights are used in this analysis, which may result in a loss of efficiency compared to a single-stage approach. 
 #'
 #' If fixed is input will add terms to the model to test for a fixed effect of 
 #' the input vector (so make sure the class is correct) and for an interaction
@@ -58,24 +48,17 @@
 #' If foundergroups is input, then probabilities at each location will be collapsed within the groups of founders
 #' in fitting the model.  
 #'
-#' If no baseModel is input, it will be assumed that predicted means have been
-#' included in \code{object} as a phenotypic variable named predmn. In this 
-#' case \code{pheno} is not required and asreml does not need to be used. 
-#' (composite) Interval mapping will proceed
-#' as in the two-stage case depending on the value of \code{ncov}. 
-#' @seealso \code{\link[mpMap]{plot.mpqtl}}, \code{\link[mpMap]{summary.mpqtl}}
+#' @seealso \code{\link[mpMap]{plot.mpqtl}}, \code{\link[mpMap]{summary.mpqtl}}, \code{link[mpMap]{fit.mpqtl}}
 #' @examples
-#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
-#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
-#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl")
 #' ## Two-stage simple interval mapping 
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 
 
-mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, dwindow=5, mrkpos=TRUE, fixed, foundergroups, ...)
+mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", ncov=1000, window=10, dwindow=5, mrkpos=TRUE, fixed, foundergroups, ...)
 {
   ### Initial setup for all approaches
   lines <- rownames(object$finals)
@@ -126,88 +109,51 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
   degf <- list()
   cofactors <- NULL
 
-  ### Check for which option should be run
-  ### If idname is in the fixed effects of baseModel = lm or CIM
-  ### if missing baseModel = lm or CIM and response in object$pheno
-  
-  if (!missing(baseModel)) {
-    if (!requireNamespace("asreml", quietly = TRUE)) 
-    stop("asreml needed for mixed model mpIM to work. Please install it.\n",
-      call. = FALSE)
-    if (length(grep(idname, as.character(baseModel$call$fixed)[3]))>0)
-	method <- "lm" else method <- "mm"
-  } 
-  else method <- "lm"
+  require(aods3)
+  if (!missing(fixed)) 
+    output$pheno <- cbind(output$pheno, fixed)
 
-  ### setup for two-stage approach if predicted means have not yet been computed
-  if (method=="lm") {
-    if (!requireNamespace("aods3", quietly = TRUE)) 
-    stop("aods3 needed for mpIM to work. Please install it.\n",
-      call. = FALSE)
-    if (!missing(baseModel)) {
-      ## if baseModel and idname have been input and fixed term 
-      ## in baseModel is idname then get out predicted means
-      pmmod <- update(baseModel, data="pheno")
-    
-      ## get out the predicted means
-      cf <- pmmod$coefficients$fixed
-      pm <- cf[grep(idname, names(cf))]
-      names(pm) <- substr(names(pm), nchar(idname)+2, nchar(names(pm)))
+  idname <- "id"
+  pheno <- as.data.frame(output$pheno)
+  pheno[[idname]] <- rownames(output$pheno)
+  if (is.null(rownames(output$pheno))) pheno[[idname]] <- paste("L", 1:nrow(pheno), sep="")
 
-      output$pheno[[responsename]] <- as.matrix(pm)
-      output$pheno <- as.data.frame(output$pheno)
-      rownames(output$pheno) <- names(pm)
-      output$pheno <- output$pheno[na.exclude(match(rownames(output$pheno), rownames(output$finals))),]
-      ## otherwise predicted means should already be stored there
-    }
-   
-    if (!missing(fixed)) 
-	output$pheno <- cbind(output$pheno, fixed)
+  ## create a vector of responses just for use in finding marker cofactors
+  predmn <- pheno[[responsename]][na.exclude(match(lines, pheno[[idname]]))]
 
-    ## reset this - this is the only part of the phenotype matrix needed
-    pheno <- as.data.frame(output$pheno)
-    if (missing(idname)) idname <- "id"
-    pheno[[idname]] <- rownames(output$pheno)
-    if (is.null(rownames(output$pheno))) pheno[[idname]] <- paste("L", 1:nrow(pheno), sep="")
+  ### Setting up formulas in the case of covariates
+  ### In this case need to just use the markers for selection
+  ### set up dataframe with just those values
+  if (ncov>0) 
+  {
+      	require(MASS)
+      	if (inherits(object, "mpprob") && attr(object$prob, "step")==0)
+          mrkobj <- object else	mrkobj <- mpprob(object, step=0, program="qtl", chr=chr)
+	mrkgen <- do.call("cbind", mrkobj$prob)
 
-    ## create a vector of responses just for use in finding marker cofactors
-    predmn <- pheno[[responsename]][na.exclude(match(lines, pheno[[idname]]))]
-
-    ### Setting up formulas in the case of covariates
-    ### In this case need to just use the markers for selection
-    ### set up dataframe with just those values
-    if (ncov>0) 
-    {
-      if (inherits(object, "mpprob") && attr(object$prob, "step")==0)
-        mrkobj <- object else	mrkobj <- mpprob(object, step=0, program="qtl", chr=chr)
-	    mrkgen <- do.call("cbind", mrkobj$prob)
-
-	    ## recenter before selecting marker covariates
-      mrkgen <- scale(mrkgen, scale=F)
-#	    for (k in 1:ncol(mrkgen)) mrkgen[,k] <- mrkgen[,k]-mean(mrkgen[,k], na.rm=TRUE)
-
+	## recenter before selecting marker covariates
+      	mrkgen <- scale(mrkgen, scale=F)
 
  	#largest possible formula
     	formula <- as.formula(paste("predmn~", paste(paste("mrkgen[,", seq(1, ncol(mrkgen), n.founders), ":", seq(n.founders, ncol(mrkgen), n.founders), "]", sep=""), collapse="+")))
     	mod <- lm(as.formula(paste("predmn~1", sep="")))
-    	modc <- MASS::stepAIC(mod, scope=formula, steps=ncov)  
+    	modc <- stepAIC(mod, scope=formula, steps=ncov)  
 
     	covar <- attr(modc$terms, "variables")
       
     	ncov <- length(covar)-2
     	rmv <- list(length=ncov)
     	# the marker index at which each chromosome begins
-	    gmap <- attr(mrkobj$prob, "map")
-	    ngmap <- unlist(lapply(gmap, names))
+	gmap <- attr(mrkobj$prob, "map")
+	ngmap <- unlist(lapply(gmap, names))
     	nchrmrk <- unlist(lapply(gmap, length))
     	csnchrmrk <- c(0, cumsum(nchrmrk))
 
-  
-	    ## format the covariates which will be included in the model
-      if (length(covar)>2){
-        cofactors <- matrix(nrow=length(covar)-2, ncol=3)
-  	    for (k in 3:length(covar))
-	      {
+	## format the covariates which will be included in the model
+      	if (length(covar)>2){
+          cofactors <- matrix(nrow=length(covar)-2, ncol=3)
+  	  for (k in 3:length(covar))
+	  {
 	      #as.character(covar[[k]][n.founders]) = index into gen3 for this covariate, e.g. 13:16, 21:24
 	      #strsplit(as.character(covar[[k]][n.founders]), ":") = split this into two numbers
 	      #start = number of the marker that these four covariates represent
@@ -220,12 +166,12 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	        rmvpos <- c(chrn, which(fmap[[chrn]] <= fmap[[chrn]][cpos]+window & fmap[[chrn]] >= fmap[[chrn]][cpos] - window))
 	        rmv[[k-2]] <- rmvpos
       
-	        ## process cofactor names for saving later
-          cofactors[k-2,] <- c(ngmap[start], chrn, round(fmap[[chrn]][cpos], 3))
-	      }
-    cofactors <- as.data.frame(cofactors)
-    names(cofactors) <- c("MarkerName", "Chr", "Pos")
-  }
+	      ## process cofactor names for saving later
+              cofactors[k-2,] <- c(ngmap[start], chrn, round(fmap[[chrn]][cpos], 3))
+	  }
+        cofactors <- as.data.frame(cofactors)
+        names(cofactors) <- c("MarkerName", "Chr", "Pos")
+  	}
    	    
     	#chromosome numbers of the genetic covariates
     	rmvchr <- unlist(lapply(rmv, function(x) return(x[1])))
@@ -255,7 +201,6 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
  	  terms[[i]] <- matrix(data=TRUE, nrow=ncov, ncol=length(terms[[i]]))
     	termlab <- ""
     }
-  } # end of "lm" loop
 
   for (j in chr)
   {
@@ -305,8 +250,6 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 
     # recenter probabilities to 0
     df[, (ncol(pheno)+1):ncol(df)] <- scale(df[, (ncol(pheno)+1):ncol(df)], scale=FALSE)
-    #    for (k in (ncol(pheno)+1):ncol(df))
-	#df[,k] <- df[,k] - mean(df[,k], na.rm=TRUE)
 
     for (k in seq(1, ncol(gen), n.founders))
     {
@@ -330,83 +273,42 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	df2 <- cbind(df2, mat)
 	ngrps <- ncol(mat)
 
-	if (method=="mm") {
-	  mod <- update(baseModel, 
-	  	fixed=eval(as.formula(paste(baseModel$call$fixed[2], 
-		baseModel$call$fixed[1], 
-		paste(c(as.character(baseModel$call$fixed[3]), 
-		names(df2)[(ncol(pheno)+1):ncol(df2)]), collapse="+"), sep=""))), 
-		data=df2, Cfixed=TRUE, na.method.X="include")
-	  if (!missing(fixed)) 
-	    mod <- update(baseModel, 
-	  	fixed=eval(as.formula(paste(baseModel$call$fixed[2], 
-		baseModel$call$fixed[1], 
-		paste(c(as.character(baseModel$call$fixed[3]), 
-		names(df2)[(ncol(pheno)+1):ncol(df2)]), paste("fixed*", names(df2)[(ncol(pheno)+1):ncol(df2)], sep=""), collapse="+"), sep=""))), 
-		data=df2, Cfixed=TRUE, na.method.X="include")
-	
-	  summ <- summary(mod, all=TRUE)	
-    	  fndrfx[[nam]][,index] <- summ$coef.fixed[ngrps:1,1]
-	  se[[nam]][,index] <- summ$coef.fixed[ngrps:1, 2]
-    	  man <- list(which(mod$coefficients$fixed[1:ngrps]!=0), "zero")
-	  wta <- wald.test.asreml(mod, list(man))$zres
-    	  wald[[nam]][(k-1)/n.founders+1] <- wta$zwald
-    	  degf[[nam]][(k-1)/n.founders+1] <- nrow(wta$ZRows[[1]])
-    	  pval[[nam]][(k-1)/n.founders+1] <- wta$zpval
-	  if (!missing(fixed)) {
-	     index <- grep("fixed*", names(mod$coefficients$fixed))
-	     index <- index[which(mod$coefficients$fixed[index]!=0)]
-	     man <- list(index, "zero") ## need to check whether these are correct anymore with intx
-	     wta <- wald.test.asreml(mod, list(man))$zres
-	     fixedintx[[nam]][(k-1)/n.founders+1] <- wta$zwald
-	     fixedintdf[[nam]][(k-1)/n.founders+1] <- nrow(wta$ZRows[[1]])
-	     index2 <- grep("fixed", names(mod$coefficients$fixed))
-	     ## remove interaction terms? 
-	     index2 <- setdiff(index2, index)
-	     index2 <- index2[which(mod$coefficients$fixed[index2]!=0)] 
-	     man <- list(index2, "zero")
-	     wta <- wald.test.asreml(mod, list(man))$zres
-	     fixedmain[[nam]][(k-1)/n.founders+1] <- wta$zwald
-      	    }
-	}
-	if (method=="lm") {
-
-	  if (ncov>0) 
-	    # include all necessary covariates
-	    form <- as.formula(paste("predmn~", paste(termlab[which(terms[[j]][,index]==1)], collapse="+"), "+", paste(names(df)[grep(paste("P", index, "G", sep=""), names(df))], collapse="+"), sep="")) 
-	  else form <- as.formula(paste("predmn~", paste(names(df2)[(ncol(pheno)+1):ncol(df2)], collapse="+"), sep=""))
+	if (ncov>0) 
+	# include all necessary covariates
+	form <- as.formula(paste("predmn~", paste(termlab[which(terms[[j]][,index]==1)], collapse="+"), "+", paste(names(df)[grep(paste("P", index, "G", sep=""), names(df))], collapse="+"), sep="")) 
+	else form <- as.formula(paste("predmn~", paste(names(df2)[(ncol(pheno)+1):ncol(df2)], collapse="+"), sep=""))
 	  # fit the model
 	
-	  if (!missing(fixed)) 
-	    form <- as.formula(paste("predmn~", paste(paste("fixed*", names(df2)[(ncol(pheno)+1):ncol(df2)], sep=""),collapse="+"), sep="")) 
+	if (!missing(fixed)) 
+	  form <- as.formula(paste("predmn~", paste(paste("fixed*", names(df2)[(ncol(pheno)+1):ncol(df2)], sep=""),collapse="+"), sep="")) 
 	    
-    ### Note: unlikely to need this when founders are compressed
-    qq <- which(cor(df2[, (ncol(pheno)+1):ncol(df2)])>.95, arr.ind=T)
-    qq <- qq[qq[,1]<qq[,2],, drop=F]
-    if (nrow(qq)>0) {
-      for (pp in 1:nrow(qq))
-        df2[, ncol(pheno)+qq[pp,1]] <- df2[,ncol(pheno)+qq[pp,2]] <- (df2[,ncol(pheno)+qq[pp,1]]+df2[,ncol(pheno)+qq[pp,2]])/2
-    }
+    	### Note: unlikely to need this when founders are compressed
+    	qq <- which(cor(df2[, (ncol(pheno)+1):ncol(df2)])>.95, arr.ind=T)
+    	qq <- qq[qq[,1]<qq[,2],, drop=F]
+    	if (nrow(qq)>0) {
+      	  for (pp in 1:nrow(qq))
+          df2[, ncol(pheno)+qq[pp,1]] <- df2[,ncol(pheno)+qq[pp,2]] <- (df2[,ncol(pheno)+qq[pp,1]]+df2[,ncol(pheno)+qq[pp,2]])/2
+    	}
     
-	  mod <- lm(form, data=df2)
+	mod <- lm(form, data=df2)
     
-	  # Collinearity means some coefficients will be NA
-	  coe <- coef(mod)[which(!is.na(coef(mod)))]	
+	# Collinearity means some coefficients will be NA
+	coe <- coef(mod)[which(!is.na(coef(mod)))]	
 
-	  # if we did not get any non NA values, window was not large enough
-	  if(length(grep(paste("P", index, "G", sep=""), names(coe))) != 0)
-	  {
+	# if we did not get any non NA values, window was not large enough
+	if(length(grep(paste("P", index, "G", sep=""), names(coe))) != 0)
+	{
 	    if (!missing(fixed)) {
 	    	# Need to do terms separately
 	    	index1 <- grep(":P", names(coe))
-	    	wt <- aods3::wald.test(varb=vcov(mod), b=coe, Terms=index1)
+	    	wt <- wald.test(varb=vcov(mod), b=coe, Terms=index1)
 	    	fixedintx[[nam]][index] <- wt$result$chi2[1]
 		fixedintdf[[nam]][index] <- wt$result$chi2[2]
 	   	
 		## now do main effect
 		index2 <- grep("fixed", names(coe))
 		index2 <- setdiff(index2, index1)
-		wt <- aods3::wald.test(varb=vcov(mod), b=coe, Terms=index2)
+		wt <- wald.test(varb=vcov(mod), b=coe, Terms=index2)
 		fixedmain[[nam]][index] <- wt$result$chi2[1]
 	    } else index1 <- NULL
 		
@@ -414,7 +316,7 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	    index3 <- setdiff(index3, index1) 
 
 	    #test the current location for significance (actually a joint test)
-	    wt <- aods3::wald.test(varb=vcov(mod), b=coe, Terms=index3)
+	    wt <- wald.test(varb=vcov(mod), b=coe, Terms=index3)
 
 	    pval[[nam]][index] <- wt$result$chi2[3] 
 	    wald[[nam]][index] <- wt$result$chi2[1]
@@ -428,7 +330,6 @@ mpIM <- function(baseModel, object, pheno, idname="id", threshold=1e-3, chr, ste
 	  }
 	  else
 	    cat("Error when testing location ", index, " along chromosome ", j, ". Window may be too small.\n ")
-    	} ## end of "lm" loop
      }
   ind <- which(pval[[nam]]==0)
   if (length(ind)>0)

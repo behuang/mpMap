@@ -1,7 +1,7 @@
 #' Plot summary of mpcross object
 #'
 #' Plots summary of phenotypes and genetic map for mpcross object. If calculated, plots a heatmap of recombination fraction estimates and transformed LOD scores with legend.
-#' @export plot.mpcross 
+#' @export 
 #' @method plot mpcross
 #' @param x Object of class \code{mpcross}
 #' @param chr Selected chromosomes. Default is all
@@ -14,9 +14,11 @@
 #' If recombination fractions have been estimated, a heatmap with recombination fraction estimates below the diagonal and scaled LOD scores above the diagonal is also plotted. LOD scores are transformed to 2^(-(LOD/4+1)) in order to be on the same scale as the theta values.  
 #' @seealso \code{\link[mpMap]{mpestrf}}, \code{\link[mpMap]{mpcross.object}}, \code{\link[Heatplus]{heatmap_2}}, \code{\link[mpMap]{plotlink.map}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' plot(sim.dat)
 
 plot.mpcross <- 
@@ -54,7 +56,6 @@ function(x, chr, ask=TRUE,...)
 
   ################# This section is for recombination fractions
   if (!is.null(x$rf)){
-    require(Heatplus)
 
 	if(!missing(chr) && length(chr) > 0)
 	{
@@ -65,10 +66,14 @@ function(x, chr, ask=TRUE,...)
     nmrk <- ncol(mpred$founders)
     mat <- matrix(nrow=nmrk, ncol=nmrk)
 
-    upperTriangle(mat) <- 2^(-upperTriangle(mpred$rf$lod)/4-1)
-    lowerTriangle(mat) <- lowerTriangle(mpred$rf$theta)
-  
-    heatmap_2(t(mat), Rowv=NA, Colv=NA, scale="none", legend=1)
+    mat[upper.tri(mat)] <- 2^(-mpred$rf$lod[upper.tri(mpred$rf$lod)]/4-1)
+    mat[lower.tri(mat)] <- mpred$rf$theta[lower.tri(mpred$rf$theta)]
+
+    if (!requireNamespace("Heatplus", quietly = TRUE)) 
+      stop("Heatplus needed for plot.mpcross to work. Please install it from Bioconductor.\n",
+      call. = FALSE)
+      
+    Heatplus::heatmap_2(t(mat), Rowv=NA, Colv=NA, scale="none", legend=1)
     noplots <- FALSE
   }
   if (noplots)
