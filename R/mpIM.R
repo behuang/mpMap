@@ -5,6 +5,16 @@
 #' approach including cofactors (CIM)
 #'
 #' @export
+#' @importFrom stats update
+#' @importFrom stats na.exclude
+#' @importFrom stats as.formula
+#' @importFrom stats lm
+#' @importFrom stats model.matrix
+#' @importFrom stats var
+#' @importFrom stats cor
+#' @importFrom stats coef
+#' @importFrom stats vcov
+#' @importFrom stats pchisq
 #' @param baseModel Base phenotypic model for analysis
 #' @param object Object of class \code{mpcross}
 #' @param pheno Phenotypic object

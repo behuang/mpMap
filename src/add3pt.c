@@ -50,7 +50,7 @@ void add3pt(int *finalg, int *founderg, int *id, int *mother, int *father, int *
     if (*nfounders==4) {
 	hp4way(r12[i], r23[i], r13[i], p, x);
 	for (k=0; k<10; k++)	hprob[20*i+k] = p[k]*x[k]; 
-    	if ((q>0)&&(q<*npos-1)) {
+    	if ((i>0)&&(i<*npos-1)) {
 		hp4way(.5, .5, r13[i], plod, xlod);
 		for (k=0; k<10; k++) 	hproblod[20*i + k] = plod[k]*xlod[k];
 	}
@@ -58,7 +58,7 @@ void add3pt(int *finalg, int *founderg, int *id, int *mother, int *father, int *
 
     if (*nfounders==8) {
 	hp8way(r12[i], r23[i], r13[i], hprob+20*i);
-	if ((q>0)&&(q<*npos-1)) 
+	if ((i>0)&&(i<*npos-1)) 
 		hp8way(.5, .5, r13[i], hproblod+20*i);
     }
 

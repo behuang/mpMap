@@ -10,9 +10,11 @@
 #' @return Returns a map selecting out regions +- window around the QTL positions.
 #' @seealso \code{\link[mpMap]{plotlink.map}}
 #' @examples 
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl")
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 #' qmap <- qtlmap(summary(mpq.dat)[,2], summary(mpq.dat)[,1], mpq.dat$map)
@@ -37,19 +39,20 @@ qtlmap <- function(qtlpos, qtlchr, map, window=10, qtlnam)
 
   output <- list()
   ## output is map around each qtl
-  for (i in 1:length(qtlpos))
+  for (i in unique(qtlchr))
   {
-	mapi <- map[[qtlchr[i]]]
-	output[[i]] <- mapi[which(abs(mapi-qtlpos[i])<window)]
+	pos <- qtlpos[which(qtlchr==i)]
+	output[[i]] <- map[[i]]
+#	output[[i]] <- mapi[which(abs(mapi-qtlpos[i])<window)]
 	## add in the QTL position?
-	output[[i]] <- c(qtlpos[i], output[[i]])
-	names(output[[i]])[1] <- qtlnam[i]
+	output[[i]] <- c(pos, output[[i]])
+	names(output[[i]])[1:length(pos)] <- qtlnam[which(qtlchr==i)]
 	output[[i]] <- sort(output[[i]])
 
-	attr(output[[i]], "qtlpos") <- qtlpos[i]
-	attr(output[[i]], "qtlchr") <- qtlchr[i]
+	attr(output[[i]], "qtlpos") <- pos
+	attr(output[[i]], "qtlchr") <- i
   }
-  names(output) <- qtlchr
+  names(output) <- unique(qtlchr)
 
   class(output) <- "map"
   output

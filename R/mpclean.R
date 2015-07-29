@@ -7,7 +7,7 @@
 #' @param output.type Type of output 
 #' @return If the output type is "summary",  then a 2 x n.chr matrix is returned. The first row gives the number of markers present on that linkage group. The second row gives the number of markers in the maximal subset. If the output type is "object" then an \code{mpcross} object is returned. The object is a subset of the orginial object, with the largest set of markers where all pairs of recombination fractions estimates are availbe in each linkage group. 
 #' @examples
-#' map <- sim.map(len=1, n.mar=30, eq.spacing=FALSE, include.x=FALSE)
+#' map <- qtl::sim.map(len=1, n.mar=30, eq.spacing=FALSE, include.x=FALSE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
 #' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, seed=1)
 #' dat.rf <- mpestrf(sim.dat)

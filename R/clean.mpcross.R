@@ -3,9 +3,7 @@
 #' Given an object of class 'mpcross', the function checks that the data is in the correct format, containing founder and final genotypes, ids, and a pedigree. The number of markers genotyped for both founders and finals should coincide. The pedigree should be completely numeric. Markers which are not polymorphic across the founders are removed, as are markers which have missing values in the founders. 
 #'
 #' Summary statistics for the genotypes are printed, included the number of markers with varying levels of missing data, with varying levels of segregation distortion, and with different numbers of alleles. 
-#' @export 
-#' @import qtl
-#' @export clean mpcross
+#' @export  
 #' @method clean mpcross
 #' @aliases mpsegrat
 #' @param object Object of class \code{mpcross}
@@ -19,10 +17,12 @@
 #' \item{seg}{Matrix with one row for each marker and columns for the marker name, the chisquare test for segregation distortion, and the p-value of the test}
 #' @seealso \code{\link[mpMap]{mpcross}}
 #' @examples
-#' map <- sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
+#' map <- qtl::sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, qtl=matrix(data=c(1, 45, .4, 0, 0, 0), nrow=1, ncol=6, byrow=TRUE),seed=1)
-#' dat.chk <- clean(sim.dat)
+#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 45, .4, 0, 0, 0), 
+#'		nrow=1, ncol=6, byrow=TRUE),seed=1)
+#' dat.chk <- qtl::clean(sim.dat)
 
 clean.mpcross <- function(object, ...)
 {
@@ -46,7 +46,6 @@ clean.mpcross <- function(object, ...)
 	stop("Number of markers for finals and founders does not match")
 
  # Check pedigree format
- # Altered to conform with new convertped function
  object$pedigree <- convertped(object$pedigree)
 
  # Remove markers which do not differ among founders

@@ -34,6 +34,6 @@ sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped,
 plot(sim.dat)
 }
 \seealso{
-\code{\link[mpMap]{mpestrf}}, \code{\link[mpMap]{mpcross.object}}, \code{\link[Heatplus]{heatmap_2}}, \code{\link[mpMap]{plotlink.map}}
+\code{\link[mpMap]{mpestrf}}, \code{\link[mpMap]{mpcross.object}}, \code{\link[mpMap]{plotlink.map}}
 }
 

@@ -2,6 +2,11 @@
 #' 
 #' Plot the percentage of each chromosome inherited from each founder
 #' @export 
+#' @importFrom grDevices rainbow
+#' @importFrom graphics barplot
+#' @importFrom stats na.omit
+#' @importFrom stats heatmap
+#' @importFrom graphics plot
 #' @method plot mpprob
 #' @param x Object of class \code{mpprob}
 #' @param chr Chromosomes to plot. Default is all.
@@ -12,7 +17,7 @@
 #' @param colours Colours for lines. Default is rainbow. 
 #' @param ... Additional arguments to plot function
 #' @return Barplot of the percentage of each founder on each chromosome; individual heatmaps of which chunks of each chromosome are inherited from each founder.
-#' @seealso \code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{summary.mpprob}}, \code{\link[Heatplus]{heatmap_2}}
+#' @seealso \code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{summary.mpprob}}
 #' @examples
 #' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)

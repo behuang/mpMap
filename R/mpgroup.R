@@ -1,6 +1,10 @@
 #' Construct linkage groups using 2-point recombination fraction estimates
 #'
 #' Use two-point recombination fraction estimates to group markers into the specified number of linkage group, The input \code{initial} can be used to select groups of markers that will be assigned to the same group. Grouping is performed using hierarchical clustering (\code{hclust}) using either average, complete or single linkage. The matrix used for clustering can be either theta (the recombination fraction matrix), lod (the log likelihood ratio) or a combination of the two. 
+#' @importFrom stats na.omit
+#' @importFrom stats hclust
+#' @importFrom stats as.dist
+#' @importFrom stats cutree
 #' @export
 #' @param mpcross Object of class \code{mpcross}
 #' @param groups The number of groups to be formed
@@ -11,9 +15,11 @@
 #' \item{lg$groups}{ Numeric vector giving the group to which each marker belongs}
 #' \item{lg$all.groups}{ Numeric vector giving the numbers for any groups that are present}
 #' @examples
-#' map <- sim.map(len=rep(100, 2), n.mar=11, eq.spacing=TRUE, include.x=FALSE)
+#' map <- qtl::sim.map(len=rep(100, 2), n.mar=11, eq.spacing=TRUE, include.x=FALSE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, qtl=matrix(data=c(1, 50, .4, 0, 0, 0), nrow=1, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 50, .4, 0, 0, 0), 
+#'		nrow=1, ncol=6, byrow=TRUE), seed=1)
 #' dat.rf <- mpestrf(sim.dat)
 #' grouped <- mpgroup(dat.rf, groups=2, clusterBy="combined", method="average")
 #' grouped$lg
@@ -149,6 +155,194 @@ mpgroup <- function(mpcross, groups, initial = NULL, clusterBy="combined", metho
 	output$lg <- list(all.groups=1:groups, groups=cut)
 	return(subset(output, markers = colnames(output$founders)[order(output$lg$groups)]))
 }
+mpsplitgroup <- function(mpcross, toSplit, nSplits, clusterBy="combined", method="average")
+{
+	if(!(method %in% c("average", "complete", "single")))
+	{
+		stop("Input method must be one of 'average', 'complete' or 'single'")
+	}
+	if(!(clusterBy %in% c("combined", "theta", "lod")))
+	{
+		stop("Input clusterBy must be one of 'combined', 'theta' or 'lod'")
+	}
+  
+	if (missing(mpcross)) 
+	{
+		stop("Input mpcross cannot be missing")
+	}
+
+	if (is.null(mpcross$rf))
+	{
+		stop("Must calculate recombination fractions prior to grouping loci")
+	}
+	if(is.null(mpcross$lg))
+	{
+		stop("Must have an existing grouping structure to call mpsubgroup")
+	}
+	lod <- mpcross$rf$lod
+	theta <- mpcross$rf$theta
+	
+	#Reverse lod so that small values indicate similarity
+	lod[is.na(mpcross$rf$lod)] <- 0
+	lod <- max(lod) - lod
+	diag(lod) <- 0
+	
+	theta[is.na(mpcross$rf$theta)] <- 0.5
+
+	if(clusterBy == "combined")
+	{
+		distMat <- theta + lod / max(lod) * min(abs(diff(mpcross$rf$r)))
+	}
+	else if(clusterBy == "theta")
+	{
+		distMat <- theta
+	}
+	else
+	{
+		distMat <- lod
+	}
+	new.groups <- mpcross$lg$groups
+	
+	current.group <- which(mpcross$lg$groups == toSplit)
+	subdist <- as.dist(distMat[current.group, current.group])
+	clustered <- hclust(subdist, method=method)
+	cut <- cutree(clustered, k=nSplits)
+	new.groups[new.groups > toSplit] <- new.groups[new.groups > toSplit] + nSplits-1
+	new.groups[current.group] <- cut + toSplit - 1
+	
+	output <- mpcross
+	all.groups <- mpcross$lg$all.groups
+	all.groups[all.groups > toSplit] <- all.groups[all.groups > toSplit] + nSplits - 1
+	all.groups <- unique(c(all.groups, toSplit:(toSplit + nSplits-1)))
+	output$lg <- list(all.groups=all.groups, groups=new.groups)
+	return(subset(output, markers = colnames(output$founders)[order(output$lg$groups)]))
+}
+mpsubgroup <- function(mpcross, subgroups, clusterBy="combined", method="average")
+{
+	if(!(method %in% c("average", "complete", "single")))
+	{
+		stop("Input method must be one of 'average', 'complete' or 'single'")
+	}
+	if(!(clusterBy %in% c("combined", "theta", "lod")))
+	{
+		stop("Input clusterBy must be one of 'combined', 'theta' or 'lod'")
+	}
+  	if (missing(mpcross)) 
+	{
+		stop("Input mpcross cannot be missing")
+	}
+	if (is.null(mpcross$rf))
+	{
+		stop("Must calculate recombination fractions prior to grouping loci")
+	}
+	if(is.null(mpcross$lg))
+	{
+		stop("Must have an existing grouping structure to call mpsubgroup")
+	}
+	
+	lod <- mpcross$rf$lod
+	theta <- mpcross$rf$theta
+	
+	#Reverse lod so that small values indicate similarity
+	lod[is.na(mpcross$rf$lod)] <- 0
+	lod <- max(lod) - lod
+	diag(lod) <- 0
+	
+	theta[is.na(mpcross$rf$theta)] <- 0.5
+
+	if(clusterBy == "combined")
+	{
+		distMat <- theta + lod / max(lod) * min(abs(diff(mpcross$rf$r)))
+	}
+	else if(clusterBy == "theta")
+	{
+		distMat <- theta
+	}
+	else
+	{
+		distMat <- lod
+	}
+	new.groups <- vector(mode="integer", length=length(mpcross$lg$groups))
+	names(new.groups) <- names(mpcross$lg$groups)
+	
+	for(index in 1:length(mpcross$lg$all.groups))
+	{
+		group <- mpcross$lg$all.groups[index]
+		current.group <- which(mpcross$lg$groups == group)
+		subdist <- as.dist(distMat[current.group, current.group])
+		clustered <- hclust(subdist, method=method)
+		cut <- cutree(clustered, k=subgroups)
+		new.groups[current.group] <- cut + ((index -1)*subgroups)
+	}
+	
+	output <- mpcross
+	output$lg <- list(n.groups=length(mpcross$lg$all.groups) * subgroups, groups=new.groups)
+	return(subset(output, markers = colnames(output$founders)[order(output$lg$groups)]))
+}
+fineTuneGroups <- function(grouped, excludeGroups=c())
+{
+	if(is.null(names(grouped$lg$groups))) stop("Invalid mpcross object input")
+	originalChromosome <- newChromosome <- markerName <- newAverage <- c()
+	for(i in 1:length(grouped$lg$all.groups))
+	{
+		indicesI <- which(grouped$lg$groups == grouped$lg$all.groups[i])
+		diagonal <- grouped$rf$theta[indicesI, indicesI, drop=FALSE]
+		originalAverages <- apply(diagonal, 1, function(x) mean(x, na.rm=TRUE))
+		for(j in grouped$lg$all.groups[-i])
+		{
+			indicesJ <- which(grouped$lg$groups == j)
+			offDiagonal <- grouped$rf$theta[indicesI, indicesJ, drop=FALSE]
+			averages <- apply(offDiagonal, 1, function(x) mean(x, na.rm=TRUE))
+			
+			#Ok, for these markers names chromosome j is better than chromosome i. 
+			betterMarkerNames <- names(which(averages < originalAverages))
+			
+			#For these ones we have no previously better chromosome, so add them straight in
+			firstSelection <- betterMarkerNames[!(betterMarkerNames %in% markerName)]
+			#For these we've already made a selection. But is j also better than other any other previously looked choices. If it's mostly unlinked to its current chromosome then a lot of other bad chromosomes will probably be a little bit better too
+			secondSelection <- betterMarkerNames[betterMarkerNames %in% markerName]
+			
+			markerName <- c(markerName, firstSelection)
+			originalChromosome <- c(originalChromosome, rep(grouped$lg$all.groups[i], length(firstSelection)))
+			newChromosome <- c(newChromosome, rep(j, length(firstSelection)))
+			newAverage <- c(newAverage, averages[firstSelection])
+			
+			#Which of these ones to keep 
+			keep <- newAverage[match(secondSelection, markerName)] > averages[secondSelection]
+			#And the corresponding bits of the previous relocation data that has to be removed
+			overwrite <- match(secondSelection[keep], markerName)
+			secondSelection <- secondSelection[keep]
+			
+			newChromosome[overwrite] <- rep(j, length(secondSelection))
+			newAverage[overwrite] <- averages[secondSelection]
+		}
+	}
+	#Actually do the re-arranging
+	for(index in 1:length(markerName))
+	{
+		currentNewChromosome <- newChromosome[index]
+		if(!(currentNewChromosome %in% excludeGroups))
+		{
+			currentMarkerName <- markerName[index]
+			original <- originalChromosome[index]
+			grouped$lg$groups[currentMarkerName] <- currentNewChromosome
+		}
+	}
+	remove <- c()
+	for(i in grouped$lg$all.groups)
+	{
+		indicesI <- which(grouped$lg$groups == i)
+		diagonal <- grouped$rf$theta[indicesI, indicesI, drop=FALSE]
+		additionalRemove <- which(apply(diagonal, 1, function(x) mean(x, na.rm=TRUE)) > 0.41)
+		remove <- c(remove, additionalRemove)
+	}
+	
+	markers <- colnames(grouped$founders)[order(grouped$lg$groups)]
+	markers <- markers[-match(names(remove), markers)]	
+
+	newGrouped <- subset(grouped, markers = markers)
+	return(newGrouped)
+}
 joinGroups <- function(mpcross, join)
 {
 	#The value contained at index i is the new group ID for that group
@@ -193,4 +387,30 @@ joinGroups <- function(mpcross, join)
 	
 	mpcross$lg$all.groups <- unique(mpcross$lg$groups)
 	return(mpcross)
+}
+findJoinPoint <- function(mpcross, marker1, marker2, joins)
+{
+	group1 <- mpcross$lg$groups[marker1]
+	group2 <- mpcross$lg$groups[marker2]
+	for(i in 1:length(joins))
+	{
+		join <- joins[[i]]
+		if(join[[1]] == "join")
+		{
+			joinCommand <- c(join[[2]], join[[3]])
+			if(all(c(group1, group2) %in% joinCommand))
+			{
+				return(i)
+			}
+			else if(group1 %in% joinCommand)
+			{
+				group1 <- min(joinCommand)
+			}
+			else if(group2 %in% joinCommand)
+			{
+				group2 <- min(joinCommand)
+			}
+		}
+	}
+	return(-1)
 }

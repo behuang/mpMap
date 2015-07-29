@@ -1,7 +1,7 @@
 #' Subset mpcross object
 #'
 #' Reduces an mpcross object down to a specified set of chromosomes, markers and/or lines
-#' @export subset.mpcross 
+#' @export 
 #' @method subset mpcross
 #' @param x Object of class \code{mpcross}
 #' @param chr Selected chromosomes TO KEEP. Default is all
@@ -13,9 +13,11 @@
 #' @return The original object with chromosomes/lines/markers removed which are not listed in the arguments.
 #' @seealso \code{\link[mpMap]{mpcross.object}}
 #' @examples
-#' map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=map, pedigree=ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=map, pedigree=ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' sim.dat
 #' red.dat <- subset(sim.dat, chr=1, lines=1:50)
 #' red.dat
@@ -28,36 +30,20 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
   {
 	stop("Only one of chr, markers and groups can be input")
   }
-
-  ## Print out warning message if there are duplicated markers
-  if (!is.null(x$map)) mrk=unlist(lapply(x$map, names)) else mrk=colnames(x$finals)
-  if (all(sort(mrk)!=sort(colnames(x$finals)))) cat("Map marker names and genotype marker names do not match up\n")
-  if (sum(duplicated(colnames(x$finals)))>0 | sum(duplicated(mrk))>0) cat("Duplicated marker names may cause issues with subsetting\n")
-
+ 
   output <- x
 
-	if (!is.null(chr)) 
-	{
-		if(is.null(names(x$map)) || length(unique(names(x$map))) != length(x$map))
-		{
-			stop("A map with unique chromosome names is required to use input chr")
-		}
-		if (is.numeric(chr)) chr <- names(x$map)[chr]
-		if(!all(chr %in% names(x$map)))
-		{
-			stop("Invalid chromosome names entered")
-		}
-		output$map <- as.list(output$map[chr])
-		class(output$map) <- "map"
+  if (!is.null(chr)) {
+    if (is.numeric(chr)) chr <- names(x$map)[chr]
+    output$map <- as.list(output$map[chr])
+	class(output$map) <- "map"
 
-		if (is.null(x$lg)) x <- mpgroup(x)
-		groups <- match(chr, names(x$map))
+    if (is.null(x$lg)) x <- mpgroup(x)
+    groups <- match(chr, names(x$map))
 
-		for (ii in chr)
-		{
-			markers <- unique(c(markers, names(x$map[[ii]])))
-		}
-	}
+    for (ii in chr)
+      markers <- unique(c(markers, names(x$map[[ii]])))
+  }
 
   if(!is.null(groups))
   {
@@ -78,17 +64,17 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
 	    markers <- colnames(x$finals)[mrknum]
     	}
 
-    	output$founders <- as.matrix(output$founders[,mrknum, drop=F])
-    	output$finals <- as.matrix(output$finals[,mrknum, drop=F])
+    	output$founders <- as.matrix(output$founders[,mrknum])
+    	output$finals <- as.matrix(output$finals[,mrknum])
     	colnames(output$founders) <- colnames(output$finals) <- markers
 
     	if (!is.null(x$rf)) {
 	  m2 <- match(markers, colnames(output$rf$theta))
- 	  output$rf[1:3] <- lapply(output$rf[1:3], function(x) x[m2,m2, drop=F])
+ 	  output$rf[1:3] <- lapply(output$rf[1:3], function(x) x[m2,m2])
     	}
     	if (!is.null(x$ld)) {
 	  m2 <- match(markers, colnames(output$ld$W))
-	  output$ld <- lapply(output$ld, function(x) x[m2,m2, drop=F])
+	  output$ld <- lapply(output$ld, function(x) x[m2,m2])
     	}
 
   #If there's a map, we MIGHT keep it, unless things get reordered. In which case we drop the map and put in an lg structure
@@ -123,17 +109,16 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
 			output$map <- NULL
 		}
 	}
+	#If we kept the map, strip out any lg structure
+#	if(!is.null(output$map)) output$lg <- NULL
+	
 	#If there's still an LG structure, reorder it
-	if (!is.null(output$lg)) 
+        if (!is.null(output$lg)) 
 	{
 		m2 <- match(markers, names(output$lg$groups))
-		output$lg$groups <- output$lg$groups[m2]
+		output$lg$groups <- x$lg$groups[m2]
 		output$lg$all.groups <- unique(output$lg$groups)
-		if(any(is.na(output$lg$groups)))
-		{
-			stop("Cannot have an NA value for linkage group")
-		}
-	} 
+        } 
   }
 
   if (!is.null(lines)) {

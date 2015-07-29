@@ -2,6 +2,10 @@
 #' 
 #' Collapses an mpcross object into bins. Within bins, markers are grouped by founder distribution pattern and missing genotypes imputed. Haplotypes are formed for markers with unique FDPs and determine the bin alleles. Information on which markers belong to each bin is retained within the output object. 
 #' @export
+#' @importFrom stats cor
+#' @importFrom stats hclust
+#' @importFrom stats as.dist
+#' @importFrom stats cutree
 #' @useDynLib mpMap
 #' @param object Object of class \code{mpcross}
 #' @param method Choice of whether to bin based on recombination fraction or correlation 

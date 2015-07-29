@@ -28,7 +28,4 @@ and the map positions computed as the sum of adjacent cM values. The
 returned object is of class "pgmap", which contains both physical and
 genetic map information for ease of later comparison.
 }
-\seealso{
-\code{\link[mpMap]{summary.pgmap}} \code{\link[mpMap]{plot.pgmap}}
-}
 

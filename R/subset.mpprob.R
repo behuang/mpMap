@@ -1,7 +1,7 @@
 #' Subset mpprob object
 #'
 #' Reduces an mpprob object down to a specified set of chromosomes, markers and/or lines
-#' @export subset.mpprob 
+#' @export 
 #' @method subset mpprob
 #' @param x Object of class \code{mpprob}
 #' @param chr Selected chromosomes TO KEEP. Default is all
@@ -20,7 +20,7 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
    if (all(sapply(c(chr, markers, lines), length)==0)) return(x)
    if(!is.null(markers) && !is.null(chr)) stop("Inputs chr and markers cannot be used simultaneously")
 
-   output <- subset.mpcross(x, chr=chr, markers=markers, lines=lines)
+   output <- NextMethod()
 
 	if (!is.null(chr)) 
 	{
@@ -37,7 +37,6 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
 		attr(output$prob, "program") <- attr(x$prob, "program")
 		attr(output$estfnd, "threshold") <- attr(x$estfnd, "threshold")
 		attr(output$prob, "mapfx") <- attr(x$prob, "mapfx")
-		attr(output$prob, "mrkpos") <- attr(x$prob, "mrkpos")
 	}
  
 	if (!is.null(lines)) 
@@ -52,25 +51,15 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
 		attr(output$estfnd, "threshold") <- attr(x$estfnd, "threshold")
 		attr(output$prob, "mapfx") <- attr(x$prob, "mapfx")
 		attr(output$prob, "map") <- attr(x$prob, "map")
-	 	attr(output$prob, "mrkpos") <- attr(x$prob, "mrkpos")
 	}
 
 	if (!is.null(markers))
 	{
 		if(attr(x$prob, "step") == 0)
 		{
-      for (i in names(x$map)) {
-        removedMarkers <- setdiff(names(x$map[[i]]), names(output$map[[i]]))
-        removedMarkers <- match(removedMarkers, names(x$map[[i]]))
-        if (length(removedMarkers)>0) {
-    			output$estfnd[[i]] <- output$estfnd[[i]][, -removedMarkers]
-          output$prob[[i]] <- output$prob[[i]][, -(rep((removedMarkers-1)*n.founders, each=n.founders)+rep(1:4, length(removedMarkers)))]
-        }
-        if (length(removedMarkers)==length(x$map[[i]])) {
-          output$estfnd[[i]] <- NULL
-          output$prob[[i]] <- NULL
-        }
-      }
+			output$estfnd <- lapply(output$estfnd, function(x) return(x[,markers]))
+			output$prob <- lapply(output$prob, function(x) return(x[,markers]))
+			
 			#Copy attributes. The map was subsetted by the subset.mpcross function
 			attr(output$prob, "map") <- output$map
 			
@@ -78,7 +67,6 @@ function(x, chr=NULL, markers=NULL, lines=NULL, ...)
 			attr(output$prob, "program") <- attr(x$prob, "program")
 			attr(output$estfnd, "threshold") <- attr(x$estfnd, "threshold")
 			attr(output$prob, "mapfx") <- attr(x$prob, "mapfx")
-			attr(output$prob, "mrkpos") <- attr(x$prob, "mrkpos")
 		}
 		else
 		{	

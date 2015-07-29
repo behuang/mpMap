@@ -30,9 +30,11 @@ Reduces an mpcross object down to a specified set of chromosomes, markers and/or
 Chromosomes can be input either as the character names of chromosomes or the index of the chromosomes in the map. Markers can be input as character names or the index in the matrix x$finals. Lines can be input as either character values (matching the rownames of x$finals) or indices of rows in that matrix. Groups must be input as numbers corresponding to the specific groups to keep (the groups present in the object may not form a consecutive set of numbers). Note that only one of chr, groups and markers can be selected.
 }
 \examples{
-map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 ped <- sim.mpped(4, 1, 500, 6, 1)
-sim.dat <- sim.mpcross(map=map, pedigree=ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+sim.dat <- sim.mpcross(map=map, pedigree=ped,
+		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0),
+		nrow=2, ncol=6, byrow=TRUE), seed=1)
 sim.dat
 red.dat <- subset(sim.dat, chr=1, lines=1:50)
 red.dat

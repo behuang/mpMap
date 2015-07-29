@@ -4,6 +4,15 @@
 #' approach including ability to use cofactors (CIM)
 #'
 #' @export
+#' @importFrom stats na.exclude
+#' @importFrom stats as.formula
+#' @importFrom stats lm
+#' @importFrom stats model.matrix
+#' @importFrom stats var
+#' @importFrom stats cor
+#' @importFrom stats coef
+#' @importFrom stats vcov
+#' @importFrom stats pchisq
 #' @param object Object of class \code{mpcross}
 #' @param threshold Significance threshold for QTL p-values
 #' @param chr Subset of chromosomes for which to compute QTL profile
@@ -50,9 +59,11 @@
 #'
 #' @seealso \code{\link[mpMap]{plot.mpqtl}}, \code{\link[mpMap]{summary.mpqtl}}, \code{link[mpMap]{fit.mpqtl}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl")
 #' ## Two-stage simple interval mapping 
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
@@ -109,7 +120,9 @@ mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", n
   degf <- list()
   cofactors <- NULL
 
-  require(aods3)
+  if (!requireNamespace("aods3", quietly = TRUE)) 
+    stop("aods3 needed for mpIMlm to work. Please install it.\n",
+      call. = FALSE)
   if (!missing(fixed)) 
     output$pheno <- cbind(output$pheno, fixed)
 
@@ -126,7 +139,9 @@ mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", n
   ### set up dataframe with just those values
   if (ncov>0) 
   {
-      	require(MASS)
+    if (!requireNamespace("MASS", quietly = TRUE)) 
+    stop("MASS needed for composite interval mapping to work. Please install it.\n",
+      call. = FALSE)
       	if (inherits(object, "mpprob") && attr(object$prob, "step")==0)
           mrkobj <- object else	mrkobj <- mpprob(object, step=0, program="qtl", chr=chr)
 	mrkgen <- do.call("cbind", mrkobj$prob)
@@ -137,7 +152,7 @@ mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", n
  	#largest possible formula
     	formula <- as.formula(paste("predmn~", paste(paste("mrkgen[,", seq(1, ncol(mrkgen), n.founders), ":", seq(n.founders, ncol(mrkgen), n.founders), "]", sep=""), collapse="+")))
     	mod <- lm(as.formula(paste("predmn~1", sep="")))
-    	modc <- stepAIC(mod, scope=formula, steps=ncov)  
+    	modc <- MASS::stepAIC(mod, scope=formula, steps=ncov)  
 
     	covar <- attr(modc$terms, "variables")
       
@@ -301,14 +316,14 @@ mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", n
 	    if (!missing(fixed)) {
 	    	# Need to do terms separately
 	    	index1 <- grep(":P", names(coe))
-	    	wt <- wald.test(varb=vcov(mod), b=coe, Terms=index1)
+	    	wt <- aods3::wald.test(varb=vcov(mod), b=coe, Terms=index1)
 	    	fixedintx[[nam]][index] <- wt$result$chi2[1]
 		fixedintdf[[nam]][index] <- wt$result$chi2[2]
 	   	
 		## now do main effect
 		index2 <- grep("fixed", names(coe))
 		index2 <- setdiff(index2, index1)
-		wt <- wald.test(varb=vcov(mod), b=coe, Terms=index2)
+		wt <- aods3::wald.test(varb=vcov(mod), b=coe, Terms=index2)
 		fixedmain[[nam]][index] <- wt$result$chi2[1]
 	    } else index1 <- NULL
 		
@@ -316,7 +331,7 @@ mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", n
 	    index3 <- setdiff(index3, index1) 
 
 	    #test the current location for significance (actually a joint test)
-	    wt <- wald.test(varb=vcov(mod), b=coe, Terms=index3)
+	    wt <- aods3::wald.test(varb=vcov(mod), b=coe, Terms=index3)
 
 	    pval[[nam]][index] <- wt$result$chi2[3] 
 	    wald[[nam]][index] <- wt$result$chi2[1]
@@ -359,8 +374,6 @@ mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", n
   }
   
   results <- list()
-  if (!missing(baseModel))   results$baseModel <- baseModel
-  else results$baseModel <- lm(predmn~1, data=pheno)
   results$pheno <- pheno
   results$pvalue <- pval
   results$wald <- wald
@@ -373,7 +386,6 @@ mpIMlm <- function(object, threshold=1e-3, chr, step=0, responsename="predmn", n
 #  attr(results$qtl, "nqtl") <- sum(!is.na(pos)) 
   attr(results$qtl, "ncov") <- ncov
   attr(results$qtl, "window") <- window
-  attr(results, "method") <- method
   if (!missing(fixed)) {
 	results$fixedmain <- fixedmain
 	results$fixedintx <- fixedintx

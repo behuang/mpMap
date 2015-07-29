@@ -4,31 +4,38 @@
 #' variation, fits a full mixed model containing all effects in base model and
 #' all QTL effects. 
 #' @aliases fit fit.mpqtl
-#' @export fit
-#' @export fit.mpqtl
+#' @importFrom stats cor
+#' @importFrom stats update
+#' @importFrom stats as.formula
+#' @importFrom stats coef
+#' @importFrom stats vcov
 #' @param object Object of class \code{mpqtl}
 # @param baseModel asreml output from fit of base model
 # @param pheno data frame containing phenotypes required to fit base model
-# @param effects Flag for whether to include QTL as fixed or random effects
 # @param qindex Optional indices for which QTL to include
 #' @param \dots Additional arguments to be used in \code{asreml}
 #' @return An asreml model and summary table of QTL effects, p-values and Wald statistics from fitting the full model; also, percent phenotypic variance explained by full model and by each QTL individually.
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{summary.mpqtl}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl", step=2)
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 #' fit(mpq.dat)
 
+#' @export
 fit <- function(object, ...)
 {
 	UseMethod("fit")
 }
 
 # note: random effects fitting will eventually be added. Not currently an option
-fit.mpqtl <- function(object, baseModel, pheno, effects="fixed", qindex,  ...)
+#' @export
+#' @method fit mpqtl
+fit.mpqtl <- function(object, baseModel, pheno, qindex,  ...)
 {
 
   if (!inherits(object, "mpqtl")) stop("Must have object of type mpqtl to
@@ -113,8 +120,6 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed", qindex,  ...)
   fmrkl <- vector(length=nqtl)
   fmrkr <- vector(length=nqtl)
 
-  if (effects=="fixed") {
-
   if (method=="lm") {
     mod <- update(baseModel, 
 	formula=eval(as.formula(paste(baseModel$call$formula[2], 
@@ -124,6 +129,11 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed", qindex,  ...)
 	data=df)
 
     cat("Percent Phenotypic Variance explained by full model: ", round(100*summary(mod)$adj.r.squared, 2), "\n")
+
+ if (!requireNamespace("aods3", quietly = TRUE)) {
+    stop("aods3 needed for fit to work. Please install it.\n",
+      call. = FALSE)
+  }
 
     summ <- summary(mod)$coefficients
     effect <- se <- rep(NA, length(grep("P", names(coef(mod)))))
@@ -139,7 +149,7 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed", qindex,  ...)
 # Change BEH 9/11/12
 #  	man <- subind[which(!is.na(coef(mod)[subind]))]
 	man <- match(rownames(summ)[subind], colnames(vcov(mod)))
-  	wt <- wald.test(varb=vcov(mod), b=coef(mod)[!is.na(coef(mod))], Terms=man)
+  	wt <- aods3::wald.test(varb=vcov(mod), b=coef(mod)[!is.na(coef(mod))], Terms=man)
 	wald[j] <- wt$result$chi2[1]
 	degf[j] <- wt$result$chi2[2]
 	pval[j] <- wt$result$chi2[3]
@@ -161,7 +171,9 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed", qindex,  ...)
   } ## end of method=="lm"
 
   if (method=="mm") {
-    require(asreml)
+    if (!requireNamespace("asreml", quietly = TRUE)) 
+      stop("asreml needed for mixed model fit to work. Please install it.\n",
+      call. = FALSE)
     mod <- update(baseModel, 
 	fixed=eval(as.formula(paste(baseModel$call$fixed[2], 
 	baseModel$call$fixed[1], 
@@ -205,60 +217,7 @@ fit.mpqtl <- function(object, baseModel, pheno, effects="fixed", qindex,  ...)
     names(table)[seq(5, 4+(2*n.founders), 2)] <- eff3
     names(table)[seq(6, 4+(2*n.founders), 2)] <- se3
     }
-  }
-  else if (effects=="random") {
-    mod <- update(baseModel, 
-	random=eval(as.formula(paste("~", baseModel$call$random[2], 
-	"+", paste(paste("grp(qtl", 1:nqtl, ")", sep=""), collapse="+"), 
-	sep=""))), group=grplist, data="df", Cfixed=TRUE, na.method.X="include")
-
-    wald <- vector(length=nqtl)
-    pval <- vector(length=nqtl)
-    degf <- vector(length=nqtl)
-    fmrkl <- vector(length=nqtl)
-    fmrkr <- vector(length=nqtl)
-
-    ## need to think about what summaries make sense with random effects!
-    cr <- summary(mod, all=T)$coef.random
-    summ <- summary(mod)
-    effect <- cr[grep("qtl", rownames(cr)), 1]
-    se <- cr[grep("qtl", rownames(cr)), 2]
-
-    cm <- round(unlist(lapply(qtlres, function(x) return(x[,1]))),2)
-    ## these should be done individually for each QTL to test for significance
-    for (j in 1:nqtl) {	
-	subind <- grep(paste("P", j, "F", sep=""), names(mod$coefficients$fixed))
-  	man <- subind[which(mod$coefficients$fixed[subind]!=0)]
-#  	wald[j] <- wald.test.asreml(mod, list(list(man, "zero")))$zres$zwald
-	wald[j] <- (summ$varcomp[grep("qtl", rownames(summ$varcomp)),4])[j]
-	degf[j] <- 1
-#    	pval[j] <- wald.test.asreml(mod, list(list(man, "zero")))$zres$zpval
-	pval[j] <- 1-pchisq(wald[j]*wald[j], 1)
-	mrkli <- which.max(map[[chr[j]]]*(map[[chr[j]]]<=cm[j]))
-	if (length(map[[chr[j]]])>1) {
-	if (mrkli==length(map[[chr[j]]])) mrkli <- mrkli-1
-	fmrkl[j] <- names(map[[chr[j]]])[mrkli]
-	fmrkr[j] <- names(map[[chr[j]]])[mrkli+1]
-	} else fmrkl[j] <- fmrkr[j] <- names(map[[chr[j]]])[mrkli]
-    }
-
-    ## these will stay the same - just get the values out separately 
-    effect <- t(matrix(round(effect,2), nrow=nqtl, ncol=n.founders, byrow=T))
-    se <- t(matrix(round(se,3), nrow=nqtl, ncol=n.founders, byrow=T))
-    eff3 <- paste("Effect_",f3,sep="")
-    se3 <- paste("SE_",f3,sep="")
-    if (n.founders==4)
-	table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3))
-    else if (n.founders==8)
-	table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], effect[5,], se[5,], effect[6,], se[6,], effect[7,], se[7,], effect[8,], se[8,], "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3))
-    else 
-      table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, "Wald"=round(wald,2), "df"=degf, "pvalue"=signif(pval,3))
-    if (n.founders %in% c(4, 8)) {
-    names(table)[seq(5, 4+(2*n.founders), 2)] <- eff3
-    names(table)[seq(6, 4+(2*n.founders), 2)] <- se3
-    }
-  }
-
+   
   output$df <- df
   output$table <- table
   output$call <- match.call()

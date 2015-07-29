@@ -1,4 +1,5 @@
-#' @export print.mpprob 
+#' @export 
+#' @method print mpprob
 print.mpprob <-
 function(x, ...)
 {

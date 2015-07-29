@@ -2,6 +2,7 @@
 #'
 #' Generate an mpcross object by reading in components from files - requires founders marker data, finals marker data, pedigree, and IDs for all lines. Marker map and phenotypic data are optional. 
 #' @export
+#' @importFrom utils read.table
 #' @param founderfile File containing founder genotypes - should have 1+(number of founders) rows. The first row contains the marker names - first space left blank. The first column contains the founder name. Additional rows contain observed marker data for all founders.
 #' @param finalfile File containing final genotypes - should have 1+(number of lines) rows. The first row contains the marker names - first space left blank. The first column contains line names. Additional rows contain observed marker data for all lines.
 #' @param pedfile File containing pedigree data - should have three or four columns - first three columns indicate id, mother and father; fourth column is a flag for whether the lines was observed.

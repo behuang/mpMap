@@ -2,6 +2,8 @@
 #'
 #' Calculates support interval for QTL based on Wald profile and QTL position
 #' @export
+#' @importFrom stats qchisq
+#' @importFrom stats pchisq
 #' @param x Object of class \code{mpqtl}
 #' @param chr Selected chromosomes
 #' @param lodsupport Size of support interval; default is 1 LOD
@@ -9,9 +11,11 @@
 #' @return A list with two components: a matrix containing lower and upper bounds for the support intervals for each QTL, and the positions of QTL on each chromosome. 
 #' @seealso \code{\link[mpMap]{plot.mpqtl}}
 #' @examples
-#' map <- sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
+#' map <- qtl::sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl", step=2)
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 #' si <- supportinterval(mpq.dat)

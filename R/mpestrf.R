@@ -22,7 +22,6 @@
 #'	  qtl=matrix(data=c(1, 50, .4, 0, 0, 0), nrow=1, ncol=6, byrow=TRUE), 
 #'	  seed=1)
 #' dat.rf <- mpestrf(sim.dat)
-#' plot(dat.rf)
 
 mpestrf <- function(object, r, gpu, lineWeights, mpi=FALSE, ...)
 {

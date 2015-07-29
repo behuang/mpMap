@@ -1,7 +1,7 @@
 #' Subset binned mpcross object
 #'
 #' Reduces a binned mpcross object down to a specified set of chromosomes, markers and/or lines
-#' @export subset.binmpcross 
+#' @export 
 #' @method subset binmpcross
 #' @param x Object of class \code{binmpcross}
 #' @param chr Selected chromosomes TO KEEP. Default is all

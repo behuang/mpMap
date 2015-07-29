@@ -2,6 +2,9 @@
 #'
 #' Plots summary of phenotypes and genetic map for mpcross object. If calculated, plots a heatmap of recombination fraction estimates and transformed LOD scores with legend.
 #' @export 
+#' @importFrom graphics par
+#' @importFrom graphics hist
+#' @importFrom graphics plot
 #' @method plot mpcross
 #' @param x Object of class \code{mpcross}
 #' @param chr Selected chromosomes. Default is all
@@ -12,7 +15,7 @@
 #' Genetic maps are plotted using a version of \code{plotlink.map} for all genetic maps included in the object (may be both a simulated version and an estimated version). 
 #' 
 #' If recombination fractions have been estimated, a heatmap with recombination fraction estimates below the diagonal and scaled LOD scores above the diagonal is also plotted. LOD scores are transformed to 2^(-(LOD/4+1)) in order to be on the same scale as the theta values.  
-#' @seealso \code{\link[mpMap]{mpestrf}}, \code{\link[mpMap]{mpcross.object}}, \code{\link[Heatplus]{heatmap_2}}, \code{\link[mpMap]{plotlink.map}}
+#' @seealso \code{\link[mpMap]{mpestrf}}, \code{\link[mpMap]{mpcross.object}}, \code{\link[mpMap]{plotlink.map}}
 #' @examples
 #' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)

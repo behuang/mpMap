@@ -1,3 +1,4 @@
+#' @importFrom stats pf
 getpval <- 
 function(model)
 {

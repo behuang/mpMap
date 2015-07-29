@@ -1,7 +1,11 @@
 #' Plot output from interval mapping with detected QTL
 #'
 #' Plot -log10(p-value) or test statistic against cM position for (composite) interval mapping in multi-parent crosses. QTL support intervals are indicated with rectangles surrounding peaks. 
-#' @export plot.mpqtl 
+#' @import qtl
+#' @importFrom graphics plot
+#' @importFrom stats na.exclude
+#' @importFrom graphics rect
+#' @export 
 #' @method plot mpqtl
 #' @param x Object of class \code{mpqtl}
 #' @param wald Flag for whether to plot the Wald statistic or -log10(p)
@@ -11,9 +15,11 @@
 #' @return Plots the -log10(p) or Wald statistic for all chromosomes against the total genome in cM. QTL support intervals are indicated with shaded rectangles surrounding peaks 
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{summary.mpqtl}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#' 		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl", step=2)
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 #' plot(mpq.dat)
@@ -39,7 +45,7 @@ plot.mpqtl <- function(x, wald=FALSE, chr, lodsupport=1, ...)
 	cat("Some p-values=0; plotting Wald score\n")
     } 
 
-  if (wald==TRUE) qtl:::plot.scanone(waldsc, chr=chr, ylab="Wald") else qtl:::plot.scanone(psc, chr=chr, ylab="-log10(p)")
+  if (wald==TRUE) plot(waldsc, chr=chr, ylab="Wald") else plot(psc, chr=chr, ylab="-log10(p)")
   output$waldsc <- waldsc
   output$psc <- psc
   

@@ -4,6 +4,7 @@
 #' based on recombination fractions between adjacent markers
 #'
 #' @export
+#' @importFrom stats approx
 #' @param physmap Physical map to be used for groups and orders of markers
 #' @param mpcross Mpcross objects from which to estimate recombination fractions
 #' @param mapfx Map function to convert recombination fractions to cM 
@@ -16,7 +17,6 @@
 #' genetic map information for ease of later comparison. 
 #' 
 #' @return A pgmap object is returned containing both genetic and physical map positions. 
-#' @seealso \code{\link[mpMap]{summary.pgmap}} \code{\link[mpMap]{plot.pgmap}}
 
 phys2gen <- function(physmap, mpcross, mapfx, maxrf=.25)
 {

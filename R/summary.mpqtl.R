@@ -1,7 +1,7 @@
 #' Summary of mpqtl object
 #' 
 #' Prints a summary of the detected QTL
-#' @export summary.mpqtl 
+#' @export
 #' @method summary mpqtl
 #' @param object Object of class \code{mpqtl}
 #' @param ... Additional arguments
@@ -14,9 +14,11 @@
 #' Column 10 is the p-value for the test statistic
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{plot.mpqtl}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl", step=2)
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, thr=1, responsename="pheno")
 #' summary(mpq.dat)
@@ -33,7 +35,7 @@ summary.mpqtl <- function(object, ...)
 	else 
 	{
 		chr <- rep(names(qtlres), unlist(lapply(qtlres, function(x) return(nrow(x)))))
-		cm <- unlist(lapply(qtlres, function(x) return(x[,1])))
+		cm <- round(unlist(lapply(qtlres, function(x) return(x[,1]))),2)
 		effect <- round(matrix(unlist(lapply(qtlres, function(x) return(as.vector(t(x[, 1+1:n.founders]))))), nrow=n.founders, ncol=length(cm)), 3)
 		se <- round(matrix(unlist(lapply(qtlres, function(x) return(as.vector(t(x[, 1+n.founders+1:n.founders]))))), nrow=n.founders, ncol=length(cm)), 3)
 
@@ -57,7 +59,6 @@ summary.mpqtl <- function(object, ...)
 		}
 		eff3 <- paste("Effect_",f3,sep="")
 		se3 <- paste("SE_",f3,sep="")
-		cm <- round(cm, 2)
 	if (n.founders==4)
 		table <- data.frame("Chr"=chr, "Pos"=cm, "LeftMrk"=fmrkl, "RightMrk"=fmrkr, effect[1,], se[1,], effect[2,], se[2,], effect[3,], se[3,], effect[4,], se[4,], "Wald"=wald, "df"=degf, "pvalue"=pval)
 	else if (n.founders==8)

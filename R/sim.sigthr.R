@@ -2,6 +2,8 @@
 #' 
 #' Generate a significance threshold by simulating from the null hypothesis. Phenotypic values for the observed genetic data are simulated to represent data with no QTL, and a genomewide p-value threshold is calculated. 
 #' @export
+#' @importFrom stats var
+#' @importFrom stats rnorm
 #' @param mpcross Object of class \code{mpcross}
 #' @param nsim Number of null datasets to simulate; default is 100
 #' @param alpha Significance threshold for QTL p-values

@@ -40,6 +40,6 @@ mpp.dat <- mpprob(sim.dat, program="qtl")
 plot(mpp.dat)
 }
 \seealso{
-\code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{summary.mpprob}}, \code{\link[Heatplus]{heatmap_2}}
+\code{\link[mpMap]{mpprob}}, \code{\link[mpMap]{summary.mpprob}}
 }
 

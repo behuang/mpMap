@@ -44,8 +44,8 @@ Summary function returns printed summary including - number of markers in each m
 Takes in two maps with the aim of comparing the position of common markers. Creates a mapcomp object for plotting and summary.
 }
 \examples{
-map1 <- sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
-map2 <- sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
+map1 <- qtl::sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
+map2 <- qtl::sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
 mc <- mapcomp(map1, map2)
 summary(mc)
 plot(mc)

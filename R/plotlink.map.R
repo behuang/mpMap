@@ -4,6 +4,13 @@
 #' Can also highlight QTL regions when used with qtlmap function. Modification of
 #' code from package wgaim.  
 #' @export
+#' @importFrom graphics par
+#' @importFrom graphics plot
+#' @importFrom graphics axis
+#' @importFrom graphics text
+#' @importFrom graphics segments
+#' @importFrom graphics lines
+#' @importFrom graphics title
 #' @param object Either \code{mpcross} or \code{map} object
 #' @param chr Chromosomes to plot
 #' @param marker.names Whether to plot marker names

@@ -3,6 +3,9 @@
 #' Outputs the genotype information from an 'mpcross' object to files which can be read in to either R/qtl cross format or R/happy.hbrem format
 #' @rdname mpMap-output
 #' @aliases write2cross write2happy write.mpcross
+#' @importFrom stats rnorm
+#' @importFrom utils write.csv
+#' @importFrom utils write.table
 #' @export
 #' @usage write2cross(object, filestem, chr, ...)
 #' write2happy(object, filestem, chr, ...)
