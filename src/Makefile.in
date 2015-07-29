@@ -1,9 +1,12 @@
 C_OBJS := add3pt.o calcLD.o founderprob.o qsort.o impute.o
 CPP_OBJS := rfhaps.o rfhaps_cpu.o getFunnel.o validateMPCross.o findIDInPedigree.o intercrossingGenerations.o getAllFunnels.o orderFunnels.o allowableMarkerPatterns.o generateDesignMatrix.o generateGenotypes.o rfhapsSpecificDesign.o
 CUDA_OBJS := @CUDA_OBJS@
-PKG_CXXFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. -std=gnu++0x 
+PKG_CXXFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I.  
 PKG_CFLAGS := -I../inst/include -I.
 CUDA_CPPFLAGS := @CUDA_CPPFLAGS@
+PKG_CPPFLAGS=$(shell Rscript -e "Rcpp:::CxxFlags()" )
+PKG_LIBS = $(shell Rscript -e "Rcpp:::LdFlags()" )
+CXXOPTS = $(shell Rscript -e "Rcpp:::Cxx0xFlags()" )
 
 #compiler/preprocessor options
 PARAMS := @DEVICEOPTS@ -Xcompiler @CPICFLAGS@
