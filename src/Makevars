@@ -2,4 +2,4 @@ PKG_CXXFLAGS += -I../inst/include -I.
 PKG_CFLAGS += -I../inst/include -I.
 PKG_CPPFLAGS=$(shell Rscript -e "Rcpp:::CxxFlags()" )
 PKG_LIBS = $(shell Rscript -e "Rcpp:::LdFlags()" )
-CXXOPTS = $(shell Rscript -e "Rcpp:::Cxx0xFlags()" )
+CXX_STD=CXX11
