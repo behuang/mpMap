@@ -82,6 +82,11 @@ bool validatePedigree(Rcpp::RObject pedigree_, Rcpp::DataFrame& pedigree, std::s
 	}
 	return true;
 }
+bool validateMPCrossNoError(SEXP mpcross_, int& nFounders, bool checkPedigree, bool checkRF, bool checkLG, bool checkFID)
+{
+	std::string error;
+	return validateMPCross(mpcross_, nFounders, error, checkPedigree, checkRF, checkLG, checkFID);
+}
 bool validateMPCross(Rcpp::RObject mpcross_, int& nFounders, std::string& error, bool checkPedigree, bool checkRF, bool checkLG, bool checkFID)
 {
 	Rcpp::Function asInteger("as.integer");
