@@ -2,15 +2,18 @@
 #'
 #' Given the output from a scan of a chromosome, locates local maxima exceeding a significance threshold in a QTL profile. 
 #' @export
+#' @importFrom stats approx
 #' @param mpqtl Object of class \code{mpqtl}
 #' @param dwindow Window over which to smooth p-values - default is five markers
 #' @param threshold Threshold peaks must exceed to be detected (-log10(p))
 #' @return The original input object with additional entries for newly detected QTL. 
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{plot.mpqtl}}, \code{\link[mpMap]{summary.mpqtl}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl", step=2)
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, responsename="pheno")
 #' mpq2 <- findqtl(mpq.dat, dwindow=5, threshold=3)
@@ -20,6 +23,7 @@
 findqtl <- function(mpqtl, dwindow=5, threshold)
 {
   output <- mpqtl 
+  output$QTLresults$qtl <- NULL
   map <- attr(mpqtl$prob, "map")
 
   ## Need to form scanone object from mpqtl. 
@@ -27,13 +31,19 @@ findqtl <- function(mpqtl, dwindow=5, threshold)
   sc[,1] <- factor(sc[,1], levels=unique(sc[,1]))
   class(sc) <- c("scanone", "data.frame")
 
-  require(VPdtw)
   index <- list()
   for (j in unique(sc$chr)) {
     startind <- min(which(sc$chr==j))
-    ts <- sc$lod[sc$chr==j]
-    ts[ts>100] <- max(ts[ts<100])+5
-    tmp1 <- dilation(ts, dwindow)
+    y <- sc$lod[sc$chr==j]
+    x <- sc$pos[sc$chr==j]
+    ap <- approx(x, y, xout=unique(sort(c(x, seq(min(x), max(x), .1)))))
+    ts <- ap$y
+
+    if (!requireNamespace("VPdtw", quietly = TRUE)) 
+    stop("VPdtw needed for findqtl to work. Please install it.\n",
+      call. = FALSE)
+
+    tmp1 <- VPdtw::dilation(ts, dwindow)
     tmp2 <- which(ts==tmp1)
     tmp3 <- tmp2[which(ts[tmp2]>threshold)]
   
@@ -47,13 +57,18 @@ findqtl <- function(mpqtl, dwindow=5, threshold)
   
     dlm <- c(diff(tmp3), dwindow)
     locmax[dlm<dwindow] <- FALSE
-    index[[j]] <- tmp3[locmax]+startind-1
-    attr(output$QTLresults$qtl[[j]], "index") <- index[[j]]
+    ## need to rematch the tmp3 indices up to the original ones. 
+    oldindex <- vector(length=length(tmp3[locmax]))
+    for (k in 1:length(oldindex)) oldindex[k] <- which.min(abs(ap$x[tmp3[locmax][k]]-x))
+
+    index[[j]] <- oldindex+startind-1
     nqtl <- length(index[[j]])
-    output$QTLresults$qtl[[j]] <- cbind(sc[index[[j]], 2], matrix(mpqtl$QTLresults$fndrfx[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T), matrix(mpqtl$QTLresults$se[[j]][, tmp3[locmax]], nrow=nqtl, byrow=T))
+    output$QTLresults$qtl[[j]] <- cbind(sc[index[[j]], 2], matrix(mpqtl$QTLresults$fndrfx[[j]][, oldindex], nrow=nqtl, byrow=T), matrix(mpqtl$QTLresults$se[[j]][, oldindex], nrow=nqtl, byrow=T))
     } else index[[j]] <- NULL
   }
+  attr(output$QTLresults$qtl, "index") <- index
   attr(output$QTLresults$qtl, "nqtl") <- length(unlist(index))
+  
 
   output
 }

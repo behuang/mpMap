@@ -1,3 +1,4 @@
+# Modified from Karl Broman's code in R/qtl
 # note, in this formulation pos should effectively be a new map with inserted positions, labelled as locx where x is the cM position value
 calc.genoprob2 <- function (cross, pos, error.prob = 1e-04, map.function = c("haldane", "kosambi", "c-f", "morgan")) 
 {

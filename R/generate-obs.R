@@ -13,6 +13,7 @@ generate_obs <- function(geno, map, full.prob, fg, transpos, transval, founderld
 		return(generate_obs_with_fg(geno, map, full.prob, fg, transpos, transval))
 	}
 }
+#' @importFrom stats runif
 generate_obs_without_fg <- function(geno, map, full.prob, transpos, transval, founderld)
 {
 	#Retain everything from geno into obsgeno (the return value)
@@ -101,6 +102,7 @@ generate_obs_without_fg <- function(geno, map, full.prob, transpos, transval, fo
 	obsgeno$finals[,biallelic][(obsgeno$finals[,biallelic]>0)] <- 1
 	return(obsgeno)
 }
+#' @importFrom stats na.omit
 generate_obs_with_fg <- function(geno, map, full.prob, fg, transpos, transval)
 {
 	#Retain everything from geno into the return value (obsgeno), except for founders and finals. 

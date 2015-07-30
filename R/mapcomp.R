@@ -2,6 +2,8 @@
 #' 
 #' Takes in two maps with the aim of comparing the position of common markers. Creates a mapcomp object for plotting and summary. 
 #' @rdname mapcomp-all
+#' @importFrom stats cor
+#' @importFrom stats lm
 #' @export
 #' @usage mapcomp(object1, object2) 
 #' @param object1 Object inheriting class \code{mpcross} or class \code{map} 
@@ -23,8 +25,8 @@
 #'
 #' Summary function returns printed summary including - number of markers in each map; number of markers common to both maps; number of duplicated markers in each map; number of markers mapped to different chromosomes; correlations between positions on each chromosome.
 #' @examples 
-#' map1 <- sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
-#' map2 <- sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
+#' map1 <- qtl::sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
+#' map2 <- qtl::sim.map(len=rep(100, 4), n.mar=51, include.x=FALSE)
 #' mc <- mapcomp(map1, map2)
 #' summary(mc)
 #' plot(mc)
@@ -83,36 +85,40 @@ mapcomp <- function(object1, object2) {
 	class(output) <- "mapcomp" 
 	output
 }
-#' @S3method plot mapcomp
+#' @export 
 #' @method plot mapcomp
 #' @rdname mapcomp-all
 #' @param lines Whether straight lines with slope +1 / -1 (indicating complete map agreement) should be shown
 
 plot.mapcomp <- function(x, lines=FALSE, ...)
 {
-	require(lattice)
 	if(lines)
 	{
 		panel.func <- function(x,y, pch) 
 		{
-			panel.xyplot(x,y, type="p", lwd=2, pch=pch) 
+			if (!requireNamespace("lattice", quietly = TRUE)) 
+			stop("lattice needed for plot.mapcomp to work. Please install it.\n", call. = FALSE)
+ 
+			lattice::panel.xyplot(x,y, type="p", lwd=2, pch=pch) 
 			if(length(x) > 1)
 			{
 				model <- lm(y ~ x)
 				slope <- model$coefficients["x"]
-				if(slope > 0) panel.abline(a = 0, b = 1)
-				else panel.abline(a = max(x), b = -1)
+				if(slope > 0) lattice::panel.abline(a = 0, b = 1)
+				else lattice::panel.abline(a = max(x), b = -1)
 			}
 		}
 	}
 	else
 	{
-		panel.func <- panel.xyplot
+		if (!requireNamespace("lattice", quietly = TRUE)) 
+		stop("lattice needed for plot.mapcomp to work. Please install it.\n", call. = FALSE)
+		panel.func <- lattice::panel.xyplot
 	}
-	xyplot(pos1~pos2|chr1, data=x$samechr, pch=20, as.table=TRUE, panel = panel.func, ...)
+	lattice::xyplot(pos1~pos2|chr1, data=x$samechr, pch=20, as.table=TRUE, panel = panel.func, ...)
 }
 
-#' @S3method summary mapcomp
+#' @export 
 #' @method summary mapcomp
 #' @rdname mapcomp-all
 

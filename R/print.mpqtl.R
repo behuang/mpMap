@@ -1,4 +1,5 @@
-#' @S3method print mpqtl
+#' @export 
+#' @method print mpqtl
 print.mpqtl <-
 function(x, ...)
 {

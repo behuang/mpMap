@@ -1,16 +1,18 @@
 #' Summary of mpcross object
 #'
 #' Summarizes mpcross object in terms of number of markers, lines, type of markers, and quality of markers
-#' @S3method summary mpcross
+#' @export 
 #' @method summary mpcross
 #' @param object Object of class \code{mpcross}
 #' @param ... Additional arguments
 #' @return Printed summary including - markers which had to be removed due to monomorphic or missing founders; numbers of biallelic/multiallelic markers; percent of markers with missing data; percent of markers with high segregation distortion.
 #' @seealso \code{\link[mpMap]{mpcross}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' summary(sim.dat)
 
 summary.mpcross <-
@@ -32,7 +34,7 @@ function(object, ...)
   cat("-------------------------------------------------------\n")
   cat(length(drop2), " markers had missing values in founders\n")
   cat(length(drop1), " markers had non-polymorphic founder genotypes\n")
-  cat(length(drop3), " markers had alleles appearing in finals not in founders\n")
+  cat(length(drop3), " markers had alleles appearing in finals not in fouders\n")
   cat("-------------------------------------------------------\n")
   cat(length(which(fdr.alleles==2)), " markers were biallelic.\n")
   cat(length(which(fdr.alleles>2) ), " markers were multiallelic.\n")

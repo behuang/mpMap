@@ -1,4 +1,5 @@
-#' @S3method print mpcross
+#' @export 
+#' @method print mpcross
 print.mpcross <-
 function(x, ...)
 {

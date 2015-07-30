@@ -371,7 +371,7 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 		args.marker2Start = marker2Start;
 		args.marker2End = marker2End;
 		args.nPedigreeRows = pedigreeDataFrame.nrows();
-		args.allowableMarkerPatterns = allowableMarkerPatternsPtr;
+		args.allowableMarkerPatterns = &(allowableMarkerPatternsStandard[0]);
 		args.IDs = &(IDVector(0));
 		args.deviceNum = deviceNum;
 		resultOK = rfhaps_gpu(args);

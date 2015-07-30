@@ -1,3 +1,4 @@
+#' @importFrom stats update
 wald.test.asreml <- function(object, cc)
 {
       call <- match.call()
@@ -20,6 +21,8 @@ wald.test.asreml <- function(object, cc)
       res
 }
 
+#' @importFrom stats contr.helmert
+#' @importFrom stats pchisq
 cintern <- function(cc, tau, vrb, sigma2){
    zres <- cres <- NULL
    ccnams <- names(tau)

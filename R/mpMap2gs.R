@@ -4,6 +4,7 @@
 #' to Richard Mott's reconstruction and genome_scan (http://mus.well.ox.ac.uk/19genomes/magic.html) algorithms
 #'
 #' @export 
+#' @importFrom utils write.table
 #' @param mpcross Object to export 
 #' @param cm2bp Factor for converting a genetic map to physical map (how many bp per centiMorgan)
 #' @param removeMono Remove monomorphic markers - not required
@@ -35,7 +36,7 @@ mpMap2gs <- function(mpcross, cm2bp=250000, removeMono=FALSE) {
   nfounders <- nrow(founders)
   nmrk <- vector(length=nchr)
   for (i in 1:nchr) {
-      nmrk[i] <- nrow(mat1)
+      nmrk[i] <- length(mpcross$map[[i]])
       mat <- data.frame(chr=rep(i,nmrk[i]), pse.bp=round(mpcross$map[[i]]*cm2bp), bp=round(mpcross$map[[i]]*cm2bp), nalleles=apply(founders, 2, function(x) length(table(x))), maf=apply(founders, 2, function(x) max(table(x))))
       fou <- founders[, match(names(mpcross$map[[i]]), colnames(mpcross$founders))]
       mat <- cbind(mat, t(fou))

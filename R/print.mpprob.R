@@ -1,4 +1,5 @@
-#' @S3method print mpprob
+#' @export 
+#' @method print mpprob
 print.mpprob <-
 function(x, ...)
 {

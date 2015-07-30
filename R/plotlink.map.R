@@ -1,25 +1,31 @@
 #' Plots linkage maps
 #' 
 #' Plot linkage map (either as input object or as stored in mpcross object). 
-#' Can also highlight QTL regions when used with qtlmap function. 
+#' Can also highlight QTL regions when used with qtlmap function. Modification of
+#' code from package wgaim.  
 #' @export
+#' @importFrom graphics par
+#' @importFrom graphics plot
+#' @importFrom graphics axis
+#' @importFrom graphics text
+#' @importFrom graphics segments
+#' @importFrom graphics lines
+#' @importFrom graphics title
 #' @param object Either \code{mpcross} or \code{map} object
 #' @param chr Chromosomes to plot
-#' @param max.dist Plotting paramters. See \code{\link[wgaim]{link.map.cross}}
 #' @param marker.names Whether to plot marker names
-#' @param tick Plotting parameters. See \code{\link[wgaim]{link.map.cross}}
-#' @param squash Plotting parameters. See \code{\link[wgaim]{link.map.cross}}
-#' @param colqtl Color to plot QTL regions. See \code{\link[mpMap]{qtlmap}}
+#' @param colqtl Color to plot QTL regions. 
 #' @param ... Additional arguments 
 #' @return Modification of link.map.cross function from wgaim to allow more
 #' general input objects and to highlight regions around QTL. If any markers
 #' are labelled "QTLx" then they will be plotted in a different color.  
-#' @seealso \code{\link[wgaim]{link.map.cross}}, \code{\link[mpMap]{qtlmap}}
+#' @author Emma Huang, Julian Taylor
 
 plotlink.map <- 
-function (object, chr, max.dist, marker.names = TRUE, tick = FALSE, 
-    squash = TRUE, colqtl="red", ...) 
+function (object, chr, marker.names = TRUE, colqtl="red", ...) 
 {
+  tick <- FALSE
+  squash <- TRUE
   circ <- function(x, y, shiftx = 0, shifty = 0, ely = 1, elx = 1)
     ((x - shiftx)^2)/elx + ((y - shifty)^2)/ely
 
@@ -39,9 +45,6 @@ function (object, chr, max.dist, marker.names = TRUE, tick = FALSE,
     }
     n.chr <- length(map)
     mt <- list()
-    if (!missing(max.dist)) 
-        map <- lapply(map, function(el, max.dist) el[el < max.dist], 
-            max.dist)
     maxlen <- max(unlist(lapply(map, max)))
     if(maxlen == 0) maxlen <- 1
     if (!marker.names) {
@@ -82,24 +85,21 @@ function (object, chr, max.dist, marker.names = TRUE, tick = FALSE,
             text(chrpos[i] + 0.5, mt[[i]], names(map[[i]]), adj = c(0, 
                 0.5), ...)
 	    m <- grep("QTL", names(map[[i]]))
-	          segments(chrpos[i] + 0.25, map[[i]], chrpos[i] + 
+	    if (length(m)>0)
+            text(chrpos[i] + 0.5, mt[[i]][m], names(map[[i]])[m], adj = c(0, 
+                0.5), col=colqtl, ...)
+            segments(chrpos[i] + 0.25, map[[i]], chrpos[i] + 
                 0.3, map[[i]])
             segments(chrpos[i] + 0.3, map[[i]], chrpos[i] + 0.4, 
                 mt[[i]])
             segments(chrpos[i] + 0.4, mt[[i]], chrpos[i] + 0.45, 
                 mt[[i]])
-      if (length(m)>0) 
-            text(chrpos[i] + 0.5, mt[[i]][m], names(map[[i]])[m], adj = c(0, 
-                        0.5), col=colqtl, ...)
         }
         barl <- chrpos[i] - 0.03
         barr <- chrpos[i] + 0.03
         segments(barl, min(map[[i]]), barl, max(map[[i]]), lwd = 1)
         segments(barr, min(map[[i]]), barr, max(map[[i]]), lwd = 1)
         segments(barl - 0.17, map[[i]], barr + 0.17, map[[i]])
-        m <- grep("QTL", names(map[[i]]))
-        if (length(m)>0)
-        segments(barl - 0.17, map[[i]][m], barr + 0.17, map[[i]][m], col=colqtl)
         xseq <- seq(barl, barr, length = 20) - chrpos[i]
         yseq <- circ(xseq, xseq, ely = 1, elx = 0.07/maxlen)
         yseq <- yseq - max(yseq)

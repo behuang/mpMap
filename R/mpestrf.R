@@ -2,30 +2,35 @@
 #'
 #' Estimates pairwise recombination fractions by maximizing the likelihood for a multi-parent cross over a grid of possible values. Theta values and corresponding LOD scores are returned for each pair of markers in the object.
 #' @export
+#' @import Rcpp
 #' @useDynLib mpMap
 #' @param object Object of class \code{mpcross}
 #' @param r Grid of potential recombination values. If missing the function will maximize over (0, .005, .01, .015, ... , .095, .1, .11, .12, ... .49, .5). 
 #' @param gpu Boolean value, true indicates that a GPU should be used if available
 #' @param lineWeights In some cases of segregation distortion it can be useful to weight the contribution of each line to the likelihood
 #' @param mpi Flag for whether to parallelize the computation
+#' @param \dots Additional arguments to be passed on to mpestrfMpi
 #' @return Returned object is of the class 'mpcross' with the additional component \code{rf}. If n.mrk is the number of markers genotypes, this is a list with components:
 #' \item{rf$theta}{ n.mrk x n.mrk matrix of estimated recombination fractions between each pair of loci}
 #' \item{rf$lod}{ n.mrk x n.mrk matrix of LOD scores at the estimated recombination values}
 #' \item{rf$lkhd}{ n.mrk x n.mrk matrix of likelihood values at the estimated recombination values}
 #' @seealso \code{\link[mpMap]{mpcross}}, \code{\link[mpMap]{plot.mpcross}}
 #' @examples
-#' map <- sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
+#' map <- qtl::sim.map(len=100, n.mar=11, eq.spacing=TRUE, include.x=FALSE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, qtl=matrix(data=c(1, 50, .4, 0, 0, 0), nrow=1, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=map, pedigree=sim.ped, 
+#'	  qtl=matrix(data=c(1, 50, .4, 0, 0, 0), nrow=1, ncol=6, byrow=TRUE), 
+#'	  seed=1)
 #' dat.rf <- mpestrf(sim.dat)
-#' plot(dat.rf)
 
 mpestrf <- function(object, r, gpu, lineWeights, mpi=FALSE, ...)
 {
 	if(mpi) 
 	{
-		require(Rmpi) || stop("Unable to find Rmpi")
-		if (mpi.comm.size()>0) 
+		if (!requireNamespace("Rmpi", quietly = TRUE)) 
+    		stop("Rmpi needed for MPI mpestrf to work. Please install it.\n",
+      		call. = FALSE)
+		if (Rmpi::mpi.comm.size()>0) 
 		{
 			if(inherits(object, "mpcross")) 
 			{
@@ -75,19 +80,20 @@ stopifany <- function(...) { stopifnot(!any(...)) }
 custom.bcast.Robj2slave <- function(object) {
 	tryCatch({
 	customrecv <- function() {
-	  	  mpi.send.Robj(0,0,1)
-		  customobjects <<- mpi.recv.Robj(mpi.any.source(),mpi.any.tag())
+		  customobjects <- NULL
+	  	  Rmpi::mpi.send.Robj(0,0,1)
+		  customobjects <<- Rmpi::mpi.recv.Robj(Rmpi::mpi.any.source(),Rmpi::mpi.any.tag())
 	}
-	mpi.bcast.Robj2slave(customrecv)
-	mpi.bcast.cmd(customrecv())
+	Rmpi::mpi.bcast.Robj2slave(customrecv)
+	Rmpi::mpi.bcast.cmd(customrecv())
 	closed_slaves <- 0 
-	n_slaves <- mpi.comm.size()-1 
+	n_slaves <- Rmpi::mpi.comm.size()-1 
 	while (closed_slaves < n_slaves) {		
-			message <- mpi.recv.Robj(mpi.any.source(),mpi.any.tag()) 
-			message_info <- mpi.get.sourcetag() 
+			message <- Rmpi::mpi.recv.Robj(Rmpi::mpi.any.source(),Rmpi::mpi.any.tag()) 
+			message_info <- Rmpi::mpi.get.sourcetag() 
 			slave_id <- message_info[1] 
 			tag <- message_info[2] 
-			mpi.send.Robj(object, slave_id, 1); 
+			Rmpi::mpi.send.Robj(object, slave_id, 1); 
 			closed_slaves <- closed_slaves + 1 
 	}
 	}, error = function(err) {
@@ -106,18 +112,18 @@ mpi.run.slavempestrf <- function(gridDimX, gridDimY, theta, lod, lkhd)
 {
 	print("In mpi.run.slavempestrft")
 	tryCatch({
-	mpi.bcast.cmd(slavempestrf())
+	Rmpi::mpi.bcast.cmd(slavempestrf())
 	print("broadcast done")
 	closed_tiles <- 0
         n_tiles <- gridDimX * gridDimY
         while (closed_tiles < n_tiles) {
 	      		print("mpi.run.slavempestrft waiting on a nibble..")
-	                tileDim <- mpi.recv.Robj(mpi.any.source(),mpi.any.tag())
-                        message_info <- mpi.get.sourcetag()
+	                tileDim <- Rmpi::mpi.recv.Robj(Rmpi::mpi.any.source(),Rmpi::mpi.any.tag())
+                        message_info <- Rmpi::mpi.get.sourcetag()
                         slave_id <- message_info[1]
                         tag <- message_info[2]
 	      		print(paste("mpi.run.slavempestrft waiting on a tile from ",slave_id))
-			res <- mpi.recv.Robj(slave_id, tag)
+			res <- Rmpi::mpi.recv.Robj(slave_id, tag)
 			masterStoreTile(tileDim, res$rf, theta, lod, lkhd)
                         closed_tiles <- closed_tiles + 1
 			print(paste(closed_tiles," of ", n_tiles, " complete"))
@@ -133,19 +139,23 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
 	nmrks <- ncol(objects[[1]]$founders)
 	if(missing(dir_base)) dir_base <- "bigdata/"
 	# create the empty output matrices
-	library(bigmemory,quietly=TRUE)
+	if (!requireNamespace("bigmemory", quietly = TRUE)) 
+    	  stop("bigmemory needed for mpestrfMPI to work. Please install it.\n",
+      	  call. = FALSE)
 
 	# decide how we want to decompose the data
         gridDimX <- 1
-      	gridDimY <- mpi.comm.size() - 1
+      	gridDimY <- Rmpi::mpi.comm.size() - 1
 
       tryCatch({
 	dir.create(dir_base, showWarnings=FALSE)
 	file_base <- Sys.getenv("PBS_JOBID")
 	if (file_base == "") 
 	{
-		require(R.utils)
-		file_base <- paste(System$getHostname(),Sys.getpid(),sep="-")
+		if (!requireNamespace("R.utils", quietly = TRUE)) 
+    		stop("R.utils needed for mpestrfMpi to work. Please install it.\n",
+      		call. = FALSE)
+		file_base <- paste(R.utils::System$getHostname(),Sys.getpid(),sep="-")
 	}
 	thetabf=paste(file_base,"theta.bin",sep=".")
 	thetadf=paste(file_base,"theta.desc",sep=".")
@@ -153,12 +163,12 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
 	loddf=paste(file_base,"lod.desc",sep=".")
 	lkhdbf=paste(file_base,"lkhd.bin",sep=".")
 	lkhddf=paste(file_base,"lkhd.desc",sep=".")
-	theta <- filebacked.big.matrix(nmrks, nmrks, backingpath=dir_base, backingfile=thetabf, type="double", descriptorfile=thetadf)
-	lod <- filebacked.big.matrix(nmrks, nmrks,  backingpath=dir_base, backingfile=lodbf, type="double", descriptorfile=loddf)
-	lkhd <- filebacked.big.matrix(nmrks, nmrks,  backingpath=dir_base, backingfile=lkhdbf, type="double", descriptorfile=lkhddf)
-	thetadesc <- describe(theta)
-	loddesc <- describe(lod)
-	lkhddesc <- describe(lkhd)
+	theta <- bigmemory::filebacked.big.matrix(nmrks, nmrks, backingpath=dir_base, backingfile=thetabf, type="double", descriptorfile=thetadf)
+	lod <- bigmemory::filebacked.big.matrix(nmrks, nmrks,  backingpath=dir_base, backingfile=lodbf, type="double", descriptorfile=loddf)
+	lkhd <- bigmemory::filebacked.big.matrix(nmrks, nmrks,  backingpath=dir_base, backingfile=lkhdbf, type="double", descriptorfile=lkhddf)
+	thetadesc <- bigmemory::describe(theta)
+	loddesc <- bigmemory::describe(lod)
+	lkhddesc <- bigmemory::describe(lkhd)
 	}, error = function(err) {
 	   stop(paste("mpestrfMpi failed to setup big matrices: ", err))
 	})
@@ -175,20 +185,20 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
 			custom.bcast.Robj2slave(objects)
 		}
 
-	if (!missing(r)) mpi.bcast.Robj2slave(r)
-	mpi.bcast.Robj2slave(gpu)
-	if (!missing(lineWeights)) mpi.bcast.Robj2slave(lineWeights)
-	mpi.bcast.Robj2slave(dir_base)
-	mpi.bcast.Robj2slave(file_base)
-	mpi.bcast.Robj2slave(thetadesc)
-	mpi.bcast.Robj2slave(loddesc)
-	mpi.bcast.Robj2slave(lkhddesc)
-	mpi.bcast.Robj2slave(slavempestrf)
-	mpi.bcast.Robj2slave(nmrks)
-	mpi.bcast.Robj2slave(gridDimX)
-	mpi.bcast.Robj2slave(gridDimY)
-	mpi.bcast.Robj2slave(onlyMasterWrites)
-	mpi.bcast.Robj2slave(passObjectsAsFile)
+	if (!missing(r)) Rmpi::mpi.bcast.Robj2slave(r)
+	Rmpi::mpi.bcast.Robj2slave(gpu)
+	if (!missing(lineWeights)) Rmpi::mpi.bcast.Robj2slave(lineWeights)
+	Rmpi::mpi.bcast.Robj2slave(dir_base)
+	Rmpi::mpi.bcast.Robj2slave(file_base)
+	Rmpi::mpi.bcast.Robj2slave(thetadesc)
+	Rmpi::mpi.bcast.Robj2slave(loddesc)
+	Rmpi::mpi.bcast.Robj2slave(lkhddesc)
+	Rmpi::mpi.bcast.Robj2slave(slavempestrf)
+	Rmpi::mpi.bcast.Robj2slave(nmrks)
+	Rmpi::mpi.bcast.Robj2slave(gridDimX)
+	Rmpi::mpi.bcast.Robj2slave(gridDimY)
+	Rmpi::mpi.bcast.Robj2slave(onlyMasterWrites)
+	Rmpi::mpi.bcast.Robj2slave(passObjectsAsFile)
 
 	}, error = function(err) {
 	   stop(paste("mpestrfMPI failed to bcast data to slaves: ", err))
@@ -203,7 +213,7 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
 
 	} else {
 	# use the method where slaves write their own tiles to disk
-  	reslist <- mpi.remote.exec(slavempestrf())
+  	reslist <- Rmpi::mpi.remote.exec(slavempestrf())
 	if (all(unlist(lapply(reslist,is.atomic)))) {
 	   # one or more slaves returned an error message
 	   stop(paste("Slave failed:",reslist))
@@ -221,9 +231,9 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
 
 	# extract the results
 	# it seems we need to reattach if the slaves have made changes..
-	theta <- attach.big.matrix(thetadesc,backingpath=dir_base)
-	lkhd <- attach.big.matrix(lkhddesc,backingpath=dir_base)
-	lod <- attach.big.matrix(loddesc,backingpath=dir_base)
+	theta <- bigmemory::attach.big.matrix(thetadesc,backingpath=dir_base)
+	lkhd <- bigmemory::attach.big.matrix(lkhddesc,backingpath=dir_base)
+	lod <- bigmemory::attach.big.matrix(loddesc,backingpath=dir_base)
 	if (leaveAsFileBacked) {
 	       res$rf$thetadesc <- thetadesc
 	       res$rf$loddesc <- loddesc
@@ -253,10 +263,26 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
 }
 
 slavempestrf <- function() {
-      library(bigmemory,quietly=TRUE)
-      library(mpMap,quietly=TRUE)
-      slaves <- mpi.comm.size() - 1
-      myID <- mpi.comm.rank()
+
+	if (missing(passObjectsAsFile)) passObjectsAsFile <- NULL
+	if (missing(gpu)) gpu <- NULL
+	if (missing(customobjects)) customobjects <- NULL
+	if (missing(lineWeights)) lineWeights <- NULL
+	if (missing(dir_base)) dir_base <- NULL
+	if (missing(file_base)) file_base <- NULL
+	if (missing(thetadesc)) thetadesc <- NULL
+	if (missing(loddesc)) loddesc <- NULL
+	if (missing(lkhddesc)) lkhddesc <- NULL
+	if (missing(nmrks)) nmrks <- NULL
+	if (missing(gridDimX)) gridDimX <- NULL
+	if (missing(gridDimY)) gridDimY <- NULL
+	if (missing(onlyMasterWrites)) onlyMasterWrites <- NULL
+
+	if (!requireNamespace("bigmemory", quietly = TRUE)) 
+    	  stop("bigmemory needed for mpestrfMPI to work. Please install it.\n",
+      	  call. = FALSE)
+      slaves <- Rmpi::mpi.comm.size() - 1
+      myID <- Rmpi::mpi.comm.rank()
 
       	tryCatch(
 		{
@@ -324,27 +350,27 @@ slavempestrf <- function() {
 	storeTile <- function(rect, rf) 
 	{
 		getLock(thetadesc)
-		theta <- attach.big.matrix(thetadesc,backingpath=dir_base)
+		theta <- bigmemory::attach.big.matrix(thetadesc,backingpath=dir_base)
 		theta[rect$x1:rect$x2,rect$y1:rect$y2] <- rf$theta[1:rect$sizex,1:rect$sizey]
 		bigmemory::flush(theta)
 		releaseLock(thetadesc)
 
 		getLock(loddesc)
-		lod <- attach.big.matrix(loddesc,backingpath=dir_base)
+		lod <- bigmemory::attach.big.matrix(loddesc,backingpath=dir_base)
 		lod[rect$x1:rect$x2,rect$y1:rect$y2] <- rf$lod[1:rect$sizex,1:rect$sizey]
 		bigmemory::flush(lod)
 		releaseLock(loddesc)
 
 		getLock(lkhddesc)
-		lkhd <- attach.big.matrix(lkhddesc,backingpath=dir_base)
+		lkhd <- bigmemory::attach.big.matrix(lkhddesc,backingpath=dir_base)
 		lkhd[rect$x1:rect$x2,rect$y1:rect$y2] <- rf$lkhd[1:rect$sizex,1:rect$sizey]
 		bigmemory::flush(lkhd)
 		releaseLock(lkhddesc)
 	}
 	sendResToMaster <- function(rect, res) 
 	{
-		mpi.send.Robj(rect,0,1) 		
-		mpi.send.Robj(res,0,1)
+		Rmpi::mpi.send.Robj(rect,0,1) 		
+		Rmpi::mpi.send.Robj(res,0,1)
         }
 
       inc <- function(x) { eval.parent(substitute(x <- x + 1)) }
@@ -368,7 +394,7 @@ slavempestrf <- function() {
 			 if(!exists("r")) r <- c(0:20/200, 11:50/100)	  
 
 			 tryCatch({
-			 res <- mpMap:::mpestrfSubset(objects=objects,
+			 res <- mpestrfSubset(objects=objects,
 						     gpu=gpu, r=r,
 						     start1=tileDim$x1, finish1=tileDim$x2+1,
 						     start2=tileDim$y1, finish2=tileDim$y2+1)

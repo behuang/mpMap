@@ -1,4 +1,5 @@
 #' @export
+#' @importFrom stats pchisq
 mpsegrat <- function(object)
 {
 	if (!inherits(object, "mpcross")) stop("Object must be of class mpcross")

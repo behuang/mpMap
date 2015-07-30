@@ -1,3 +1,4 @@
+#' @importFrom utils combn
 gen8ped <-
 function(nfunnels=1, nperfam=50, nssdgen=6, nseeds=1, iripgen=0, seed=1)
 {

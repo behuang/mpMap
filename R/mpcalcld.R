@@ -44,15 +44,15 @@ function(object)
 #  output$ld$r2 <- cor(object$finals, use="pairwise.complete.obs")^2
   output$ld$r2 <- matrix(nrow=n.loci, ncol=n.loci)
 
-  lowerTriangle(output$ld$W, diag=TRUE) <- ld[,1]
-  lowerTriangle(output$ld$LewontinD, diag=TRUE) <- ld[,2]
-  lowerTriangle(output$ld$delta2, diag=TRUE) <- ld[,3]
-  lowerTriangle(output$ld$r2, diag=TRUE) <- ld[,4]
+  output$ld$W[lower.tri(output$ld$W, diag=TRUE)] <- ld[,1]
+  output$ld$LewontinD[lower.tri(output$ld$LewontinD, diag=TRUE)] <- ld[,2]
+  output$ld$delta2[lower.tri(output$ld$delta2, diag=TRUE)] <- ld[,3]
+  output$ld$r2[lower.tri(output$ld$r2, diag=TRUE)] <- ld[,4]
 
-  upperTriangle(output$ld$W) <- upperTriangle(t(output$ld$W))
-  upperTriangle(output$ld$LewontinD) <- upperTriangle(t(output$ld$LewontinD))
-  upperTriangle(output$ld$delta2) <- upperTriangle(t(output$ld$delta2))
-  upperTriangle(output$ld$r2) <- upperTriangle(t(output$ld$r2))
+  output$ld$W[upper.tri(output$ld$W)] <- t(output$ld$W)[upper.tri(t(output$ld$W))]
+  output$ld$LewontinD[upper.tri(output$ld$LewontinD)] <- t(output$ld$LewontinD)[upper.tri(t(output$ld$LewontinD))]
+  output$ld$delta2[upper.tri(output$ld$delta2)] <- t(output$ld$delta2)[upper.tri(t(output$ld$delta2))]
+  output$ld$r2[upper.tri(output$ld$r2)] <- t(output$ld$r2)[upper.tri(t(output$ld$r2))]
 
   output$ld$W[is.na(object$rf$theta)] <- NA
   output$ld$LewontinD[is.na(object$rf$theta)] <- NA

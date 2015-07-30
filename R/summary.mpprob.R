@@ -1,16 +1,18 @@
 #' Summary of mpprob object
 #' 
 #' Summarizes details about underlying mpcross object as well as descriptive statistics about estimated founder haplotypes
-#' @S3method summary mpprob
+#' @export 
 #' @method summary mpprob
 #' @param object Object of class \code{mpprob}
 #' @param ... Additional arguments
 #' @return Output to screen of percentage of each chromosome inherited from founders, average number of recombinations per chromosome and genomewide, and number of finals/founders/chromosomes/markers per chromosome. 
 #' @seealso \code{\link[mpMap]{plot.mpprob}}, \code{\link[mpMap]{mpprob}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl")
 #' summary(mpp.dat)
 

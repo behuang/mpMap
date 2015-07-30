@@ -1,7 +1,7 @@
 #' Summary of mpqtl object
 #' 
 #' Prints a summary of the detected QTL
-#' @S3method summary mpqtl
+#' @export
 #' @method summary mpqtl
 #' @param object Object of class \code{mpqtl}
 #' @param ... Additional arguments
@@ -14,9 +14,11 @@
 #' Column 10 is the p-value for the test statistic
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{plot.mpqtl}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
-#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
+#' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, 
+#'		qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), 
+#'		nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl", step=2)
 #' mpq.dat <- mpIM(object=mpp.dat, ncov=0, thr=1, responsename="pheno")
 #' summary(mpq.dat)

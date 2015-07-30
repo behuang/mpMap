@@ -1,3 +1,4 @@
+#' @importFrom stats rnorm
 generate_pheno <- function(n.founders, qtlgeno, qtleffects, vare, n.ind)
 {
 	pheno <- rnorm(n.ind, 0, vare)
