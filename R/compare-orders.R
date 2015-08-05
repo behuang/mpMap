@@ -24,6 +24,7 @@ compare_orders <- function(cross, chr, orders, method=c("countXO", "likelihood")
     if (missing(method)) method <- "countXO"
     if (inherits(cross, "mpcross")) {
 	write2cross(cross, "tmp", chr=chr)
+	mpcross <- cross
 	cross <- qtl::readMWril("", "tmp.ril.csv", "tmp.founder.csv", type=attr(cross, "type"))
     }
 
@@ -93,7 +94,12 @@ compare_orders <- function(cross, chr, orders, method=c("countXO", "likelihood")
     else {
 	oblxo <- vector(length=n.orders)
 	for (i in 1:n.orders) {
-	  cr <- switch.order(cross, chr.name, order=orders[i,]) 
+	  if(i>1) {
+		mpcross <- subset(mpcross, chr=chr.name)
+		mpcross <- subset(mpcross, markers=orders[i,])
+		write2cross(mpcross, "tmp")
+        	cr <- qtl::readMWril("", "tmp.ril.csv", "tmp.founder.csv", type=attr(mpcross, "type"))	
+	  	  }
 	  oblxo[i] <- sum(countXO(cr, chr.name, bychr=TRUE))
 	}
         o <- order(oblxo[-1]) + 1
