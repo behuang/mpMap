@@ -99,7 +99,7 @@ compare_orders <- function(cross, chr, orders, method=c("countXO", "likelihood")
 		mpcross <- subset(mpcross, markers=orders[i,])
 		write2cross(mpcross, "tmp")
         	cr <- qtl::readMWril("", "tmp.ril.csv", "tmp.founder.csv", type=attr(mpcross, "type"))	
-	  	  }
+	  	  } else cr <- cross
 	  oblxo[i] <- sum(countXO(cr, chr.name, bychr=TRUE))
 	}
         o <- order(oblxo[-1]) + 1
