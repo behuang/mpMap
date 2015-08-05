@@ -205,6 +205,7 @@ function(object, chr, type=c("2", "m"), mapfx=c("haldane", "kosambi"), window=3,
 		names(newmap) <- names(cr$geno)[chr]
 		class(newmap) <- "map"
 	}
+	if(is.null(names(newmap))) names(newmap) <- paste("Chr", 1:length(newmap), sep="")
 	output <- subset(output, markers = unlist(lapply(newmap, names)))
 	#There's no guarantee any previously generated map will be correct any more, so remove it. 
 	output$map <- newmap
