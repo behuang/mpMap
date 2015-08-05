@@ -80,7 +80,7 @@ computemap <- function(object, mapfx=c("haldane", "kosambi"), maxOffset = 1)
 		#B vector for nnls
 		b <- rf[indices]
 		b[b == 0.5] <- 0.49
-		if (requireNamespace("nnls", quietly=TRUE))
+		if (!requireNamespace("nnls", quietly=TRUE))
 			stop("nnls needed for computemap to work. Please install it.\n", call.=FALSE) 
 		result <- nnls::nnls(d, mf(b)) 
 		object$map[[chr]] <- c(0, cumsum(result$x[which(indices[,1] == indices[,2]+1)]))
