@@ -2,7 +2,7 @@
 int findIDInPedigree(int id, Rcpp::DataFrame& pedigree)
 {
 	Rcpp::IntegerVector idVector = pedigree("id");
-        if(idVector(id-1) == id)
+        if(id - 1 < pedigree.nrows() && idVector(id-1) == id)
         {
                 return id-1;
         }

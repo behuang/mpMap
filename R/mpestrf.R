@@ -460,7 +460,6 @@ function(objects, r, gpu, lineWeights, start1, finish1, start2, finish2)
 		{
 			stop("Columns names for object$founders and object$finals were inconsistent")
 		}
-		objects[[i]]$pedigree <- convertped(objects[[i]]$pedigree)
 
 		n.founders <- nrow(objects[[i]]$founders)
 		n.loci <- ncol(objects[[i]]$founders)
