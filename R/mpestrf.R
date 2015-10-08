@@ -134,7 +134,7 @@ mpi.run.slavempestrf <- function(gridDimX, gridDimY, theta, lod, lkhd)
 	return(res)
 }
 
-mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onlyMasterWrites=TRUE, dir_base, passObjectsAsFile = FALSE)
+mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onlyMasterWrites=TRUE, dir_base, passObjectsAsFile = FALSE, gridDimX)
 {
 	nmrks <- ncol(objects[[1]]$founders)
 	if(missing(dir_base)) dir_base <- "bigdata/"
@@ -144,7 +144,7 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
       	  call. = FALSE)
 
 	# decide how we want to decompose the data
-        gridDimX <- 1
+	if(missing(gridDimX)) gridDimX <- 1
       	gridDimY <- Rmpi::mpi.comm.size() - 1
 
       tryCatch({
@@ -264,26 +264,25 @@ mpestrfMpi <- function(objects, r, gpu, lineWeights,leaveAsFileBacked=FALSE, onl
 
 slavempestrf <- function() {
 
-	if (missing(passObjectsAsFile)) passObjectsAsFile <- NULL
-	if (missing(gpu)) gpu <- NULL
-	if (missing(customobjects)) customobjects <- NULL
-	if (missing(lineWeights)) lineWeights <- NULL
-	if (missing(dir_base)) dir_base <- NULL
-	if (missing(file_base)) file_base <- NULL
-	if (missing(thetadesc)) thetadesc <- NULL
-	if (missing(loddesc)) loddesc <- NULL
-	if (missing(lkhddesc)) lkhddesc <- NULL
-	if (missing(nmrks)) nmrks <- NULL
-	if (missing(gridDimX)) gridDimX <- NULL
-	if (missing(gridDimY)) gridDimY <- NULL
-	if (missing(onlyMasterWrites)) onlyMasterWrites <- NULL
+	if (!exists("passObjectsAsFile")) passObjectsAsFile <- NULL
+	if (!exists("gpu")) gpu <- NULL
+	if (!exists("customobjects")) customobjects <- NULL
+	if (!exists("lineWeights")) lineWeights <- NULL
+	if (!exists("dir_base")) dir_base <- NULL
+	if (!exists("file_base")) file_base <- NULL
+	if (!exists("thetadesc")) thetadesc <- NULL
+	if (!exists("loddesc")) loddesc <- NULL
+	if (!exists("lkhddesc")) lkhddesc <- NULL
+	if (!exists("nmrks")) nmrks <- NULL
+	if (!exists("gridDimX")) gridDimX <- NULL
+	if (!exists("gridDimY")) gridDimY <- NULL
+	if (!exists("onlyMasterWrites")) onlyMasterWrites <- NULL
 
 	if (!requireNamespace("bigmemory", quietly = TRUE)) 
     	  stop("bigmemory needed for mpestrfMPI to work. Please install it.\n",
       	  call. = FALSE)
       slaves <- Rmpi::mpi.comm.size() - 1
       myID <- Rmpi::mpi.comm.rank()
-
       	tryCatch(
 		{
 			if (passObjectsAsFile) 
@@ -297,11 +296,9 @@ slavempestrf <- function() {
 			}
 		}, error = function(err) stop(paste("slave failed to get mpcross objects: ", err)))
 
-      str <- paste("Slave ",myID," of ",slaves)
-      str <- paste(str, "class(objects)=", class(objects))
-      str <- paste(str, " length(objects)=",length(objects))
-      str <- paste(str, " lapply(objects,class)=",lapply(objects,class))
-
+      cat("Slave ",myID," of ",slaves, "\n")
+      cat("length(objects) = ",length(objects), "\n")
+      cat("classes = ",unlist(lapply(objects,function(x) class(x)[1])), "\n")
       tryCatch({
 
       markers <- nmrks
@@ -381,7 +378,7 @@ slavempestrf <- function() {
       	      y <- 1
      	      while(y <= gridDimY) {
 	      	      if (y %% slaves == myID-1) {
-		      	 str <- paste(str, "[" , x , "," , y , "] ")
+		      	 cat("[" , x , "," , y , "]")
 
 			 tryCatch({
 			 tileDim <- calcTile(x,y)
@@ -420,8 +417,8 @@ slavempestrf <- function() {
 	      }		  
 	      inc(x)
        }      
-       }, error = function(err) return(list(mesg=paste(str,err),result=NULL)))
-       return(list(mesg=paste(str),result=res))
+       }, error = function(err) stop(err))
+       return(list(mesg="",result=res))
 }
 
 

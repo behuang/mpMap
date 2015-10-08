@@ -135,7 +135,7 @@ void funnelsToUniqueValues(std::map<funnelEncoding, funnelID>& funnelTranslation
 		}
 	}
 }
-bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, SEXP fid_, SEXP recombinationFractions, long marker1Start, long marker1End, long marker2Start, long marker2End, std::vector<double>& lineWeights, SEXP RuseGPU, SEXP RdeviceNum, std::shared_ptr<double> result, std::string* error)
+bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, SEXP fid_, SEXP recombinationFractions, long marker1Start, long marker1End, long marker2Start, long marker2End, std::vector<double>& lineWeights, SEXP RuseGPU, SEXP RdeviceNum, double* result, std::string* error)
 {
 	//Convert SEXP to R data types. No error checking here because it's been checked previously in function rfhaps
 	Rcpp::IntegerMatrix foundersMatrix(founders);
@@ -329,7 +329,7 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 	cpu_args.fidVector = fidVector;
 	cpu_args.nFounders = nFounders;
 	cpu_args.hasAI = hasAI;
-	cpu_args.result = result.get();
+	cpu_args.result = result;
 	cpu_args.marker1Start = marker1Start;
 	cpu_args.marker2Start = marker2Start;
 	cpu_args.marker1End = marker1End;
@@ -365,7 +365,7 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 		args.nFinals = nFinals;
 		args.nRecomb = recombinationVector.length();
 		args.hasAI = hasAI;
-		args.output = result.get();
+		args.output = result;
 		args.marker1Start = marker1Start;
 		args.marker1End = marker1End;
 		args.marker2Start = marker2Start;

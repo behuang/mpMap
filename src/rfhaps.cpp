@@ -155,10 +155,24 @@ SEXP rfhaps(SEXP RmpcrossList, SEXP recombinationFractions, SEXP marker1Range, S
 				goto signal_error;
 			}
 			long marker1RangeSize = marker1End - marker1Start, marker2RangeSize = marker2End - marker2Start;
+			long bufferBytes = marker1RangeSize * marker2RangeSize * nRecombLevels * sizeof(double);
+			//If we're allocating a large buffer, then output some logging information, to help diagnose out-of-memory errors
+			if(bufferBytes > 1000000000)
+			{
+				Rcpp::Rcout << "About to allocate large buffer of " << marker1RangeSize * marker2RangeSize * nRecombLevels * sizeof(double) << " bytes" << std::endl;
+			}
 			//Indexing has form result[markerCounter1 *nRecombLevels*nMarkers + markerCounter2 * nRecombLevels + recombCounter]
 			//NOT of the form result[recombCounter *nMarkers*nMarkers + markerCounter2 * nMarkers + markerCounter1], which is the form to be used if this was going to be processed in R
 			//This is not an Rcpp::NumericVector because it can quite easily overflow the size of such a vector (signed int)
+#ifdef __linux__
+			sharedMmapArray<double> result(marker1RangeSize * marker2RangeSize * nRecombLevels);
+#else
 			sharedArray<double> result(new double[marker1RangeSize * marker2RangeSize * nRecombLevels]);
+#endif
+			if(bufferBytes > 1000000000)
+			{
+				Rcpp::Rcout << "Finished allocating large buffer" << std::endl;
+			}
 			memset((void*)result.get(), 0, marker1RangeSize * marker2RangeSize * nRecombLevels * sizeof(double));
 
 			for(int i = 0; i < mpcrossList.length(); i++)
@@ -166,7 +180,7 @@ SEXP rfhaps(SEXP RmpcrossList, SEXP recombinationFractions, SEXP marker1Range, S
 				Rcpp::List mpcross = mpcrossList[i];
 				std::vector<double> lineWeightsThisDesign = Rcpp::as<std::vector<double> >(lineWeights[i]);
 				
-				bool successful = rfhapsSpecificDesign(mpcross["finals"], mpcross["founders"], mpcross["pedigree"], mpcross["id"], mpcross["fid"], recombinationFractions, marker1Start, marker1End, marker2Start, marker2End, lineWeightsThisDesign, RuseGPU, RdeviceNum, result, &error);
+				bool successful = rfhapsSpecificDesign(mpcross["finals"], mpcross["founders"], mpcross["pedigree"], mpcross["id"], mpcross["fid"], recombinationFractions, marker1Start, marker1End, marker2Start, marker2End, lineWeightsThisDesign, RuseGPU, RdeviceNum, result.get(), &error);
 				if(!successful) goto signal_error;
 			}
 			//now for some post-processing

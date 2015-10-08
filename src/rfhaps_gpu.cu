@@ -329,7 +329,16 @@ extern "C" __host__ bool rfhaps_gpu(rfhaps_gpu_args& args)
 	}
 	//transfer intercrossing data
 	int* nIntercrossingD;
-	cudaMalloc((void**)&nIntercrossingD, args.nFinals * sizeof(int));
+	cudaError_t cudaAllocResult = cudaMalloc((void**)&nIntercrossingD, args.nFinals * sizeof(int));
+	if(cudaAllocResult != cudaSuccess)
+	{
+		Rprintf("Error calling cudaMalloc with %d bytes: %s\n", args.nFinals * sizeof(int), cudaGetErrorString(cudaAllocResult));
+		return false;
+	}
+	else
+	{
+		Rprintf("Allocated %d bytes\n", args.nFinals * sizeof(int));
+	}
 	cudaMemcpy(nIntercrossingD, args.nIntercrossing, args.nFinals * sizeof(int), cudaMemcpyHostToDevice);
 
 	int* pair1 = new int[nPairs], *pair2 = new int[nPairs];
@@ -348,18 +357,46 @@ extern "C" __host__ bool rfhaps_gpu(rfhaps_gpu_args& args)
 
 	//copy across final genetic data
 	int* finalsD;
-	cudaMalloc((void**)&finalsD, finalsSize * sizeof(int));
+	cudaAllocResult = cudaMalloc((void**)&finalsD, finalsSize * sizeof(int));
+	if(cudaAllocResult != cudaSuccess)
+	{
+		Rprintf("Error calling cudaMalloc with %d bytes: %s\n", finalsSize * sizeof(int), cudaGetErrorString(cudaAllocResult));
+		return false;
+	}
+	else
+	{
+		Rprintf("Allocated %d bytes\n", finalsSize * sizeof(int));
+	}
 	cudaMemcpy(finalsD, copiedFinals, finalsSize * sizeof(int), cudaMemcpyHostToDevice);
 
 	delete[] copiedFinals;
 	//copy across recombination fractions
 	double* recombinationFractionsD;
-	cudaMalloc((void**)&recombinationFractionsD, args.nRecomb * sizeof(double));
+	cudaAllocResult = cudaMalloc((void**)&recombinationFractionsD, args.nRecomb * sizeof(double));
+	if(cudaAllocResult != cudaSuccess)
+	{
+		Rprintf("Error calling cudaMalloc with %d bytes: %s\n", args.nRecomb * sizeof(double), cudaGetErrorString(cudaAllocResult));
+		return false;
+	}
+	else
+	{
+		Rprintf("Allocated %d bytes\n", args.nRecomb * sizeof(double));
+	}
+
 	cudaMemcpy(recombinationFractionsD, args.recombination, args.nRecomb * sizeof(double), cudaMemcpyHostToDevice);
 
 	//copy across the allowable marker patterns data
 	bool* allowableMarkerPatternsD;
-	cudaMalloc((void**)&allowableMarkerPatternsD, nMarkerPatterns * nMarkerPatterns * sizeof(bool));
+	cudaAllocResult = cudaMalloc((void**)&allowableMarkerPatternsD, nMarkerPatterns * nMarkerPatterns * sizeof(bool));
+	if(cudaAllocResult != cudaSuccess)
+	{
+		Rprintf("Error calling cudaMalloc with %d bytes: %s\n", nMarkerPatterns * nMarkerPatterns*sizeof(bool), cudaGetErrorString(cudaAllocResult));
+		return false;
+	}
+	else
+	{
+		Rprintf("Allocated %d bytes\n", nMarkerPatterns * nMarkerPatterns * sizeof(bool));
+	}
 	cudaMemcpy(allowableMarkerPatternsD, args.allowableMarkerPatterns, nMarkerPatterns * nMarkerPatterns * sizeof(bool), cudaMemcpyHostToDevice);
 	
 	int* markerPatternIDsD;
