@@ -34,7 +34,7 @@ public:
 	{}
 	void operator()(T* p)
 	{
-		munmap(p, length);
+		munmap(p, sizeof(T)*length);
 	}
 private:
 	std::size_t length;

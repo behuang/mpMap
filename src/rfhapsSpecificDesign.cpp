@@ -282,6 +282,12 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 			orderFunnel(&(funnel.val[0]), nFounders);
 			allFunnels.push_back(funnel);
 		}
+		//Otherwise we put in a default funnel
+		else
+		{
+			for(int i = 0; i < 8; i++) funnel.val[i] = i+1;
+			allFunnels.push_back(funnel);
+		}
 	}
 	//re-code the founder and final marker genotypes so that they always start at 0 and go up to n-1 where n is the number of distinct marker alleles
 	//We do this to make it easier to identify markers with identical segregation patterns. recodedFounders = column major matrix
@@ -356,7 +362,7 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 			design = Rcpp::as<std::vector<std::string> >(pedigreeDataFrame("Design"));
 		}
 		pedigreeColumns pedigree(&(Rcpp::as<Rcpp::IntegerVector>(pedigreeDataFrame("id"))(0)), &(Rcpp::as<Rcpp::IntegerVector>(pedigreeDataFrame("Male"))(0)), &(Rcpp::as<Rcpp::IntegerVector>(pedigreeDataFrame("Female"))(0)), &(Rcpp::as<Rcpp::IntegerVector>(pedigreeDataFrame("Observed"))(0)), design);
-		rfhaps_gpu_args args(pedigree, markerPatternIDs, fid, lineWeights, markerEncodings, funnelIDs, funnelEncodings, allFunnels);
+		rfhaps_gpu_args args(pedigree, markerPatternIDs, fid, lineWeights, markerEncodings, funnelIDs, funnelEncodings);
 		args.founders = &(recodedFounders(0, 0));
 		args.finals = &(recodedFinals(0, 0));
 		args.recombination = &(recombinationVector(0));

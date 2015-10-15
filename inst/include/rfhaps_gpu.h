@@ -15,8 +15,8 @@ struct pedigreeColumns
 };
 struct rfhaps_gpu_args
 {
-	rfhaps_gpu_args(pedigreeColumns& pedigree, std::vector<markerPatternID>& markerPatternIDs, std::vector<int>& fidVector, std::vector<double>& lineWeights, std::vector<markerEncoding>& markerEncodings, std::vector<funnelID>& funnelIDs, std::vector<funnelEncoding>& funnelEncodings, std::vector<intArray8>& funnels)
-	: pedigree(pedigree), markerPatternIDs(markerPatternIDs), fid(fidVector), lineWeights(lineWeights), markerEncodings(markerEncodings), funnelIDs(funnelIDs), funnelEncodings(funnelEncodings), funnels(funnels)
+	rfhaps_gpu_args(pedigreeColumns& pedigree, std::vector<markerPatternID>& markerPatternIDs, std::vector<int>& fidVector, std::vector<double>& lineWeights, std::vector<markerEncoding>& markerEncodings, std::vector<funnelID>& funnelIDs, std::vector<funnelEncoding>& funnelEncodings)
+	: pedigree(pedigree), markerPatternIDs(markerPatternIDs), fid(fidVector), lineWeights(lineWeights), markerEncodings(markerEncodings), funnelIDs(funnelIDs), funnelEncodings(funnelEncodings)
 	{}
 	pedigreeColumns& pedigree;
 	std::vector<markerPatternID>& markerPatternIDs;
@@ -42,7 +42,6 @@ struct rfhaps_gpu_args
 	std::vector<markerEncoding>& markerEncodings;
 	std::vector<funnelID>& funnelIDs;
 	std::vector<funnelEncoding>& funnelEncodings;
-	std::vector<intArray8>& funnels;
         int deviceNum;
 };
 #ifdef HAS_CUDA

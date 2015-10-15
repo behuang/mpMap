@@ -162,16 +162,16 @@ SEXP rfhaps(SEXP RmpcrossList, SEXP recombinationFractions, SEXP marker1Range, S
 				Rcpp::Rcout << "About to allocate large buffer of " << marker1RangeSize * marker2RangeSize * nRecombLevels * sizeof(double) << " bytes" << std::endl;
 			}
 			//Indexing has form result[markerCounter1 *nRecombLevels*nMarkers + markerCounter2 * nRecombLevels + recombCounter]
-			//NOT of the form result[recombCounter *nMarkers*nMarkers + markerCounter2 * nMarkers + markerCounter1], which is the form to be used if this was going to be processed in R
 			//This is not an Rcpp::NumericVector because it can quite easily overflow the size of such a vector (signed int)
 #ifdef __linux__
+			//This uses a call to mmap on linux to try and avoid the memory overcomitting problem - malloc will allocate more virtual memory than there is physical, in which case the memset call after this fails. Hopefully calling mmap lets us detect this. 
 			sharedMmapArray<double> result(marker1RangeSize * marker2RangeSize * nRecombLevels);
 #else
 			sharedArray<double> result(new double[marker1RangeSize * marker2RangeSize * nRecombLevels]);
 #endif
 			if(bufferBytes > 1000000000)
 			{
-				Rcpp::Rcout << "Finished allocating large buffer" << std::endl;
+				Rcpp::Rcout << "Finished allocating large buffer of " << sizeof(double) * marker1RangeSize * marker2RangeSize * nRecombLevels << " bytes" << std::endl;
 			}
 			memset((void*)result.get(), 0, marker1RangeSize * marker2RangeSize * nRecombLevels * sizeof(double));
 

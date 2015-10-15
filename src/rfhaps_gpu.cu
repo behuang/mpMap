@@ -312,17 +312,22 @@ extern "C" __host__ bool rfhaps_gpu(rfhaps_gpu_args& args)
 	long nPairs = (marker1RangeSize * marker2RangeSize) - square * square + squarePairs;
 
 	//re-encode finals genetic data, so that now the 1st bit says whether that individual is compatible with founder 1, 2nd bit compatible with founder 2, etc
-	intArray8 funnel_;
 	for(int individualCounter = 0; individualCounter < args.nFinals; individualCounter++)
 	{
-		funnel_ = args.funnels[individualCounter];
+		int funnel[8];
+		funnelID currentIndividualFunnelID = args.funnelIDs[individualCounter];
+		funnelEncoding enc = args.funnelEncodings[currentIndividualFunnelID];
+		for(int founderCounter = 0; founderCounter < args.nFounders; founderCounter++)
+		{
+			funnel[founderCounter] = ((enc & (7 << (3*founderCounter))) >> (3*founderCounter));
+		}
 		for(int markerCounter = 0; markerCounter < nMarkers; markerCounter++)
 		{
 			int newValue = 0;
 			int oldValue = args.finals[individualCounter+args.nFinals*markerCounter];
 			for(int founderCounter = 0; founderCounter < args.nFounders; founderCounter++)
 			{
-				if(oldValue == args.founders[funnel_.val[founderCounter] - 1 + args.nFounders*markerCounter]) newValue += (1 << founderCounter);
+				if(oldValue == args.founders[funnel[founderCounter] - 1 + args.nFounders*markerCounter]) newValue += (1 << founderCounter);
 			}
 			copiedFinals[individualCounter+args.nFinals*markerCounter] = newValue;
 		}
