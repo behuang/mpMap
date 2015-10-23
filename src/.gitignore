@@ -1,2 +1,3 @@
 *.o
 mpMap.so
+/Makefile

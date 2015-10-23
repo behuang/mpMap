@@ -109,6 +109,10 @@ template<int nFounders, int maxMarkerAlleles> bool rfhaps_cpu_internal(rfhaps_cp
 	
 	//This is basically just a huge lookup table
 	PerMarkerPairData computedContributions;
+	Rprintf("Maximum number of marker alleles was %d\n", maxMarkerAlleles);
+	Rprintf("Number of distinct marker patterns is %d\n", nMarkerPatternIDs);
+	Rprintf("Number of distinct funnels is %d\n", nDifferentFunnels);
+	Rprintf("Largest number of AI generations is %d\n", maxAIGenerations);
 #ifdef USE_OPENMP
 	#pragma omp parallel for schedule(static, 1)
 #endif

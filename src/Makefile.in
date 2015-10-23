@@ -1,5 +1,5 @@
 C_OBJS := add3pt.o calcLD.o founderprob.o qsort.o impute.o
-CPP_OBJS := rfhaps.o rfhaps_cpu.o getFunnel.o validateMPCross.o findIDInPedigree.o intercrossingGenerations.o getAllFunnels.o orderFunnels.o allowableMarkerPatterns.o generateDesignMatrix.o generateGenotypes.o rfhapsSpecificDesign.o
+CPP_OBJS := rfhaps.o rfhaps_cpu.o getFunnel.o validateMPCross.o findIDInPedigree.o intercrossingGenerations.o getAllFunnels.o orderFunnels.o allowableMarkerPatterns.o generateDesignMatrix.o generateGenotypes.o rfhapsSpecificDesign.o markerPatternsToUniqueValues.o recodeFoundersAndFinals.o register.o
 CUDA_OBJS := @CUDA_OBJS@
 PKG_CXXFLAGS := @PKG_CPPFLAGS@ -I../inst/include -I. -std=c++11
 PKG_CFLAGS := -I../inst/include -I.

@@ -12,44 +12,8 @@
 #include "allowableMarkerPatterns.h"
 #include <array>
 #include "findIDInPedigree.h"
-/*
-	Re-code the founder and final marker genotypes so that they always start at 0 and go up to n-1 where n is the number of distinct marker alleles at that particular marker. The maximum number of alleles across all the markers is recorded and output. 
-*/
-void recodeFoundersAndFinals(Rcpp::IntegerMatrix& recodedFounders, Rcpp::IntegerMatrix& recodedFinals, Rcpp::IntegerMatrix& foundersMatrix, Rcpp::IntegerMatrix& finalsMatrix, unsigned int& maxAlleles)
-{
-	long nMarkers = finalsMatrix.ncol();
-	long nFounders = foundersMatrix.nrow(), nFinals = finalsMatrix.nrow();
-	for(long markerCounter = 0; markerCounter < nMarkers; markerCounter++)
-	{
-		//map to hold the translation from old values to recoded values (0 - (n-1))
-		std::map<int, int> translations;
-		std::map<int, int>::iterator lookup;
-		for(long founderCounter = 0; founderCounter < nFounders; founderCounter++)
-		{
-			int oldValue = foundersMatrix(founderCounter, markerCounter);
-			lookup = translations.find(oldValue);
-			if(lookup == translations.end()) 
-			{
-				recodedFounders(founderCounter, markerCounter) = translations.size();
-				translations.insert(std::make_pair(oldValue, translations.size()));
-			}
-			else
-			{
-				recodedFounders(founderCounter, markerCounter) = lookup->second;
-			}
-		}
-		if(translations.size() > maxAlleles) maxAlleles = translations.size();
-		//now translate founders
-		for(int finalCounter = 0; finalCounter < nFinals; finalCounter++)
-		{
-			if(finalsMatrix(finalCounter, markerCounter) != NA_INTEGER)
-			{
-				recodedFinals(finalCounter, markerCounter) = translations.find(finalsMatrix(finalCounter, markerCounter))->second;
-			}
-			else recodedFinals(finalCounter, markerCounter) = NA_INTEGER;
-		}
-	}
-}
+#include "markerPatternsToUniqueValues.h"
+#include "recodeFoundersAndFinals.h"
 /*
 	AIC lines don't have a unique funnel. But if we go back far enough we'll get a bunch of individuals, each of which DOES have a unique funnel. This function gets out the rows in the pedigree corresponding to ancestors of the line with the given id. 
 	These ancestors have unique funnels. 
@@ -91,27 +55,6 @@ void getAICParentsWithFunnels(Rcpp::DataFrame& pedigreeDataFrame, long id, int n
 		nextGenerationToCheck.push_back(ids(*i));
 	}
 	individualsToCheckFunnels.swap(nextGenerationToCheck);
-}
-void markerPatternsToUniqueValues(std::map<markerEncoding, markerPatternID>& markerPatterns, std::vector<markerPatternID>& markerPatternIDs, std::vector<markerEncoding>&markerEncodings, int nFounders, int nMarkers, Rcpp::IntegerMatrix& recodedFounders)
-{
-	for(long markerCounter = 0; markerCounter < nMarkers; markerCounter++)
-	{
-		int encodedMarkerPattern = 0;
-		for(long founderCounter = 0; founderCounter < nFounders; founderCounter++)
-		{
-			encodedMarkerPattern += (recodedFounders(founderCounter, markerCounter) << 3*founderCounter);
-		}
-		if(markerPatterns.find(encodedMarkerPattern) == markerPatterns.end())
-		{
-			markerPatternIDs.push_back(markerPatterns.size());
-			markerPatterns.insert(std::make_pair(encodedMarkerPattern, markerPatterns.size()));
-			markerEncodings.push_back(encodedMarkerPattern);
-		}
-		else
-		{
-			markerPatternIDs.push_back(markerPatterns.find(encodedMarkerPattern)->second);
-		}
-	}
 }
 void funnelsToUniqueValues(std::map<funnelEncoding, funnelID>& funnelTranslation, std::vector<funnelID>& funnelIDs, std::vector<funnelEncoding>& funnelEncodings, std::vector<intArray8>& allFunnels, int nFounders)
 {
