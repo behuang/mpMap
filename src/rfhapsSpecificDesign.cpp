@@ -246,10 +246,11 @@ bool rfhapsSpecificDesign(SEXP finals, SEXP founders, SEXP pedigree_, SEXP id, S
 	//map containing encodings of all the haplotypes, and an associated unique index (we can't use the haplotype encoding as an index because they'll jump around a lot and could be quite big values sometimes I think). Unique indices are guaranteed to be contiguous numbers starting from 0 - So [0, markerPatterns.size()]. 
 	std::map<markerEncoding, markerPatternID> markerPatterns;
 	//A vector where entry i contains the markerPatternID identifying the segregation pattern of marker number i. Contains one entry per marker.
-	std::vector<markerPatternID> markerPatternIDs;
+	std::vector<markerPatternID> markerPatternIDs(nMarkers);
 	//vector with entry i containing an encoding of the marker segregation pattern for a marker with markerPatternID i
 	std::vector<markerEncoding> markerEncodings;
-	markerPatternsToUniqueValues(markerPatterns, markerPatternIDs, markerEncodings, nFounders, nMarkers, recodedFounders);
+	markerPatternsToUniqueValues(markerPatterns, markerPatternIDs, markerEncodings, nFounders, nMarkers, recodedFounders, marker1Start, marker1End);
+	markerPatternsToUniqueValues(markerPatterns, markerPatternIDs, markerEncodings, nFounders, nMarkers, recodedFounders, marker2Start, marker2End);
 	
 	//map containing encodings of the funnels involved in the experiment (as key), and an associated unique index (again, using the encoded values directly is no good because they'll be all over the place). Unique indices are contiguous again.
 	std::map<funnelEncoding, funnelID> funnelTranslation;
