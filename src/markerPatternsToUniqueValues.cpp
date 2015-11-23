@@ -1,10 +1,6 @@
 #include "markerPatternsToUniqueValues.h"
 #include "recodeFoundersAndFinals.h"
 #include "validateMPCross.h"
-bool sortMarkerPatternIDs(const std::pair<long, markerPatternID>& first, const std::pair<long, markerPatternID>& second)
-{
-	return (int)first.second < (int)second.second;
-}
 SEXP markerPatternsToUniqueValuesDesign(SEXP mpcross_sexp)
 {
 BEGIN_RCPP
@@ -27,36 +23,19 @@ BEGIN_RCPP
 
 	std::map<markerEncoding, markerPatternID> markerPatterns;
 	//A vector where entry i contains the markerPatternID identifying the segregation pattern of marker number i. Contains one entry per marker.
-	std::vector<markerPatternID> markerPatternIDs;
+	std::vector<markerPatternID> markerPatternIDs(nMarkers);
 	//vector with entry i containing an encoding of the marker segregation pattern for a marker with markerPatternID i
 	std::vector<markerEncoding> markerEncodings;
-	markerPatternsToUniqueValues(markerPatterns, markerPatternIDs, markerEncodings, nFounders, nMarkers, recodedFounders);
+	markerPatternsToUniqueValues(markerPatterns, markerPatternIDs, markerEncodings, nFounders, nMarkers, recodedFounders, 0, nMarkers);
 
-	//We're going to make a vector of pairs, containing markerPatternIDs and its index
-	std::vector<std::pair<long, markerPatternID> > sortedMarkerPatternIDs;
-	sortedMarkerPatternIDs.reserve(markerPatternIDs.size());
-	
-	for(std::vector<markerPatternID>::iterator i = markerPatternIDs.begin(); i != markerPatternIDs.end(); i++)
-	{
-		std::size_t index = std::distance(markerPatternIDs.begin(), i);
-		sortedMarkerPatternIDs.push_back(std::make_pair((long)index, *i));
-	}
-	std::sort(sortedMarkerPatternIDs.begin(), sortedMarkerPatternIDs.end(), sortMarkerPatternIDs);
-
-	//Now get out just the indices
-	Rcpp::IntegerVector permutation(nMarkers);
-	for(std::vector<std::pair<long, markerPatternID> >::iterator i = sortedMarkerPatternIDs.begin(); i != sortedMarkerPatternIDs.end(); i++)
-	{
-		std::size_t index = std::distance(sortedMarkerPatternIDs.begin(), i);
-		permutation[(int)index] = i->first+1;
-	}
-	
-	return permutation;
+	Rcpp::IntegerVector convertedMarkerPatternIDs(nMarkers);
+	std::copy(markerPatternIDs.begin(), markerPatternIDs.end(), convertedMarkerPatternIDs.begin());
+	return convertedMarkerPatternIDs;
 END_RCPP
 }
-void markerPatternsToUniqueValues(std::map<markerEncoding, markerPatternID>& markerPatterns, std::vector<markerPatternID>& markerPatternIDs, std::vector<markerEncoding>&markerEncodings, int nFounders, int nMarkers, Rcpp::IntegerMatrix& recodedFounders)
+void markerPatternsToUniqueValues(std::map<markerEncoding, markerPatternID>& markerPatterns, std::vector<markerPatternID>& markerPatternIDs, std::vector<markerEncoding>&markerEncodings, int nFounders, int nMarkers, Rcpp::IntegerMatrix& recodedFounders, long start, long end)
 {
-	for(long markerCounter = 0; markerCounter < nMarkers; markerCounter++)
+	for(long markerCounter = start; markerCounter < end; markerCounter++)
 	{
 		int encodedMarkerPattern = 0;
 		for(long founderCounter = 0; founderCounter < nFounders; founderCounter++)
@@ -65,13 +44,13 @@ void markerPatternsToUniqueValues(std::map<markerEncoding, markerPatternID>& mar
 		}
 		if(markerPatterns.find(encodedMarkerPattern) == markerPatterns.end())
 		{
-			markerPatternIDs.push_back(markerPatterns.size());
+			markerPatternIDs[markerCounter] = markerPatterns.size();
 			markerPatterns.insert(std::make_pair(encodedMarkerPattern, markerPatterns.size()));
 			markerEncodings.push_back(encodedMarkerPattern);
 		}
 		else
 		{
-			markerPatternIDs.push_back(markerPatterns.find(encodedMarkerPattern)->second);
+			markerPatternIDs[markerCounter] = markerPatterns.find(encodedMarkerPattern)->second;
 		}
 	}
 }
