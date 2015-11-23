@@ -64,8 +64,8 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
 	    markers <- colnames(x$finals)[mrknum]
     	}
 
-    	output$founders <- as.matrix(output$founders[,mrknum])
-    	output$finals <- as.matrix(output$finals[,mrknum])
+    	output$founders <- as.matrix(output$founders[,mrknum,drop=FALSE])
+    	output$finals <- as.matrix(output$finals[,mrknum,drop=FALSE])
     	colnames(output$founders) <- colnames(output$finals) <- markers
 
     	if (!is.null(x$rf)) {
