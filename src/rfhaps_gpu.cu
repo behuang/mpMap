@@ -132,6 +132,7 @@ __global__ void gpu_rfhaps(int nRecomb, int* ngen,
 	int r = blockIdx.x * blockDim.x + threadIdx.x;
 	int k = blockIdx.y * blockDim.y + threadIdx.y;
 	if (k>=nPairs) return;
+	if (r>=nRecomb) return;
 	for (int i = 0; i < nFinals; i++) {
 //	  assert(k >= 0 && i >= 0);
 //	  assert(k < npairs && i < nfinals);
@@ -327,7 +328,7 @@ extern "C" __host__ bool rfhaps_gpu(rfhaps_gpu_args& args)
 			int oldValue = args.finals[individualCounter+args.nFinals*markerCounter];
 			for(int founderCounter = 0; founderCounter < args.nFounders; founderCounter++)
 			{
-				if(oldValue == args.founders[funnel[founderCounter] - 1 + args.nFounders*markerCounter]) newValue += (1 << founderCounter);
+				if(oldValue == args.founders[funnel[founderCounter] + args.nFounders*markerCounter]) newValue += (1 << founderCounter);
 			}
 			copiedFinals[individualCounter+args.nFinals*markerCounter] = newValue;
 		}
