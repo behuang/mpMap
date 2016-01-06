@@ -42,8 +42,8 @@ mapcomp <- function(object1, object2) {
 	if (inherits(object1, "mpcross")) map1 <- object1$map
 	if (inherits(object2, "mpcross")) map2 <- object2$map
 
-	df1 <- data.frame(mname=unlist(lapply(map1, names)), chr1=rep(names(map1), unlist(lapply(map1, length))), pos1=unlist(map1))
-	df2 <- data.frame(mname=unlist(lapply(map2, names)), chr2=rep(names(map2), unlist(lapply(map2, length))), pos2=unlist(map2))
+	df1 <- data.frame(mname=unlist(lapply(map1, names)), chr1=rep(names(map1), unlist(lapply(map1, length))), pos1=unlist(map1), stringsAsFactors=FALSE)
+	df2 <- data.frame(mname=unlist(lapply(map2, names)), chr2=rep(names(map2), unlist(lapply(map2, length))), pos2=unlist(map2), stringsAsFactors=FALSE)
 
 	common <- intersect(df1[,1], df2[,1])
 

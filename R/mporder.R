@@ -231,8 +231,8 @@ mporderchunk <- function(object, dmat, criterion, cr, decreasing, use.identity, 
 	}
 	if (criterion!="minXO") 
 	{
-		crit <- lapply(ser,function(x) return(criterion(dmat,x,criterion)))
-		if(use.identity) crit <- c(criterion(dmat, method=criterion), crit)
+		crit <- lapply(ser,function(x) return(seriation::criterion(dmat,x,criterion)))
+		if(use.identity) crit <- c(seriation::criterion(dmat, method=criterion), crit)
 		minx <- which.min(unlist(crit))
 		if (!decreasing) minx <- which.max(unlist(crit))
 	} 

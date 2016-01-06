@@ -70,11 +70,11 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
 
     	if (!is.null(x$rf)) {
 	  m2 <- match(markers, colnames(output$rf$theta))
- 	  output$rf[1:3] <- lapply(output$rf[1:3], function(x) x[m2,m2])
+ 	  output$rf[1:3] <- lapply(output$rf[1:3], function(x) x[m2,m2,drop=FALSE])
     	}
     	if (!is.null(x$ld)) {
 	  m2 <- match(markers, colnames(output$ld$W))
-	  output$ld <- lapply(output$ld, function(x) x[m2,m2])
+	  output$ld <- lapply(output$ld, function(x) x[m2,m2,drop=FALSE])
     	}
 
   #If there's a map, we MIGHT keep it, unless things get reordered. In which case we drop the map and put in an lg structure
