@@ -102,7 +102,7 @@ mpprob <- function(object, chr, step=0, mrkpos=TRUE, mapfx=c("haldane", "kosambi
 	}
 	else if(observedDesigns == "8wayG3aic3") 
 	{
-		qtlType <- "ri8selfIRIP2"
+		qtlType <- "ri8selfIRIP3"
 	}
 	else if(observedDesigns == "8wayG3aic10")
 	{

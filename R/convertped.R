@@ -16,6 +16,10 @@ convertped <- function(pedigree)
 			colnames(pedigree)[5] <- "Design"
 		}
 	}
+	if(length(unique(pedigree[,"id"])) != nrow(pedigree))
+	{
+		stop("The values in the id column must be unique")
+	}
 	lineNames <- NULL
 	#If pedigree has rownames which are not just 1:nrow(pedigree), keep them
 	if(!is.null(rownames(pedigree)) && any(rownames(pedigree) != as.character(1:nrow(pedigree))))
