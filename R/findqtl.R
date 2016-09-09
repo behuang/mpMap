@@ -23,7 +23,7 @@
 findqtl <- function(mpqtl, dwindow=5, threshold)
 {
   output <- mpqtl 
-  output$QTLresults$qtl <- NULL
+  output$QTLresults$qtl <- list()
   map <- attr(mpqtl$prob, "map")
 
   ## Need to form scanone object from mpqtl. 
