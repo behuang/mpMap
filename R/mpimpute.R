@@ -21,18 +21,17 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
   if (missing(what)) what <- "both"
   ## First impute founders if necessary
   if (what!="finals") {
-    nmissfou <- apply(object$founders, 2, function(x) sum(is.na(x)))
-    mpp <- mpprob(object, program="qtl", threshold=threshold, ...)
-    object <- mpp
-    est <- do.call("cbind", mpp$est)
+    nmissfou <- apply(output$founders, 2, function(x) sum(is.na(x)))
+    output <- mpprob(output, program="qtl", threshold=threshold, ...)
+    est <- do.call("cbind", output$est)
     
     for (i in 1:nmrk) {
-      missfou <- which(is.na(object$founders[,i]))
+      missfou <- which(is.na(output$founders[,i]))
       for (j in missfou)
       {
-        tab <- table(object$finals[which(est[,i]==j),i])
+        tab <- table(output$finals[which(est[,i]==j),i])
         if (length(tab)>0)
-          object$founders[j,i] <- as.numeric(names(tab)[which.max(tab)])
+          output$founders[j,i] <- as.numeric(names(tab)[which.max(tab)])
       }
     }
   }
@@ -40,20 +39,17 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
   ## Then do the finals
   if (what!="founders") {
     
-    if (!inherits(object, "mpprob")) stop("Must compute founder probabilities first")
+    if (!inherits(output, "mpprob")) stop("Must compute founder probabilities first")
     
-    chr <- names(object$map)
+    chr <- names(output$map)
     
-    n.founders <- nrow(object$founders)
-    output <- object
-    output$prob <- NULL
-    output$estfnd <- NULL
+    n.founders <- nrow(output$founders)
     
-    probs <- do.call("cbind", object$prob)
+    probs <- do.call("cbind", output$prob)
     ifmat <- ipmat <- matrix(nrow=nrow(probs), ncol=ncol(probs)/n.founders)
-    founder <- as.vector(object$founders)
+    founder <- as.vector(as.matrix(output$founders))
     
-    nall <- apply(object$founders, 2, function(x) length(table(x)))
+    nall <- apply(output$founders, 2, function(x) length(table(x)))
     biall <- which(nall==2)
     multiall <- which(nall>2) 
     uniall <- which(nall==1)
@@ -61,8 +57,8 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
     #  if (length(biall)+length(multiall)!=ncol(object$founders)) stop("Monomorphic markers included, please remove before imputation\n")
     
     missfx <- function(x) {
-    tmp <- by(x, fd, sum)
-    if (max(tmp)>threshold) return(as.numeric(names(which.max(tmp)))) else return(NA)}
+      tmp <- by(x, fd, sum)
+      if (max(tmp)>threshold) return(as.numeric(names(which.max(tmp)))) else return(NA)}
     
     for (jj in seq(1, ncol(probs), n.founders))
     {
@@ -93,9 +89,11 @@ mpimpute <- function(object, what=c("both", "founders", "finals"), threshold=.5,
       output$finals <- ifmat
     else
       output$finals <- ipmat
+    output$prob <- NULL
+    output$estfnd <- NULL
     attr(output, "imputethreshold") <- threshold
   }
-    
+  
   class(output) <- "mpcross"
   return(output)
 }
