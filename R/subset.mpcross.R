@@ -38,7 +38,7 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
     output$map <- as.list(output$map[chr])
 	class(output$map) <- "map"
 
-    if (is.null(x$lg)) x <- mpgroup(x)
+    if (is.null(x$lg) || length(x$lg) == 0) x <- mpgroup(x)
     groups <- match(chr, names(x$map))
 
     for (ii in chr)
@@ -64,8 +64,8 @@ function(x, groups=NULL, chr=NULL, markers=NULL, lines=NULL, ...)
 	    markers <- colnames(x$finals)[mrknum]
     	}
 
-    	output$founders <- as.matrix(output$founders[,mrknum,drop=FALSE])
-    	output$finals <- as.matrix(output$finals[,mrknum,drop=FALSE])
+    	output$founders <- output$founders[,mrknum,drop=FALSE]
+    	output$finals <- output$finals[,mrknum,drop=FALSE]
     	colnames(output$founders) <- colnames(output$finals) <- markers
 
     	if (!is.null(x$rf)) {

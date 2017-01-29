@@ -42,8 +42,9 @@ read.mpcross <- function(founderfile, finalfile, pedfile, mapfile, phenofile)
   	{
 	  map[[i]] <- mapin[which(mapin[,2]==i), 3]
 	  names(map[[i]]) <- mapin[which(mapin[,2]==i), 1]
+	  map[[i]] <- sort(map[[i]])
   	}
-     class(map) <- "map"
+        class(map) <- "map"
   	object$map <- map
   }
 
@@ -52,6 +53,7 @@ read.mpcross <- function(founderfile, finalfile, pedfile, mapfile, phenofile)
 	phein <- read.table(phenofile, header=TRUE)
   	m <- match(rownames(object$finals), rownames(phein))
 	if (sum(is.na(m))>0) cat("Lines in finals data which are not in phenotypes")
+	if(all(is.na(m))) stop("None of the row names of the phenotype data match the row names of the finals data")
 	if (length(m) < nrow(phein)) cat("Lines in phenotypes which are not in finals data")
 	m <- m[!is.na(m)]
 	
