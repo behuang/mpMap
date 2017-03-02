@@ -1,7 +1,10 @@
 language: r
 cache: packages
 sudo: required
-bioc_packages: graph Heatplus
+bioc_packages: 
+- graph
+- Heatplus
+
 warnings_are_errors: false
 
 before_install:
