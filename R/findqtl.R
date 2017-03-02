@@ -68,7 +68,7 @@ findqtl <- function(mpqtl, dwindow=5, threshold)
   }
   attr(output$QTLresults$qtl, "index") <- index
   attr(output$QTLresults$qtl, "nqtl") <- length(unlist(index))
-  
+  attr(output$QTLresults$qtl, "threshold") <- threshold
 
   output
 }

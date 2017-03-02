@@ -4,7 +4,6 @@
 #' likelihood values. Rewrite of older version.  
 #' @export
 #' @importFrom stats window
-#' @import qtl
 #' @param cross Object of class \code{mpcross} or \code{cross}
 #' @param chr Selected chromosomes
 #' @param orders Orders to be compared

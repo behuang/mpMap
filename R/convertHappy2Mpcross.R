@@ -4,7 +4,7 @@
 #tmp <- load.condensed.database()
 
 ## Create an mpcross object from happy database
-convertHappy2mpMap <- function(cd=tmp, phen) 
+convertHappy2mpMap <- function(cd, phen) 
 {
    nfounders = length(cd$strains)
    nfinals = length(cd$subjects)

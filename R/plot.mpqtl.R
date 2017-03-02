@@ -1,7 +1,6 @@
 #' Plot output from interval mapping with detected QTL
 #'
 #' Plot -log10(p-value) or test statistic against cM position for (composite) interval mapping in multi-parent crosses. QTL support intervals are indicated with rectangles surrounding peaks. 
-#' @import qtl
 #' @importFrom graphics plot
 #' @importFrom stats na.exclude
 #' @importFrom graphics rect

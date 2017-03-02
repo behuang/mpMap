@@ -5,26 +5,31 @@ Version: 2.0.2
 Date: 2015-07-29
 Author: Emma Huang and Rohan Shah, with contributions from Daniel Ahfock
 Maintainer: Emma Huang <b.emma.huang@gmail.com>
-Description: Contains tools for constructing linkage maps, reconstructing haplotypes,
-    estimating linkage disequilibrium and performing QTL mapping in multi-parent RIL
-    designs (e.g. MAGIC).
+Description: Contains tools for constructing linkage maps, reconstructing
+    haplotypes, estimating linkage disequilibrium and performing QTL mapping in
+    multi-parent RIL designs (e.g. MAGIC).
 License: GPL-2
 LazyLoad: yes
 SystemRequirements: GNU make
-Depends: Rcpp
-Imports: 
-    qtl
+Depends:
+    Rcpp
+Imports:
+    qtl,
+    methods
 Suggests:
+    graph,
+    igraph,
     R.utils,
     Rmpi,
     aods3,
     asreml,
     happy.hbrem,
     Heatplus,
-    bigmemory, 
+    bigmemory,
     VPdtw,
-    nnls, 
-    seriation, 
+    nnls,
+    seriation,
     lattice,
     MASS
 LinkingTo: Rcpp
+RoxygenNote: 5.0.1

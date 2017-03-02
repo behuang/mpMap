@@ -72,7 +72,7 @@ testFunnelEffects <- function(prob)
 			names(notFounder1ProbThisLocation) <- rownames(prob$founders)[-founder1Index]
 			data <- cbind(founder1ProbThisLocation, notFounder1ProbThisLocation)
 			founders <- as.factor(rownames(data))
-			total <- glm(data ~ founders, family=binomial)
+			total <- stats::glm(data ~ founders, family=stats::binomial)
 			probability <- drop1(total, ~founders, test="LRT")[[5]][2]
 			resultsThisFounder$value[locationIndex] <- probability
 		}

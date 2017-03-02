@@ -10,7 +10,7 @@
 #' @return The original input object with additional entries for newly detected QTL. 
 #' @seealso \code{\link[mpMap]{mpIM}}, \code{\link[mpMap]{plot.mpqtl}}, \code{\link[mpMap]{summary.mpqtl}}
 #' @examples
-#' sim.map <- sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
+#' sim.map <- qtl::sim.map(len=rep(100, 2), n.mar=11, include.x=FALSE, eq.spacing=TRUE)
 #' sim.ped <- sim.mpped(4, 1, 500, 6, 1)
 #' sim.dat <- sim.mpcross(map=sim.map, pedigree=sim.ped, qtl=matrix(data=c(1, 10, .4, 0, 0, 0, 1, 70, 0, .35, 0, 0), nrow=2, ncol=6, byrow=TRUE), seed=1)
 #' mpp.dat <- mpprob(sim.dat, program="qtl", step=2)
@@ -51,7 +51,7 @@ findqtl2 <- function(mpqtl, window, drop, dwindow=5)
 	cpv[(cmap > pkpos[i]-window[i]) & (cmap < pkpos[i]+window[i])] <- 0 
 	stop <- 0
 
-	tmp1 <- dilation(cpv, dwindow)
+	tmp1 <- VPdtw::dilation(cpv, dwindow)
 	tmp2 <- cpv==tmp1
 
 	tmp3 <- cbind(cpv[tmp2], which(tmp2))

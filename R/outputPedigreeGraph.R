@@ -1,7 +1,5 @@
 outputPedigreeGraph <- function(pedigree, fileName, omitFunnel = TRUE)
 {
-	library(igraph)
-	library(graph)
 	if(missing(fileName))
 	{
 		stop("Input fileName cannot be missing")
@@ -68,8 +66,8 @@ outputPedigreeGraph <- function(pedigree, fileName, omitFunnel = TRUE)
 	}
 	graph <- new("graphNEL", nodes=nodes, edgeL=edges, edgemode="directed")
 	
-	iPedGraph <- igraph.from.graphNEL(graph)
-	iPedGraph <- set.vertex.attribute(iPedGraph, "design", value=subsettedDesign)
-	iPedGraph <- set.vertex.attribute(iPedGraph, "isObserved", value = subsettedObserved)
-	write.graph(iPedGraph, file=fileName, format = "dot")
+	iPedGraph <- igraph::igraph.from.graphNEL(graph)
+	iPedGraph <- igraph::set.vertex.attribute(iPedGraph, "design", value=subsettedDesign)
+	iPedGraph <- igraph::set.vertex.attribute(iPedGraph, "isObserved", value = subsettedObserved)
+	igraph::write.graph(iPedGraph, file=fileName, format = "dot")
 }
