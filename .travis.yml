@@ -1,10 +1,11 @@
 language: r
 cache: packages
 sudo: required
+bioc_packages: graph Heatplus
 warnings_are_errors: false
 
 before_install:
-  - sudo apt-get install r-cran-rmpi
+  - sudo apt-get install r-cran-rmpi r-other-mott-happy.hbrem
 
 notifications:
   email:
@@ -13,3 +14,8 @@ notifications:
 
 after_failure:
 - find *Rcheck -name '*.fail' -print -exec cat '{}' \;
+
+script: 
+  - |
+    _R_CHECK_FORCE_SUGGESTS_=0 R CMD build .
+    _R_CHECK_FORCE_SUGGESTS_=0 R CMD check mpMap*tar.gz
