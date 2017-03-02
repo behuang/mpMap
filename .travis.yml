@@ -5,7 +5,7 @@ bioc_packages: graph Heatplus
 warnings_are_errors: false
 
 before_install:
-  - sudo apt-get install r-cran-rmpi r-other-mott-happy.hbrem
+  - sudo apt-get install r-cran-rmpi
 
 notifications:
   email:
