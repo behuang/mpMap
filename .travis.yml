@@ -1,0 +1,11 @@
+language: r
+cache: packages
+warnings_are_errors: false
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
+
+after_failure:
+- find *Rcheck -name '*.fail' -print -exec cat '{}' \;
