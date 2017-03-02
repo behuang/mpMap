@@ -1,6 +1,10 @@
 language: r
 cache: packages
+sudo: required
 warnings_are_errors: false
+
+before_install:
+  - sudo apt-get install r-cran-rmpi
 
 notifications:
   email:
