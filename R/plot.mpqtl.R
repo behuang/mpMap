@@ -44,7 +44,7 @@ plot.mpqtl <- function(x, wald=FALSE, chr, lodsupport=1, ...)
 	cat("Some p-values=0; plotting Wald score\n")
     } 
 
-  if (wald==TRUE) plot(waldsc, chr=chr, ylab="Wald") else plot(psc, chr=chr, ylab="-log10(p)")
+  if (wald==TRUE) plot(waldsc, chr=chr, ylab="Wald", ...) else plot(psc, chr=chr, ylab="-log10(p)", ...)
   output$waldsc <- waldsc
   output$psc <- psc
   
